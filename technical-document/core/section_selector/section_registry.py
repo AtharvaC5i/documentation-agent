@@ -1,0 +1,21 @@
+# Ordered master list — determines display order in UI
+ALL_SECTIONS = [
+    "Executive Summary",
+    "Tech Stack Overview",
+    "System Architecture",
+    "API Documentation",
+    "Database Schema",
+    "Authentication & Security",
+    "Deployment Guide",
+    "CI/CD Pipeline",
+    "Infrastructure & DevOps",
+    "Environment Setup",
+    "Testing Strategy",
+    "Frontend Architecture",
+    "Mobile Architecture",
+    "AI/ML Pipeline",
+    "Third-Party Integrations",
+    "Performance & Scalability",
+    "Error Handling & Logging",
+    "Data Models & Schemas",
+]

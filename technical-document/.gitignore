@@ -1,0 +1,105 @@
+# ── Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+wheels/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+parts/
+var/
+*.so
+
+# ── Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ── Environment Variables
+.env
+.env.local
+.env.*.local
+
+# ── Storage (generated data — never commit)
+storage/
+!storage/.gitkeep
+
+# ── ChromaDB
+chroma_db/
+*.chroma
+
+# ── Generated Documents
+*.docx
+*.pdf
+
+# ── Logs
+*.log
+logs/
+*.out
+
+# ── OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ── Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# ── MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ── Streamlit
+.streamlit/secrets.toml
+
+# ── Node (if any frontend tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Uploads / Temp
+uploads/
+tmp/
+temp/
+*.zip
+*.tar.gz
