@@ -1,12 +1,19 @@
 import os
-from groq import Groq
+from openai import OpenAI
+from dotenv import load_dotenv
 from core.analysis.analysis_models import AnalysisResult
 from core.generation.meta_prompt_builder import build_meta_prompt
 from core.generation.context_retriever import retrieve_context
 from core.generation.quality_scorer import score_quality
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+load_dotenv()
 
+client = OpenAI(
+    api_key=os.getenv("DATABRICKS_TOKEN"),
+    base_url=f"{os.getenv('DATABRICKS_HOST')}/serving-endpoints",
+)
+
+ENDPOINT          = os.getenv("DATABRICKS_ENDPOINT_NAME")
 QUALITY_THRESHOLD = 0.7
 MAX_RETRIES       = 1
 
@@ -30,18 +37,6 @@ def generate_section(
     section_name: str,
     analysis:     AnalysisResult,
 ) -> dict:
-    """
-    Generates content for a single documentation section.
-
-    Returns:
-        {
-            "section_name":  str,
-            "content":       str,
-            "quality_score": float,
-            "regenerated":   bool,
-            "status":        "success" | "low_quality" | "failed",
-        }
-    """
     print(f"📝 [Generator] Starting: '{section_name}'")
 
     meta    = build_meta_prompt(section_name, analysis)
@@ -57,7 +52,7 @@ def generate_section(
             "status":        "failed",
         }
 
-    content = _call_groq(section_name, meta["instruction"], context)
+    content = _call_llm(section_name, meta["instruction"], context)
     score   = score_quality(section_name, content)
 
     print(f"📊 [Generator] '{section_name}' — quality score: {score}")
@@ -72,7 +67,7 @@ def generate_section(
             "Ensure you: use markdown headers, include specific code references, "
             "write at least 300 words, and cover the topic thoroughly."
         )
-        content     = _call_groq(section_name, improved_instruction, context)
+        content     = _call_llm(section_name, improved_instruction, context)
         score       = score_quality(section_name, content)
         regenerated = True
         print(f"📊 [Generator] '{section_name}' after regen — quality score: {score}")
@@ -88,7 +83,7 @@ def generate_section(
     }
 
 
-def _call_groq(section_name: str, instruction: str, context: str) -> str:
+def _call_llm(section_name: str, instruction: str, context: str) -> str:
     user_message = f"""Section to write: {section_name}
 
 Instruction: {instruction}
@@ -102,7 +97,7 @@ Write the '{section_name}' section now:"""
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=ENDPOINT,
             messages=[
                 {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
                 {"role": "user",   "content": user_message},
@@ -110,7 +105,27 @@ Write the '{section_name}' section now:"""
             temperature=0.4,
             max_tokens=4096,
         )
-        return response.choices[0].message.content.strip()
+        print(f"DEBUG response type: {type(response)}")
+        print(f"DEBUG choices[0] type: {type(response.choices[0])}")
+        print(f"DEBUG choices[0]: {response.choices[0]}")
+
+        # Handle both response formats
+        choice = response.choices[0]
+
+        # Format 1: Standard OpenAI object — choice.message.content
+        if hasattr(choice, "message"):
+            return choice.message.content.strip()
+
+        # Format 2: Databricks dict — choice["message"]["content"]
+        if isinstance(choice, dict):
+            return choice["message"]["content"].strip()
+
+        # Format 3: Raw string
+        if isinstance(choice, str):
+            return choice.strip()
+
+        return str(choice).strip()
+
     except Exception as e:
-        print(f"❌ [Generator] Groq call failed for '{section_name}': {e}")
+        print(f"❌ [Generator] Databricks call failed for '{section_name}': {e}")
         return ""

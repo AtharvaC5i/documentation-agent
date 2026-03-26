@@ -1,12 +1,19 @@
 import json
 import os
-from groq import Groq
+from openai import OpenAI
+from dotenv import load_dotenv
 from core.analysis.analysis_models import AnalysisResult
 from api.schemas.section_schema import SectionSuggestion
 from core.section_selector.section_registry import ALL_SECTIONS
 
+load_dotenv()
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+client = OpenAI(
+    api_key=os.getenv("DATABRICKS_TOKEN"),
+    base_url=f"{os.getenv('DATABRICKS_HOST')}/serving-endpoints",
+)
+
+ENDPOINT = os.getenv("DATABRICKS_ENDPOINT_NAME")
 
 
 SYSTEM_PROMPT = """You are a senior technical writer and software architect.
@@ -25,11 +32,20 @@ Rules:
 - Return ONLY a valid JSON array. No explanation, no markdown fences, no extra text whatsoever."""
 
 
+def _parse_choice(choice) -> str:
+    """Handle both OpenAI object and Databricks dict response formats."""
+    if hasattr(choice, "message"):
+        return choice.message.content.strip()
+    if isinstance(choice, dict):
+        return choice["message"]["content"].strip()
+    return str(choice).strip()
+
+
 def suggest_sections_ai(analysis: AnalysisResult) -> list[SectionSuggestion]:
     context = _build_context(analysis)
     sections_list = "\n".join(f"- {s}" for s in ALL_SECTIONS)
 
-    print("🤖 [AI Suggester] Calling Groq API for section suggestions...")
+    print("🤖 [AI Suggester] Calling Databricks API for section suggestions...")
 
     user_message = f"""Codebase analysis:
 {context}
@@ -41,7 +57,7 @@ Sections to evaluate:
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model=ENDPOINT,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user",   "content": user_message},
@@ -50,8 +66,8 @@ Sections to evaluate:
             max_tokens=2048,
         )
 
-        raw = response.choices[0].message.content.strip()
-        print(f"✅ [AI Suggester] Groq responded. Raw length: {len(raw)} chars")
+        raw = _parse_choice(response.choices[0])
+        print(f"✅ [AI Suggester] Responded. Raw length: {len(raw)} chars")
         print(f"📝 [AI Suggester] Raw response preview: {raw[:300]}")
 
         # Strip markdown fences if model adds them anyway
@@ -69,8 +85,8 @@ Sections to evaluate:
         print(f"❌ [AI Suggester] JSON parse failed: {e}. Falling back to rule engine.")
         return _fallback(analysis)
     except Exception as e:
-        print(f"❌ [AI Suggester] Groq call failed: {e}. Falling back to rule engine.")
-        raise RuntimeError(f"Groq section suggestion failed: {str(e)}")
+        print(f"❌ [AI Suggester] Databricks call failed: {e}. Falling back to rule engine.")
+        raise RuntimeError(f"Databricks section suggestion failed: {str(e)}")
 
 
 def _build_context(analysis: AnalysisResult) -> str:
@@ -90,12 +106,7 @@ def _build_context(analysis: AnalysisResult) -> str:
     return "\n".join(lines)
 
 
-
 def _validate_and_build(parsed: list, analysis: AnalysisResult) -> list[SectionSuggestion]:
-    """
-    Validates LLM output and ensures every section in ALL_SECTIONS
-    is present — fills in missing ones with selected: false.
-    """
     ai_map = {}
     for item in parsed:
         if isinstance(item, dict) and "name" in item and "selected" in item and "reason" in item:
@@ -113,7 +124,6 @@ def _validate_and_build(parsed: list, analysis: AnalysisResult) -> list[SectionS
                 reason=ai_map[section]["reason"],
             ))
         else:
-            # LLM missed this section — default to not selected
             suggestions.append(SectionSuggestion(
                 name=section,
                 selected=False,
