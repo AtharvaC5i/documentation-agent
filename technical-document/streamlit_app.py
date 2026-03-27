@@ -3,21 +3,13 @@ import requests
 import json
 import time
 
-st.set_page_config(
-    page_title="DocAgent",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
+st.set_page_config(page_title="DocAgent", layout="wide", initial_sidebar_state="collapsed")
 
 API_BASE = "http://localhost:8000"
 
-def lucide(name, size=16, color="%23666"):
-    return (
-        f'<img src="https://api.iconify.design/lucide/{name}.svg?color={color}" '
-        f'width="{size}" height="{size}" '
-        f'style="display:inline-block;vertical-align:middle;flex-shrink:0;">'
-    )
-
+# ─────────────────────────────────────────────────────────────────────────────
+# CSS
+# ─────────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -25,273 +17,228 @@ st.markdown("""
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body, [class*="css"] {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    background-color: #f8f9fb !important;
-    color: #1a1d23 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  background: #f5f5f3 !important;
+  color: #1a1a18 !important;
 }
 
 #MainMenu, footer, header, [data-testid="stSidebar"] { display: none !important; }
 
 .block-container {
-    padding: 0 2.5rem 6rem 2.5rem !important;
-    max-width: 1180px !important;
-    margin: 0 auto !important;
+  padding: 0 2rem 5rem 2rem !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
 }
 
+/* ── Topbar ── */
 .topbar {
-    display: flex; align-items: center;
-    justify-content: space-between;
-    padding: 1rem 0 1.1rem 0;
-    margin-bottom: 0.25rem;
-    border-bottom: 1px solid #e8eaed;
-    background: #f8f9fb;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 0; margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e2de;
 }
 .brand {
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.9rem; font-weight: 700;
-    color: #111318; letter-spacing: -0.02em;
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.95rem; font-weight: 700; color: #111;
+  letter-spacing: -0.02em;
 }
-.brand-accent { color: #4f6ef7; }
-.breadcrumb {
-    display: flex; align-items: center; gap: 0.4rem;
-    font-size: 0.72rem; color: #9aa0ad;
-    padding-left: 0.9rem; margin-left: 0.9rem;
-    border-left: 1px solid #e8eaed;
+.brand-dot { color: #2563eb; }
+.api-pill {
+  font-size: 0.65rem; font-weight: 600; padding: 0.2rem 0.6rem;
+  border-radius: 20px; letter-spacing: 0.04em;
 }
+.api-on  { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.api-off { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
 
-.badge {
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    padding: 0.22rem 0.65rem; border-radius: 4px;
-    font-size: 0.67rem; font-weight: 600;
-    letter-spacing: 0.04em; text-transform: uppercase;
+/* ── Stepper ── */
+.stepper {
+  display: flex; align-items: center; gap: 0;
+  background: #fff; border: 1px solid #e2e2de;
+  border-radius: 10px; padding: 0; margin-bottom: 2rem;
+  overflow: hidden;
 }
-.badge-green  { background: #edfaf3; color: #1a7a46; border: 1px solid #c3ecd6; }
-.badge-red    { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6c6; }
-.badge-blue   { background: #eff3ff; color: #4f6ef7; border: 1px solid #c7d4fd; }
-.badge-amber  { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-.badge-gray   { background: #f1f3f5; color: #6b7280; border: 1px solid #d1d5db; }
-
-.page-head { margin-bottom: 1.75rem; padding-top: 0.25rem; }
-.page-head-title {
-    font-size: 1.25rem; font-weight: 700;
-    color: #111318; letter-spacing: -0.025em;
-    display: flex; align-items: center; gap: 0.55rem;
-    margin-bottom: 0.35rem;
+.step-item {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 0.45rem; padding: 0.65rem 0.5rem; cursor: pointer;
+  font-size: 0.72rem; font-weight: 500; color: #9ca3af;
+  border-right: 1px solid #f0f0ee; transition: all 0.15s;
+  white-space: nowrap;
 }
-.page-head-sub { font-size: 0.8rem; color: #6b7280; line-height: 1.7; max-width: 640px; }
-
-.slabel {
-    font-size: 0.6rem; font-weight: 700;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    color: #9aa0ad; margin-bottom: 0.65rem;
-    display: flex; align-items: center; gap: 0.5rem;
+.step-item:last-child { border-right: none; }
+.step-item.active { background: #2563eb; color: #fff; font-weight: 600; }
+.step-item.done { background: #f0fdf4; color: #15803d; }
+.step-num {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 700; flex-shrink: 0;
+  background: rgba(0,0,0,0.06);
 }
-.slabel::after { content: ""; flex: 1; height: 1px; background: #e8eaed; }
+.step-item.active .step-num { background: rgba(255,255,255,0.25); }
+.step-item.done .step-num { background: #bbf7d0; color: #15803d; }
 
+/* ── Page header ── */
+.ph { margin-bottom: 1.5rem; }
+.ph-title {
+  font-size: 1.2rem; font-weight: 700; color: #111;
+  letter-spacing: -0.025em; margin-bottom: 0.3rem;
+}
+.ph-sub { font-size: 0.8rem; color: #6b7280; line-height: 1.6; max-width: 580px; }
+
+/* ── Cards ── */
 .card {
-    background: #ffffff; border: 1px solid #e8eaed;
-    border-radius: 10px; padding: 1.2rem 1.35rem; margin-bottom: 0.75rem;
+  background: #fff; border: 1px solid #e2e2de;
+  border-radius: 10px; padding: 1.2rem 1.4rem; margin-bottom: 0.75rem;
 }
 .card-blue {
-    background: #f5f7ff; border: 1px solid #dce4fd;
-    border-radius: 10px; padding: 1.2rem 1.35rem; margin-bottom: 0.75rem;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 10px; padding: 1.1rem 1.3rem; margin-bottom: 0.75rem;
 }
 .card-green {
-    background: #f3fbf7; border: 1px solid #c3ecd6;
-    border-radius: 10px; padding: 1.2rem 1.35rem; margin-bottom: 0.75rem;
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  border-radius: 10px; padding: 1.1rem 1.3rem; margin-bottom: 0.75rem;
+}
+.card-amber {
+  background: #fffbeb; border: 1px solid #fde68a;
+  border-radius: 10px; padding: 1.1rem 1.3rem; margin-bottom: 0.75rem;
+}
+.card-red {
+  background: #fff5f5; border: 1px solid #fecaca;
+  border-radius: 10px; padding: 1.1rem 1.3rem; margin-bottom: 0.75rem;
 }
 
-.mcard {
-    background: #ffffff; border: 1px solid #e8eaed;
-    border-radius: 10px; padding: 1.1rem 1.2rem;
-}
-.mcard-icon { margin-bottom: 0.6rem; }
-.mcard-label {
-    font-size: 0.6rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.1em;
-    color: #9aa0ad; margin-bottom: 0.3rem;
-}
-.mcard-val {
-    font-size: 1.6rem; font-weight: 700;
-    color: #111318; letter-spacing: -0.04em; line-height: 1;
-}
-.mcard-sub  { font-size: 0.68rem; color: #9aa0ad; margin-top: 0.18rem; }
-.mcard-note {
-    font-size: 0.68rem; color: #6b7280; line-height: 1.55;
-    margin-top: 0.55rem; padding-top: 0.5rem;
-    border-top: 1px solid #f0f0f0;
-}
+/* ── Metric card ── */
+.mc { background: #fff; border: 1px solid #e2e2de; border-radius: 10px; padding: 1rem 1.2rem; }
+.mc-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; margin-bottom: 0.3rem; }
+.mc-val { font-size: 1.55rem; font-weight: 700; color: #111; letter-spacing: -0.04em; line-height: 1; }
+.mc-sub { font-size: 0.67rem; color: #9ca3af; margin-top: 0.15rem; }
 
-.tag {
-    display: inline-block;
-    background: #f1f3f5; border: 1px solid #e4e6ea; color: #374151;
-    border-radius: 4px; padding: 0.14rem 0.5rem;
-    font-size: 0.68rem; font-family: 'SF Mono', 'Fira Code', monospace;
-    margin: 0.1rem;
+/* ── Section label ── */
+.slabel {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #9ca3af;
+  display: flex; align-items: center; gap: 0.5rem;
+  margin: 1.25rem 0 0.65rem 0;
 }
+.slabel::after { content: ""; flex: 1; height: 1px; background: #e2e2de; }
 
-.flag {
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    padding: 0.2rem 0.6rem; border-radius: 4px;
-    font-size: 0.68rem; font-weight: 600; margin: 0.1rem;
+/* ── Badges ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.18rem 0.55rem; border-radius: 4px;
+  font-size: 0.62rem; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
-.flag-on  { background: #edfaf3; color: #1a7a46; border: 1px solid #c3ecd6; }
-.flag-off { background: #f8f9fb; color: #c4c9d4; border: 1px solid #e8eaed; }
+.b-green  { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.b-red    { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+.b-blue   { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.b-amber  { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+.b-gray   { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
 
+/* ── Notice ── */
 .notice {
-    display: flex; gap: 0.75rem; align-items: flex-start;
-    padding: 0.85rem 1rem; border-radius: 8px;
-    font-size: 0.77rem; line-height: 1.65; margin-bottom: 1rem;
+  display: flex; gap: 0.7rem; align-items: flex-start;
+  padding: 0.8rem 1rem; border-radius: 8px;
+  font-size: 0.78rem; line-height: 1.65; margin-bottom: 1rem;
 }
-.notice-info  { background: #f0f4ff; border: 1px solid #c7d4fd; color: #3451c7; }
-.notice-ok    { background: #f0faf5; border: 1px solid #b9e8ce; color: #1a7a46; }
-.notice-warn  { background: #fffceb; border: 1px solid #fde68a; color: #92400e; }
-.notice-error { background: #fff5f5; border: 1px solid #fecaca; color: #b91c1c; }
+.n-info  { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+.n-ok    { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+.n-warn  { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.n-error { background: #fff5f5; border: 1px solid #fecaca; color: #b91c1c; }
 
-.scard { border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 0.45rem; border: 1px solid; }
-.scard-on  { background: #f0faf5; border-color: #b9e8ce; }
-.scard-off { background: #ffffff; border-color: #e8eaed; }
-.scard-name { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.12rem; }
-.scard-name-on  { color: #1a7a46; }
-.scard-name-off { color: #9aa0ad; }
-.scard-reason { font-size: 0.69rem; line-height: 1.5; }
-.scard-reason-on  { color: #3d9e68; }
-.scard-reason-off { color: #c4c9d4; }
-
-.cbadge {
-    display: inline-flex; align-items: center;
-    background: #f0f4ff; border: 1px solid #c7d4fd;
-    color: #4f6ef7; border-radius: 5px;
-    padding: 0.22rem 0.65rem; font-size: 0.72rem;
-    font-weight: 500; margin: 0.15rem;
+/* ── Tag ── */
+.tag {
+  display: inline-block; background: #f3f4f6; border: 1px solid #e5e7eb;
+  color: #374151; border-radius: 4px; padding: 0.12rem 0.45rem;
+  font-size: 0.67rem; font-family: 'SF Mono', 'Fira Code', monospace; margin: 0.1rem;
 }
 
-.pline {
-    display: flex; align-items: center; gap: 0.9rem;
-    padding: 0.75rem 1rem; border-radius: 8px;
-    border: 1px solid; margin-bottom: 0.3rem;
+/* ── Section row (review) ── */
+.srow {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.3rem; border: 1px solid;
 }
-.pline-done   { background: #f0faf5; border-color: #b9e8ce; }
-.pline-locked { background: #fafafa; border-color: #f0f0f0; }
-.pline-dot {
-    width: 24px; height: 24px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.pline-dot-done   { background: #d1f5e3; border: 1px solid #86efac; }
-.pline-dot-locked { background: #f1f3f5; border: 1px solid #e4e6ea; }
-.pline-phase { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; width: 56px; flex-shrink: 0; color: #9aa0ad; }
-.pline-name { font-size: 0.82rem; font-weight: 500; }
-.pline-name-done   { color: #1a7a46; }
-.pline-name-locked { color: #c4c9d4; }
+.srow-pending  { background: #fafafa;  border-color: #e5e7eb; }
+.srow-approved { background: #f0fdf4;  border-color: #bbf7d0; }
+.srow-rejected { background: #fff5f5;  border-color: #fecaca; }
 
-.hw-step { display: flex; gap: 0.85rem; padding: 0.8rem 0; border-bottom: 1px solid #f0f0f0; }
-.hw-step:last-child { border-bottom: none; }
-.hw-num {
-    width: 22px; height: 22px; border-radius: 5px;
-    background: #eff3ff; border: 1px solid #c7d4fd; color: #4f6ef7;
-    font-size: 0.65rem; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; margin-top: 1px;
+/* ── Reorder row ── */
+.reorder-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: #fff; border: 1px solid #e2e2de; border-radius: 8px;
+  padding: 0.65rem 1rem; margin-bottom: 0.3rem;
+  font-size: 0.82rem; color: #374151; font-weight: 500;
 }
-.hw-title { font-size: 0.79rem; font-weight: 600; color: #374151; margin-bottom: 0.18rem; }
-.hw-desc  { font-size: 0.71rem; color: #9aa0ad; line-height: 1.6; }
+.reorder-num {
+  width: 24px; height: 24px; border-radius: 6px; background: #eff6ff;
+  border: 1px solid #bfdbfe; color: #1d4ed8;
+  font-size: 0.62rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
 
-.stat-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.42rem 0; border-bottom: 1px solid #f5f5f5;
-}
-.stat-label { font-size: 0.72rem; color: #9aa0ad; display: flex; align-items: center; gap: 0.4rem; }
-.stat-val   { font-size: 0.75rem; font-weight: 600; color: #374151; }
+/* ── Divider ── */
+.hr { border: none; border-top: 1px solid #f0f0ee; margin: 1.25rem 0; }
 
-.hr { border: none; border-top: 1px solid #f0f0f0; margin: 1.4rem 0; }
-
-.stTextInput > label, .stTextArea > label, .stFileUploader > label {
-    font-size: 0.62rem !important; font-weight: 700 !important;
-    letter-spacing: 0.1em !important; text-transform: uppercase !important;
-    color: #9aa0ad !important;
+/* ── Streamlit overrides ── */
+.stTextInput label, .stTextArea label, .stFileUploader label, .stSelectbox label {
+  font-size: 0.62rem !important; font-weight: 700 !important;
+  letter-spacing: 0.1em !important; text-transform: uppercase !important; color: #9ca3af !important;
 }
-.stTextInput input {
-    background: #ffffff !important; border: 1px solid #e4e6ea !important;
-    border-radius: 7px !important; color: #1a1d23 !important;
-    font-size: 0.83rem !important;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+.stTextInput input, .stSelectbox select {
+  background: #fff !important; border: 1px solid #e2e2de !important;
+  border-radius: 7px !important; font-size: 0.83rem !important;
 }
-.stTextInput input:focus {
-    border-color: #4f6ef7 !important;
-    box-shadow: 0 0 0 3px rgba(79,110,247,0.1) !important;
-}
-.stTextInput input::placeholder { color: #c4c9d4 !important; }
 .stTextArea textarea {
-    background: #ffffff !important; border: 1px solid #e4e6ea !important;
-    border-radius: 7px !important; color: #1a1d23 !important;
-    font-size: 0.83rem !important;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+  background: #fff !important; border: 1px solid #e2e2de !important;
+  border-radius: 7px !important; font-size: 0.83rem !important;
 }
-.stTextArea textarea:focus {
-    border-color: #4f6ef7 !important;
-    box-shadow: 0 0 0 3px rgba(79,110,247,0.1) !important;
-}
-.stTextArea textarea::placeholder { color: #c4c9d4 !important; }
-
 .stButton > button {
-    background: #4f6ef7 !important; border: 1px solid #4f6ef7 !important;
-    color: #ffffff !important; border-radius: 7px !important;
-    font-size: 0.78rem !important; font-weight: 600 !important;
-    padding: 0.48rem 1.3rem !important; transition: all 0.15s ease !important;
-    box-shadow: 0 1px 3px rgba(79,110,247,0.25) !important;
+  background: #2563eb !important; border: 1px solid #2563eb !important;
+  color: #fff !important; border-radius: 7px !important;
+  font-size: 0.78rem !important; font-weight: 600 !important;
+  padding: 0.48rem 1.2rem !important;
 }
-.stButton > button:hover {
-    background: #3d5ce8 !important; border-color: #3d5ce8 !important;
-    box-shadow: 0 3px 10px rgba(79,110,247,0.3) !important;
+.stButton > button:hover { background: #1d4ed8 !important; border-color: #1d4ed8 !important; }
+.stButton > button[kind="secondary"] {
+  background: #fff !important; border: 1px solid #e2e2de !important;
+  color: #374151 !important;
 }
-
-[data-testid="stTabs"] [role="tablist"] {
-    border-bottom: 1px solid #e8eaed !important; gap: 0 !important;
+.stProgress > div > div { background: #2563eb !important; border-radius: 3px !important; }
+[data-testid="stFileUploadDropzone"] {
+  background: #fff !important; border: 1.5px dashed #d1d5db !important; border-radius: 8px !important;
 }
 [data-testid="stTabs"] button[role="tab"] {
-    font-size: 0.76rem !important; font-weight: 500 !important;
-    color: #9aa0ad !important; background: transparent !important;
-    border: none !important; border-radius: 0 !important;
-    padding: 0.55rem 1.1rem !important;
+  font-size: 0.75rem !important; font-weight: 500 !important; color: #6b7280 !important;
 }
-[data-testid="stTabs"] button[role="tab"]:hover { color: #374151 !important; }
 [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    color: #4f6ef7 !important;
-    border-bottom: 2px solid #4f6ef7 !important;
-    font-weight: 600 !important;
+  color: #2563eb !important; border-bottom: 2px solid #2563eb !important; font-weight: 600 !important;
 }
-
-.stProgress > div > div { background: #4f6ef7 !important; border-radius: 3px !important; }
-.stCheckbox label span { font-size: 0.8rem !important; color: #374151 !important; }
-[data-testid="stFileUploadDropzone"] {
-    background: #ffffff !important; border: 1.5px dashed #d1d5db !important;
-    border-radius: 8px !important;
-}
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #f8f9fb; }
-::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #b0b7c3; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Session state
+# ─────────────────────────────────────────────────────────────────────────────
+# SESSION STATE
+# ─────────────────────────────────────────────────────────────────────────────
 DEFAULTS = {
-    "page": 0, "project_id": None,
-    "analysis": None, "metadata": {},
-    "suggestions": [], "confirmed_sections": [],
-    "context_result": None, "last_action": None,
+    "page": 0,
+    "project_id": None,
+    "analysis": None,
+    "metadata": {},
+    "suggestions": [],
+    "confirmed_sections": [],      # list[str]
+    "context_result": None,
+    "generation_results": [],      # list[dict] — raw from API
+    "generation_started": False,
+    "generation_finished": False,
+    "section_order": [],           # list[str] — user-arranged order for assembly
+    "review_decisions": {},        # {section_name: {"action": ..., "edited_content": ...}}
     "assembly_result": None,
-    "generation_results": [],        # ← ADD THIS
-    "generation_started": False,     # ← ADD THIS
-    "generation_finished": False,    # ← ADD THIS
 }
-
 for k, v in DEFAULTS.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
-
-# ── Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
 def api_call(method, endpoint, **kwargs):
     try:
         r = getattr(requests, method)(f"{API_BASE}{endpoint}", timeout=180, **kwargs)
@@ -300,8 +247,10 @@ def api_call(method, endpoint, **kwargs):
     except requests.exceptions.ConnectionError:
         return None, "connection_error"
     except requests.exceptions.HTTPError as e:
-        try:    detail = e.response.json().get("detail", str(e))
-        except: detail = str(e)
+        try:
+            detail = e.response.json().get("detail", str(e))
+        except Exception:
+            detail = str(e)
         return None, detail
     except Exception as e:
         return None, str(e)
@@ -313,26 +262,14 @@ def api_online():
 def go(i):
     st.session_state.page = i
 
-def mcard(label, val, sub="", note="", icon_name=""):
-    ico  = lucide(icon_name, 15, "%239aa0ad") if icon_name else ""
-    irow = f'<div class="mcard-icon">{ico}</div>' if icon_name else ""
-    nrow = f'<div class="mcard-note">{note}</div>' if note else ""
-    srow = f'<div class="mcard-sub">{sub}</div>' if sub else ""
+def notice(msg, kind="info"):
+    icons = {"info": "ℹ", "ok": "✓", "warn": "⚠", "error": "✕"}
+    cls = {"info": "n-info", "ok": "n-ok", "warn": "n-warn", "error": "n-error"}
     st.markdown(
-        f'<div class="mcard">{irow}<div class="mcard-label">{label}</div>'
-        f'<div class="mcard-val">{val}</div>{srow}{nrow}</div>',
-        unsafe_allow_html=True
-    )
-
-def tagrow(items):
-    if not items: items = ["—"]
-    st.markdown("".join(f'<span class="tag">{i}</span>' for i in items), unsafe_allow_html=True)
-
-def notice(msg, kind="info", icon_name="info"):
-    ico = lucide(icon_name, 15, "currentColor")
-    st.markdown(
-        f'<div class="notice notice-{kind}">{ico}<span>{msg}</span></div>',
-        unsafe_allow_html=True
+        f'<div class="notice {cls[kind]}">'
+        f'<span style="font-weight:700;flex-shrink:0">{icons[kind]}</span>'
+        f'<span>{msg}</span></div>',
+        unsafe_allow_html=True,
     )
 
 def slabel(text):
@@ -341,118 +278,131 @@ def slabel(text):
 def hr():
     st.markdown('<hr class="hr">', unsafe_allow_html=True)
 
-
-# ── API check
-online = api_online()
-
-# ── TOPBAR
-brand_ico    = lucide("file-text", 17, "%234f6ef7")
-folder_ico   = lucide("folder", 11, "%239aa0ad")
-status_badge = '<span class="badge badge-green">&#9679; Live</span>' if online else '<span class="badge badge-red">&#9679; Offline</span>'
-
-crumb = ""
-if st.session_state.project_id:
-    pname = st.session_state.metadata.get("project_name", "Unnamed")
-    pid   = st.session_state.project_id[:10] + "..."
-    crumb = (
-        f'<div class="breadcrumb">{folder_ico}&nbsp;{pname}&nbsp;&nbsp;'
-        f'<span style="color:#c4c9d4;font-family:monospace;font-size:0.65rem;">{pid}</span></div>'
+def mc(label, val, sub=""):
+    s = f'<div class="mc-sub">{sub}</div>' if sub else ""
+    st.markdown(
+        f'<div class="mc"><div class="mc-label">{label}</div>'
+        f'<div class="mc-val">{val}</div>{s}</div>',
+        unsafe_allow_html=True,
     )
 
+def tag_row(items):
+    st.markdown("".join(f'<span class="tag">{i}</span>' for i in (items or [])), unsafe_allow_html=True)
+
+def get_gen_sections():
+    """Return generation results as a normalised list of dicts with 'name', 'content', 'order', 'quality_score'."""
+    raw = st.session_state.get("generation_results", [])
+    out = []
+    for s in raw:
+        out.append({
+            "name":          s.get("name") or s.get("section_name", ""),
+            "content":       s.get("content", ""),
+            "order":         s.get("order", 0),
+            "quality_score": s.get("quality_score", 0.0),
+            "status":        s.get("status", "success"),
+            "regenerated":   s.get("regenerated", False),
+        })
+    return out
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TOPBAR
+# ─────────────────────────────────────────────────────────────────────────────
+online = api_online()
+status_pill = (
+    '<span class="api-pill api-on">● API Live</span>' if online
+    else '<span class="api-pill api-off">● API Offline</span>'
+)
+pname_display = st.session_state.metadata.get("project_name", "")
+pid_short = (st.session_state.project_id or "")[:8]
+crumb = (
+    f'<span style="font-size:0.72rem;color:#9ca3af;margin-left:1rem">'
+    f'/ {pname_display} <span style="font-family:monospace;font-size:0.62rem;color:#d1d5db">{pid_short}</span>'
+    f'</span>'
+    if st.session_state.project_id else ""
+)
 st.markdown(
     f'<div class="topbar">'
-    f'<div style="display:flex;align-items:center;">'
-    f'<div class="brand">{brand_ico}&nbsp;Doc<span class="brand-accent">Agent</span></div>'
-    f'{crumb}</div>'
-    f'<div>{status_badge}</div></div>',
-    unsafe_allow_html=True
+    f'<div class="brand">&#9632; Doc<span class="brand-dot">Agent</span>{crumb}</div>'
+    f'{status_pill}</div>',
+    unsafe_allow_html=True,
 )
 
 if not online:
-    notice(
-        'API server not responding. Start it with '
-        '<code style="background:#fff0f0;color:#c0392b;padding:0.1rem 0.3rem;border-radius:3px;">python run.py</code> then refresh.',
-        "error", "alert-circle"
-    )
+    notice("API server not responding. Start with <code>python run.py</code> then refresh.", "error")
 
-
-# ── STEPPER
-done = [
+# ─────────────────────────────────────────────────────────────────────────────
+# STEPPER
+# ─────────────────────────────────────────────────────────────────────────────
+STEPS = [
+    (0, "Ingest"),
+    (1, "Sections"),
+    (2, "Context"),
+    (3, "Generate"),
+    (4, "Review"),
+    (5, "Assemble"),
+]
+DONE_FLAGS = [
     bool(st.session_state.analysis),
     bool(st.session_state.confirmed_sections),
     bool(st.session_state.context_result),
-    bool(st.session_state.get("generation_finished")),
-    bool(st.session_state.get("assembly_result")),
-    False,  # review
+    bool(st.session_state.generation_finished),
+    bool(st.session_state.review_decisions),
+    bool(st.session_state.assembly_result),
 ]
-STEPS = [
-    ("01", "Ingest"),
-    ("02", "Sections"),
-    ("03", "Context"),
-    ("04", "Generate"),
-    ("05", "Assemble"),
-    ("06", "Review"),
-]
+cur = st.session_state.page
+step_html = '<div class="stepper">'
+for idx, (num, lbl) in enumerate(STEPS):
+    cls = "active" if idx == cur else ("done" if DONE_FLAGS[idx] else "")
+    num_inner = "✓" if (DONE_FLAGS[idx] and idx != cur) else str(num + 1)
+    step_html += (
+        f'<div class="step-item {cls}" onclick="">'
+        f'<span class="step-num">{num_inner}</span>{lbl}</div>'
+    )
+step_html += "</div>"
+st.markdown(step_html, unsafe_allow_html=True)
 
-cur   = st.session_state.page
-
-
-st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
-step_cols = st.columns(len(STEPS))
-for i, (col, (num, lbl)) in enumerate(zip(step_cols, STEPS)):
-    state = "done" if (done[i] and i != cur) else "active" if i == cur else "idle"
+# Navigation buttons (hidden but functional)
+nav_cols = st.columns(len(STEPS))
+for i, (col, (num, lbl)) in enumerate(zip(nav_cols, STEPS)):
     with col:
-        if st.button(f"{num} · {lbl}", key=f"nav_{i}", use_container_width=True):
+        if st.button(lbl, key=f"nav_{i}", use_container_width=True):
             go(i); st.rerun()
-        bar_color = "#22c55e" if state == "done" else "#4f6ef7" if state == "active" else "#e8eaed"
-        st.markdown(
-            f'<div style="height:2px;background:{bar_color};margin-top:-13px;"></div>',
-            unsafe_allow_html=True
-        )
 
-st.markdown("<div style='height:1.25rem'></div>", unsafe_allow_html=True)
+st.markdown('<div style="height:0.5rem"></div>', unsafe_allow_html=True)
 
-
-# ══════════════════════════════════════════════════════
-# PAGE 0 — INGEST
-# ══════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# STEP 0 — INGEST
+# ═════════════════════════════════════════════════════════════════════════════
 if cur == 0:
-    left, right = st.columns([17, 6], gap="large")
+    left, right = st.columns([6, 5], gap="large")
 
     with left:
-        ph_ico = lucide("upload-cloud", 20, "%234f6ef7")
         st.markdown(
-            f'<div class="page-head">'
-            f'<div class="page-head-title">{ph_ico} Ingest Codebase</div>'
-            f'<div class="page-head-sub">Provide a GitHub repository or a ZIP archive. '
-            f'Noise is stripped automatically — node_modules, binaries, lock files — '
-            f'reducing transfer size by up to 90% before analysis begins.</div></div>',
-            unsafe_allow_html=True
+            '<div class="ph"><div class="ph-title">Ingest Codebase</div>'
+            '<div class="ph-sub">Provide a GitHub repository or a ZIP archive. '
+            'Binaries, lock files, and node_modules are stripped automatically.</div></div>',
+            unsafe_allow_html=True,
         )
 
-        gh_tab, zip_tab = st.tabs(["  GitHub Repository  ", "  ZIP Archive  "])
+        gh_tab, zip_tab = st.tabs(["GitHub Repository", "ZIP Archive"])
 
         with gh_tab:
-            c1, c2 = st.columns(2, gap="large")
+            c1, c2 = st.columns(2)
             with c1:
-                slabel("Source")
                 gh_url   = st.text_input("Repository URL", placeholder="https://github.com/owner/repo")
-                gh_token = st.text_input("Access Token", type="password",
-                    placeholder="ghp_...  (optional for public repos)",
-                    help="Deleted from memory immediately after clone.")
+                gh_token = st.text_input("Access Token", type="password", placeholder="ghp_... (optional)")
             with c2:
-                slabel("Metadata")
-                gh_name   = st.text_input("Project Name",  placeholder="My API Service")
-                gh_client = st.text_input("Client",        placeholder="Acme Corp")
-                gh_team   = st.text_input("Team Members",  placeholder="Alice, Bob")
-                gh_desc   = st.text_area("Description",    placeholder="What does this project do?", height=72)
+                gh_name   = st.text_input("Project Name", placeholder="My API Service")
+                gh_client = st.text_input("Client", placeholder="Acme Corp")
+                gh_team   = st.text_input("Team", placeholder="Alice, Bob")
+                gh_desc   = st.text_area("Description", height=68, placeholder="What does this project do?")
             hr()
-            if online and st.button("Clone & Analyze Repository", key="btn_gh"):
+            if online and st.button("Clone & Analyse", key="btn_gh", use_container_width=True):
                 if not gh_url.strip() or not gh_name.strip() or not gh_client.strip():
-                    st.error("Repository URL, Project Name and Client are required.")
+                    st.error("URL, project name and client are required.")
                 else:
-                    bar = st.progress(0, text="Connecting...")
-                    for p, msg in [(10,"Cloning..."),(35,"Filtering..."),(65,"Analyzing stack..."),(88,"Finalizing...")]:
+                    bar = st.progress(0, text="Connecting…")
+                    for p, msg in [(15,"Cloning…"),(40,"Filtering…"),(70,"Analysing stack…"),(90,"Finalising…")]:
                         time.sleep(0.3); bar.progress(p, text=msg)
                     payload = {
                         "source_type": "github", "github_url": gh_url.strip(),
@@ -461,847 +411,736 @@ if cur == 0:
                             "project_name": gh_name.strip(), "client_name": gh_client.strip(),
                             "team_members": [m.strip() for m in gh_team.split(",") if m.strip()],
                             "description": gh_desc.strip(),
-                        }
+                        },
                     }
                     data, err = api_call("post", "/ingest/github", json=payload)
                     bar.progress(100, text="Done.")
                     if err:
-                        notice(f"Ingestion failed — {err}", "error", "alert-circle")
+                        notice(f"Ingestion failed: {err}", "error")
                     else:
-                        st.session_state.update({
-                            "project_id": data["project_id"],
-                            "analysis":   data["analysis"],
-                            "metadata":   payload["metadata"],
-                            "last_action":"ingest",
-                        })
+                        st.session_state.update(
+                            project_id=data["project_id"], analysis=data["analysis"],
+                            metadata=payload["metadata"],
+                        )
                         st.rerun()
 
         with zip_tab:
-            c1, c2 = st.columns(2, gap="large")
+            c1, c2 = st.columns(2)
             with c1:
-                slabel("Archive")
-                zfile = st.file_uploader("ZIP File", type=["zip"],
-                    help="node_modules and build artifacts stripped automatically.")
+                z_file = st.file_uploader("ZIP File", type="zip")
             with c2:
-                slabel("Metadata")
-                z_name   = st.text_input("Project Name  ", placeholder="My Project")
-                z_client = st.text_input("Client  ",       placeholder="Acme Corp")
-                z_team   = st.text_input("Team Members  ", placeholder="Alice, Bob")
-                z_desc   = st.text_area("Description  ",   placeholder="What does this project do?", height=72)
+                z_name   = st.text_input("Project Name ", placeholder="My Project")
+                z_client = st.text_input("Client ", placeholder="Acme Corp")
+                z_team   = st.text_input("Team ", placeholder="Alice, Bob")
+                z_desc   = st.text_area("Description ", height=68, placeholder="What does this project do?")
             hr()
-            if online and st.button("Extract & Analyze Archive", key="btn_zip"):
-                if not zfile or not z_name.strip() or not z_client.strip():
-                    st.error("ZIP file, Project Name and Client are required.")
+            if online and st.button("Extract & Analyse", key="btn_zip", use_container_width=True):
+                if not z_file or not z_name.strip() or not z_client.strip():
+                    st.error("ZIP file, project name and client are required.")
                 else:
-                    bar = st.progress(0, text="Reading archive...")
-                    for p, msg in [(15,"Extracting..."),(45,"Filtering..."),(72,"Analyzing..."),(90,"Finalizing...")]:
+                    bar = st.progress(0, text="Reading…")
+                    for p, msg in [(20,"Extracting…"),(50,"Filtering…"),(80,"Analysing…")]:
                         time.sleep(0.3); bar.progress(p, text=msg)
                     data, err = api_call("post", "/ingest/zip",
-                        files={"file": (zfile.name, zfile.getvalue(), "application/zip")},
+                        files={"file": (z_file.name, z_file.getvalue(), "application/zip")},
                         data={
-                            "project_name": z_name.strip(),
-                            "client_name":  z_client.strip(),
+                            "project_name": z_name.strip(), "client_name": z_client.strip(),
                             "team_members": json.dumps([m.strip() for m in z_team.split(",") if m.strip()]),
-                            "description":  z_desc.strip(),
-                        })
+                            "description": z_desc.strip(),
+                        },
+                    )
                     bar.progress(100, text="Done.")
                     if err:
-                        notice(f"Extraction failed — {err}", "error", "alert-circle")
+                        notice(f"Extraction failed: {err}", "error")
                     else:
-                        st.session_state.update({
-                            "project_id": data["project_id"],
-                            "analysis":   data["analysis"],
-                            "metadata": {
-                                "project_name": z_name, "client_name": z_client,
-                                "team_members": [m.strip() for m in z_team.split(",") if m.strip()],
-                                "description":  z_desc,
-                            },
-                            "last_action": "ingest",
-                        })
+                        st.session_state.update(
+                            project_id=data["project_id"], analysis=data["analysis"],
+                            metadata={"project_name": z_name, "client_name": z_client,
+                                      "team_members": [m.strip() for m in z_team.split(",") if m.strip()],
+                                      "description": z_desc},
+                        )
                         st.rerun()
 
         if st.session_state.analysis:
-            a   = st.session_state.analysis
-            loc = a.get("total_loc", 0)
-            ep  = a.get("api_endpoints_count", 0)
+            a = st.session_state.analysis
             hr()
-            slabel("Analysis Results")
-            notice("Codebase ingested and analyzed successfully.", "ok", "check-circle")
-
-            mc = st.columns(4)
-            with mc[0]:
-                mcard("Lines of Code", f"{loc:,}", "source LOC",
-                      "Above 50K uses RAPTOR strategy." if loc > 50000 else "Below 50K uses Flat strategy.", "code-2")
-            with mc[1]:
-                mcard("API Endpoints", str(ep), "detected routes",
-                      "API docs will be suggested." if ep > 0 else "No routes detected.", "network")
-            with mc[2]:
-                strat = "RAPTOR" if loc > 50000 else "Flat"
-                mcard("Context Strategy", strat, "> 50K LOC" if loc > 50000 else "< 50K LOC",
-                      "Hierarchical summary tree." if strat == "RAPTOR" else "Direct chunking.", "git-branch")
-            with mc[3]:
-                mcard("Files Kept", str(a.get("filtered_file_count", 0)), "after filtering",
-                      "Binaries and lock files removed.", "filter")
-
-            st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
-            LBL = "font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#9aa0ad;margin-bottom:0.4rem;"
-            tc = st.columns(3)
-            for col, key, lbl in zip(tc, ["languages","frameworks","databases"], ["Languages","Frameworks","Databases"]):
-                with col:
-                    st.markdown(f'<div style="{LBL}">{lbl}</div>', unsafe_allow_html=True)
-                    tagrow(a.get(key) or [])
-
-            if a.get("test_frameworks"):
-                st.markdown(f'<div style="{LBL};margin-top:0.75rem;">Test Frameworks</div>', unsafe_allow_html=True)
-                tagrow(a.get("test_frameworks"))
-
-            st.markdown("<div style='height:0.65rem'></div>", unsafe_allow_html=True)
-            fc = st.columns(5)
-            FLAGS = [
-                ("has_dockerfile","container","Dockerfile"),
-                ("has_cicd","git-merge","CI/CD"),
-                ("has_kubernetes","server","Kubernetes"),
-                ("has_terraform","cloud","Terraform"),
-                ("has_ansible","terminal-square","Ansible"),
-            ]
-            for col, (k, ico_name, lbl) in zip(fc, FLAGS):
-                with col:
-                    on  = a.get(k, False)
-                    ico = lucide(ico_name, 11, "%231a7a46" if on else "%23c4c9d4")
-                    cls = "flag-on" if on else "flag-off"
-                    st.markdown(f'<div class="flag {cls}">{ico}&nbsp;{lbl}</div>', unsafe_allow_html=True)
-
-            st.markdown("<div style='height:1.25rem'></div>", unsafe_allow_html=True)
-            if st.button("Continue to Section Selection →", key="go1"):
+            notice("Codebase ingested and analysed successfully.", "ok")
+            m = st.columns(4)
+            with m[0]: mc("Lines of Code", f"{a.get('total_loc',0):,}", "source LOC")
+            with m[1]: mc("Endpoints",     str(a.get("api_endpoints_count", 0)), "detected")
+            with m[2]: mc("Strategy",      "RAPTOR" if a.get("total_loc",0) > 50000 else "Flat")
+            with m[3]: mc("Files",         str(a.get("filtered_file_count", 0)), "after filter")
+            st.markdown('<div style="height:0.75rem"></div>', unsafe_allow_html=True)
+            for key, lbl in [("languages","Languages"),("frameworks","Frameworks"),("databases","Databases")]:
+                if a.get(key):
+                    slabel(lbl); tag_row(a[key])
+            st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
+            if st.button("Continue to Sections →", use_container_width=True):
                 go(1); st.rerun()
 
     with right:
-        st.markdown("<div style='height:4.8rem'></div>", unsafe_allow_html=True)
-        slabel("How it works")
-        how_steps = [
-            ("upload-cloud", "Ingest",    "GitHub URL or ZIP. Up to 90% noise stripped before analysis."),
-            ("list-checks",  "Sections",  "AI reviews the detected stack and recommends documentation sections."),
-            ("database",     "Context",   "Code chunked, embedded locally, stored in ChromaDB."),
-            ("file-text",    "Generate",  "Sections generated via RAG using only the most relevant chunks."),
+        st.markdown('<div style="height:4rem"></div>', unsafe_allow_html=True)
+        slabel("How DocAgent works")
+        steps_info = [
+            ("1", "Ingest", "Clone or upload code. Noise stripped automatically."),
+            ("2", "Sections", "AI suggests docs sections based on your actual stack."),
+            ("3", "Context", "Code embedded locally in ChromaDB — nothing leaves your machine."),
+            ("4", "Generate", "Each section written via RAG. Low-quality sections auto-regenerated."),
+            ("5", "Review", "Approve, edit, reject, reorder sections before assembly."),
+            ("6", "Assemble", "Download as .docx / .pdf or send by email."),
         ]
-        for ico_name, title, desc in how_steps:
-            step_ico = lucide(ico_name, 11, "%234f6ef7")
+        for num, title, desc in steps_info:
             st.markdown(
-                f'<div class="hw-step"><div class="hw-num">{step_ico}</div>'
-                f'<div><div class="hw-title">{title}</div>'
-                f'<div class="hw-desc">{desc}</div></div></div>',
-                unsafe_allow_html=True
+                f'<div style="display:flex;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid #f0f0ee">'
+                f'<div style="width:20px;height:20px;border-radius:5px;background:#eff6ff;border:1px solid #bfdbfe;'
+                f'color:#2563eb;font-size:0.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">{num}</div>'
+                f'<div><div style="font-size:0.78rem;font-weight:600;color:#374151;margin-bottom:0.1rem">{title}</div>'
+                f'<div style="font-size:0.7rem;color:#9ca3af;line-height:1.55">{desc}</div></div></div>',
+                unsafe_allow_html=True,
             )
-
         if st.session_state.project_id:
-            st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
-            slabel("Active Project")
-            pn  = st.session_state.metadata.get("project_name", "—")
-            cl  = st.session_state.metadata.get("client_name", "—")
-            pid = st.session_state.project_id
+            st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
+            slabel("Active project")
             st.markdown(
                 f'<div class="card-blue">'
-                f'<div style="font-size:0.84rem;font-weight:600;color:#3451c7;margin-bottom:0.2rem;">{pn}</div>'
-                f'<div style="font-size:0.7rem;color:#6b8af0;margin-bottom:0.5rem;">Client: {cl}</div>'
-                f'<div style="font-family:monospace;font-size:0.58rem;color:#b0bcf8;word-break:break-all;">{pid}</div></div>',
-                unsafe_allow_html=True
+                f'<div style="font-size:0.85rem;font-weight:600;color:#1d4ed8">'
+                f'{st.session_state.metadata.get("project_name","")}</div>'
+                f'<div style="font-size:0.7rem;color:#6b8af0;margin-top:0.2rem">'
+                f'Client: {st.session_state.metadata.get("client_name","")}</div>'
+                f'<div style="font-family:monospace;font-size:0.58rem;color:#93c5fd;margin-top:0.4rem">'
+                f'{st.session_state.project_id}</div></div>',
+                unsafe_allow_html=True,
             )
-            if st.button("New Project", key="reset", use_container_width=True):
+            if st.button("New Project", use_container_width=True, key="reset_0"):
                 for k, v in DEFAULTS.items(): st.session_state[k] = v
                 st.rerun()
 
-
-# ══════════════════════════════════════════════════════
-# PAGE 1 — SECTIONS
-# ══════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# STEP 1 — SECTIONS
+# ═════════════════════════════════════════════════════════════════════════════
 elif cur == 1:
     if not st.session_state.project_id:
-        notice("No project loaded — complete Step 01 first.", "error", "alert-circle")
-        if st.button("Back to Ingest"): go(0); st.rerun()
+        notice("Complete Step 1 (Ingest) first.", "error")
+        if st.button("← Back to Ingest"): go(0); st.rerun()
         st.stop()
 
-    left, right = st.columns([17, 6], gap="large")
+    left, right = st.columns([6, 5], gap="large")
 
     with left:
-        ph_ico = lucide("list-checks", 20, "%234f6ef7")
         st.markdown(
-            f'<div class="page-head">'
-            f'<div class="page-head-title">{ph_ico} Section Selection</div>'
-            f'<div class="page-head-sub">The AI reviews your detected stack and pre-selects the most '
-            f'relevant documentation sections. Review, adjust, and add custom entries before confirming.</div></div>',
-            unsafe_allow_html=True
+            '<div class="ph"><div class="ph-title">Section Selection</div>'
+            '<div class="ph-sub">AI reviews your stack and recommends documentation sections. '
+            'Adjust the selection and add custom sections as needed.</div></div>',
+            unsafe_allow_html=True,
         )
 
-        if st.button("Generate Section Suggestions", key="load_sugg"):
-            with st.spinner("Analysing stack and generating suggestions..."):
+        if st.button("Generate Suggestions", use_container_width=True, key="load_sugg"):
+            with st.spinner("Analysing stack…"):
                 data, err = api_call("get", f"/sections/suggest/{st.session_state.project_id}")
-            if err == "connection_error":
-                notice("Cannot reach the API server.", "error", "alert-circle")
-            elif err:
-                st.error(f"Failed: {err}")
+            if err:
+                notice(f"Failed: {err}", "error")
             else:
-                st.session_state.suggestions = data["suggestions"]
-                st.rerun()
+                st.session_state.suggestions = data["suggestions"]; st.rerun()
 
         if st.session_state.suggestions:
-            suggs  = st.session_state.suggestions
-            rec    = [s for s in suggs if s["selected"]]
-            opt    = [s for s in suggs if not s["selected"]]
+            suggs = st.session_state.suggestions
+            rec = [s for s in suggs if s["selected"]]
+            opt = [s for s in suggs if not s["selected"]]
             chosen = []
 
             if rec:
-                st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
-                slabel(f"Detected in your codebase — {len(rec)} sections")
-                notice(f"{len(rec)} sections pre-selected based on your stack. Uncheck anything not needed.", "info", "info")
-                cols = st.columns(2, gap="medium")
-                for i, s in enumerate(rec):
-                    with cols[i % 2]:
-                        st.markdown(
-                            f'<div class="scard scard-on">'
-                            f'<div class="scard-name scard-name-on">{s["name"]}</div>'
-                            f'<div class="scard-reason scard-reason-on">{s["reason"]}</div></div>',
-                            unsafe_allow_html=True
-                        )
-                        if st.checkbox("Include", value=True, key=f"c_{s['name']}"):
-                            chosen.append(s["name"])
+                slabel(f"Recommended — {len(rec)} sections")
+                for s in rec:
+                    checked = st.checkbox(s["name"], value=True, key=f"cs_{s['name']}")
+                    st.markdown(
+                        f'<div style="font-size:0.69rem;color:#6b7280;margin:-0.4rem 0 0.6rem 1.65rem">{s["reason"]}</div>',
+                        unsafe_allow_html=True,
+                    )
+                    if checked: chosen.append(s["name"])
 
             if opt:
-                st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
-                slabel(f"Not detected — {len(opt)} optional sections")
-                st.markdown(
-                    '<div style="font-size:0.73rem;color:#9aa0ad;margin-bottom:0.6rem;">'
-                    'Not found in your codebase, but can be enabled manually.</div>',
-                    unsafe_allow_html=True
-                )
-                cols2 = st.columns(2, gap="medium")
-                for i, s in enumerate(opt):
-                    with cols2[i % 2]:
-                        st.markdown(
-                            f'<div class="scard scard-off">'
-                            f'<div class="scard-name scard-name-off">{s["name"]}</div>'
-                            f'<div class="scard-reason scard-reason-off">{s["reason"]}</div></div>',
-                            unsafe_allow_html=True
-                        )
-                        if st.checkbox("Include", value=False, key=f"c_{s['name']}"):
-                            chosen.append(s["name"])
+                slabel(f"Optional — {len(opt)} sections")
+                for s in opt:
+                    checked = st.checkbox(s["name"], value=False, key=f"cs_{s['name']}")
+                    st.markdown(
+                        f'<div style="font-size:0.69rem;color:#9ca3af;margin:-0.4rem 0 0.6rem 1.65rem">{s["reason"]}</div>',
+                        unsafe_allow_html=True,
+                    )
+                    if checked: chosen.append(s["name"])
 
             hr()
-            slabel("Custom Sections")
-            st.markdown(
-                '<div style="font-size:0.73rem;color:#9aa0ad;margin-bottom:0.55rem;">'
-                'Add comma-separated section titles not covered above.</div>',
-                unsafe_allow_html=True
-            )
+            slabel("Custom sections")
             custom_raw = st.text_input(
-                "Titles",
-                placeholder="GDPR Compliance, Data Migration Strategy, Multi-Tenancy Design",
-                label_visibility="collapsed"
+                "Comma-separated titles", placeholder="GDPR Compliance, Data Migration Guide",
+                label_visibility="collapsed",
             )
-            custom  = [c.strip() for c in custom_raw.split(",") if c.strip()] if custom_raw else []
+            custom = [c.strip() for c in custom_raw.split(",") if c.strip()]
             all_sec = chosen + custom
 
             if all_sec:
-                hr()
-                slabel(f"Queued — {len(all_sec)} sections confirmed")
+                slabel(f"Queued — {len(all_sec)} sections")
                 st.markdown(
-                    "".join(f'<span class="cbadge">{s}</span>' for s in all_sec),
-                    unsafe_allow_html=True
+                    "".join(
+                        f'<span style="display:inline-flex;align-items:center;background:#dbeafe;'
+                        f'border:1px solid #bfdbfe;color:#1d4ed8;border-radius:4px;padding:0.2rem 0.55rem;'
+                        f'font-size:0.7rem;font-weight:500;margin:0.15rem">{s}</span>'
+                        for s in all_sec
+                    ),
+                    unsafe_allow_html=True,
                 )
 
-            st.markdown("<div style='height:1.25rem'></div>", unsafe_allow_html=True)
-            c1, _ = st.columns([1, 3])
-            with c1:
-                if st.button("Confirm & Continue →", use_container_width=True, key="confirm"):
-                    if not all_sec:
-                        st.error("Select at least one section.")
+            hr()
+            if st.button("Confirm & Continue →", use_container_width=True, key="confirm_sec"):
+                if not all_sec:
+                    st.error("Select at least one section.")
+                else:
+                    with st.spinner("Saving…"):
+                        data, err = api_call("post", "/sections/confirm", json={
+                            "project_id": st.session_state.project_id,
+                            "confirmed_sections": chosen,
+                            "custom_sections": custom,
+                        })
+                    if err:
+                        st.error(f"Failed: {err}")
                     else:
-                        with st.spinner("Saving..."):
-                            data, err = api_call("post", "/sections/confirm", json={
-                                "project_id":         st.session_state.project_id,
-                                "confirmed_sections": chosen,
-                                "custom_sections":    custom,
-                            })
-                        if err:
-                            st.error(f"Failed: {err}")
-                        else:
-                            st.session_state.confirmed_sections = data["final_sections"]
-                            go(2); st.rerun()
+                        st.session_state.confirmed_sections = data["final_sections"]
+                        st.session_state.section_order = data["final_sections"][:]
+                        go(2); st.rerun()
         else:
-            st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
-            notice(
-                "Click <strong>Generate Section Suggestions</strong> to get AI-driven recommendations based on your actual stack.",
-                "info", "lightbulb"
-            )
+            notice("Click <b>Generate Suggestions</b> to get AI-driven recommendations.", "info")
 
     with right:
-        st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
         if st.session_state.analysis:
             a = st.session_state.analysis
-            slabel("Stack Summary")
-            rows = [
-                ("Total LOC",     f"{a.get('total_loc',0):,}", "code-2"),
-                ("Languages",     str(len(a.get("languages",  []))), "code"),
-                ("Frameworks",    str(len(a.get("frameworks", []))), "layers"),
-                ("Databases",     str(len(a.get("databases",  []))), "database"),
-                ("API Endpoints", str(a.get("api_endpoints_count", 0)), "network"),
-            ]
-            for lbl, val, ico_name in rows:
-                row_ico = lucide(ico_name, 11, "%239aa0ad")
+            st.markdown('<div style="height:0.5rem"></div>', unsafe_allow_html=True)
+            slabel("Stack detected")
+            for key, lbl in [("languages","Languages"),("frameworks","Frameworks"),("databases","Databases")]:
+                if a.get(key):
+                    st.markdown(f'<div style="font-size:0.62rem;font-weight:700;color:#9ca3af;margin:0.6rem 0 0.3rem;text-transform:uppercase;letter-spacing:0.08em">{lbl}</div>', unsafe_allow_html=True)
+                    tag_row(a[key])
+            st.markdown('<div style="height:0.75rem"></div>', unsafe_allow_html=True)
+            flags = [("has_dockerfile","Dockerfile"),("has_cicd","CI/CD"),("has_kubernetes","Kubernetes"),("has_terraform","Terraform")]
+            for k, lbl in flags:
+                val = a.get(k, False)
+                color = "#15803d" if val else "#d1d5db"
                 st.markdown(
-                    f'<div class="stat-row">'
-                    f'<div class="stat-label">{row_ico}&nbsp;{lbl}</div>'
-                    f'<div class="stat-val">{val}</div></div>',
-                    unsafe_allow_html=True
+                    f'<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.73rem;'
+                    f'color:{"#374151" if val else "#9ca3af"};margin-bottom:0.25rem">'
+                    f'<span style="width:8px;height:8px;border-radius:50%;background:{color};flex-shrink:0"></span>{lbl}</div>',
+                    unsafe_allow_html=True,
                 )
 
-
-# ══════════════════════════════════════════════════════
-# PAGE 2 — CONTEXT BUILDING
-# ══════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# STEP 2 — CONTEXT
+# ═════════════════════════════════════════════════════════════════════════════
 elif cur == 2:
     if not st.session_state.project_id:
-        notice("No project loaded.", "error", "alert-circle")
-        if st.button("Back to Ingest"): go(0); st.rerun()
-        st.stop()
+        notice("Complete Step 1 first.", "error"); st.stop()
     if not st.session_state.confirmed_sections:
-        notice("No sections confirmed — complete Step 02 first.", "warn", "alert-triangle")
-        if st.button("Back to Sections"): go(1); st.rerun()
+        notice("Complete Step 2 (Sections) first.", "warn")
+        if st.button("← Sections"): go(1); st.rerun()
         st.stop()
 
-    left, right = st.columns([17, 6], gap="large")
+    left, right = st.columns([6, 5], gap="large")
 
     with left:
-        ph_ico = lucide("database", 20, "%234f6ef7")
         st.markdown(
-            f'<div class="page-head">'
-            f'<div class="page-head-title">{ph_ico} Context Building</div>'
-            f'<div class="page-head-sub">Source files are split into 500-token chunks, embedded using '
-            f'<code style="background:#f1f3f5;color:#374151;padding:0.1rem 0.3rem;border-radius:3px;font-size:0.77rem;">all-MiniLM-L6-v2</code> '
-            f'locally on CPU, and stored in a ChromaDB vector database. Nothing leaves your machine.</div></div>',
-            unsafe_allow_html=True
+            '<div class="ph"><div class="ph-title">Context Building</div>'
+            '<div class="ph-sub">Source files are chunked, embedded with '
+            '<code>all-MiniLM-L6-v2</code> entirely on your CPU, '
+            'and stored in ChromaDB. Nothing leaves your machine.</div></div>',
+            unsafe_allow_html=True,
         )
 
-        a     = st.session_state.analysis or {}
-        loc   = a.get("total_loc", 0)
-        strat = "RAPTOR Hierarchical Tree" if loc > 50000 else "Flat Chunking + Embeddings"
-        snote = ("Codebase exceeds 50,000 LOC — RAPTOR builds a multi-level summary tree for deep retrieval."
-                 if loc > 50000 else
-                 "Codebase is under 50,000 LOC — flat chunking is faster and fully sufficient.")
-        gb_ico = lucide("git-branch", 13, "%234f6ef7")
+        a = st.session_state.analysis or {}
+        loc = a.get("total_loc", 0)
+        strat = "RAPTOR — Hierarchical Tree" if loc > 50000 else "Flat Chunking"
+        note  = ("Codebase exceeds 50K LOC — RAPTOR builds a multi-level summary tree."
+                 if loc > 50000 else "Under 50K LOC — flat chunking is sufficient.")
         st.markdown(
             f'<div class="card-blue">'
-            f'<div style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;'
-            f'color:#6b8af0;margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem;">{gb_ico}&nbsp;Auto-Selected Strategy</div>'
-            f'<div style="font-size:1.1rem;font-weight:700;color:#3451c7;margin-bottom:0.25rem;">{strat}</div>'
-            f'<div style="font-size:0.74rem;color:#6b8af0;line-height:1.55;">{snote}</div></div>',
-            unsafe_allow_html=True
+            f'<div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6b8af0;margin-bottom:0.3rem">Auto-selected strategy</div>'
+            f'<div style="font-size:1rem;font-weight:700;color:#1d4ed8;margin-bottom:0.2rem">{strat}</div>'
+            f'<div style="font-size:0.73rem;color:#6b8af0">{note}</div></div>',
+            unsafe_allow_html=True,
         )
-
-        slabel("Pipeline Stages")
-        sc = st.columns(4, gap="medium")
-        stages = [
-            ("filter",    "Filter",  "Remove binaries, lockfiles, node_modules"),
-            ("scissors",  "Chunk",   "500-token segments, 50-token overlap"),
-            ("cpu",       "Embed",   "all-MiniLM-L6-v2 — fully local"),
-            ("hard-drive","Store",   "ChromaDB persistent on disk"),
-        ]
-        for col, (ico_name, title, desc) in zip(sc, stages):
-            with col:
-                stage_ico = lucide(ico_name, 18, "%234f6ef7")
-                st.markdown(
-                    f'<div class="card" style="text-align:center;padding:1rem 0.75rem;">{stage_ico}'
-                    f'<div style="font-size:0.78rem;font-weight:600;color:#374151;margin:0.45rem 0 0.2rem;">{title}</div>'
-                    f'<div style="font-size:0.65rem;color:#9aa0ad;line-height:1.55;">{desc}</div></div>',
-                    unsafe_allow_html=True
-                )
-
-        hr()
 
         if st.session_state.context_result:
             r = st.session_state.context_result
-            notice("Context database already built. Rebuild only if the codebase has changed.", "ok", "check-circle")
-            m = st.columns(4)
-            with m[0]: mcard("Strategy",      r["strategy"].upper(), icon_name="git-branch")
-            with m[1]: mcard("Chunks Stored", f"{r['total_chunks']:,}", "vectors", icon_name="layers")
-            with m[2]: mcard("DB Size",        f"{r['vector_db_size_mb']} MB", "local", icon_name="hard-drive")
-            with m[3]: mcard("LOC Indexed",    f"{r['total_loc']:,}", icon_name="code-2")
-            st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
-            if st.button("View Project Status →", key="go3a"): go(3); st.rerun()
+            notice("Vector database already built. Rebuild only if the codebase changed.", "ok")
+            m = st.columns(3)
+            with m[0]: mc("Strategy",      r["strategy"].upper())
+            with m[1]: mc("Chunks Stored", f"{r['total_chunks']:,}")
+            with m[2]: mc("DB Size",       f"{r['vector_db_size_mb']} MB")
+            st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
+            if st.button("Continue to Generation →", use_container_width=True): go(3); st.rerun()
         else:
-            notice("Runs entirely on your machine. No internet required. Expect 1–5 min depending on CPU.", "info", "info")
-            if st.button("Build Context Database", key="build_ctx"):
-                bar = st.progress(0, text="Initializing...")
-                for pct, msg in [
-                    (8,  "Filtering — removing noise files..."),
-                    (26, "Chunking — 500-token segments..."),
-                    (56, "Embedding — generating vectors (longest step)..."),
-                    (83, "Storing — upserting to ChromaDB..."),
-                    (95, "Finalizing..."),
-                ]:
-                    time.sleep(0.4); bar.progress(pct, text=msg)
-                data, err = api_call("post", "/context/build",
-                                     json={"project_id": st.session_state.project_id})
+            notice("Runs entirely on your machine. Expect 1–5 min depending on CPU.", "info")
+            if st.button("Build Context Database", use_container_width=True, key="build_ctx"):
+                bar = st.progress(0, text="Initialising…")
+                for p, msg in [(10,"Filtering…"),(30,"Chunking…"),(60,"Embedding (longest step)…"),(88,"Storing…")]:
+                    time.sleep(0.4); bar.progress(p, text=msg)
+                data, err = api_call("post", "/context/build", json={"project_id": st.session_state.project_id})
                 bar.progress(100, text="Complete.")
                 if err:
-                    notice(f"Context build failed — {err}", "error", "alert-circle")
+                    notice(f"Build failed: {err}", "error")
                 else:
                     st.session_state.context_result = data
-                    notice("Vector database built successfully. Ready for section generation.", "ok", "check-circle")
-                    m = st.columns(4)
-                    with m[0]: mcard("Strategy",      data["strategy"].upper(), icon_name="git-branch")
-                    with m[1]: mcard("Chunks Stored", f"{data['total_chunks']:,}", icon_name="layers")
-                    with m[2]: mcard("DB Size",        f"{data['vector_db_size_mb']} MB", icon_name="hard-drive")
-                    with m[3]: mcard("LOC Indexed",    f"{data['total_loc']:,}", icon_name="code-2")
-                    st.markdown("<div style='height:0.8rem'></div>", unsafe_allow_html=True)
-                    if st.button("View Project Status →", key="go3b"): go(3); st.rerun()
+                    st.rerun()
 
     with right:
-        st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
-        slabel("Confirmed Sections")
-        if st.session_state.confirmed_sections:
-            for s in st.session_state.confirmed_sections:
-                st.markdown(
-                    f'<span class="cbadge" style="display:block;margin-bottom:0.3rem;">{s}</span>',
-                    unsafe_allow_html=True
-                )
-        else:
+        slabel("Sections queued")
+        for s in st.session_state.confirmed_sections:
             st.markdown(
-                '<div style="font-size:0.73rem;color:#c4c9d4;">None confirmed yet.</div>',
-                unsafe_allow_html=True
+                f'<div style="font-size:0.8rem;padding:0.4rem 0;border-bottom:1px solid #f0f0ee;color:#374151">{s}</div>',
+                unsafe_allow_html=True,
             )
 
-
-# ══════════════════════════════════════════════════════
-# PAGE 3 — GENERATION
-# ══════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════
+# STEP 3 — GENERATE
+# ═════════════════════════════════════════════════════════════════════════════
 elif cur == 3:
     if not st.session_state.project_id:
-        notice("No project loaded — complete Step 01 first.", "error", "alert-circle")
-        if st.button("Back to Ingest"): go(0); st.rerun()
-        st.stop()
+        notice("Complete Step 1 first.", "error"); st.stop()
     if not st.session_state.confirmed_sections:
-        notice("No sections confirmed — complete Step 02 first.", "warn", "alert-triangle")
-        if st.button("Back to Sections"): go(1); st.rerun()
-        st.stop()
+        notice("Complete Step 2 first.", "warn")
+        if st.button("← Sections"): go(1); st.rerun(); st.stop()
     if not st.session_state.context_result:
-        notice("Context not built — complete Step 03 first.", "warn", "alert-triangle")
-        if st.button("Back to Context"): go(2); st.rerun()
-        st.stop()
-
-    ph_ico = lucide("file-text", 20, "%234f6ef7")
-    st.markdown(
-        f'<div class="page-head">'
-        f'<div class="page-head-title">{ph_ico} Section Generation</div>'
-        f'<div class="page-head-sub">Each confirmed section is generated individually using only the most '
-        f'relevant code chunks retrieved from ChromaDB. Sections scoring below 0.7 are automatically '
-        f'regenerated once with an improved prompt.</div></div>',
-        unsafe_allow_html=True
-    )
+        notice("Complete Step 3 (Context) first.", "warn")
+        if st.button("← Context"): go(2); st.rerun(); st.stop()
 
     pid      = st.session_state.project_id
     sections = st.session_state.confirmed_sections
     total    = len(sections)
 
-    # ── Start generation
+    st.markdown(
+        '<div class="ph"><div class="ph-title">Section Generation</div>'
+        '<div class="ph-sub">Each section is written via RAG using the most relevant code chunks. '
+        'Sections scoring below 0.7 are automatically regenerated once.</div></div>',
+        unsafe_allow_html=True,
+    )
+
     if not st.session_state.get("generation_started"):
-        notice(
-            f"Ready to generate <strong>{total} sections</strong>. "
-            "This runs on Groq — expect ~10–30 seconds per section.",
-            "info", "info"
-        )
-        if st.button("Start Generation", key="start_gen"):
+        notice(f"Ready to generate <b>{total} sections</b> via Groq. Expect 10–30 s per section.", "info")
+        if st.button("Start Generation", use_container_width=True, key="start_gen"):
             data, err = api_call("post", f"/generate/start/{pid}")
             if err:
-                notice(f"Failed to start generation — {err}", "error", "alert-circle")
+                notice(f"Failed: {err}", "error")
             else:
-                st.session_state.generation_started = True
-                st.rerun()
+                st.session_state.generation_started = True; st.rerun()
         st.stop()
 
-    # ── Poll status
     status_data, err = api_call("get", f"/generate/status/{pid}")
     if err:
-        notice(f"Could not fetch generation status — {err}", "error", "alert-circle")
-        st.stop()
+        notice(f"Status error: {err}", "error"); st.stop()
 
     finished    = status_data["finished"]
     completed   = status_data["completed"]
-    in_progress = status_data["in_progress"]
+    in_progress = status_data.get("in_progress")
     sec_states  = status_data["sections"]
 
-    # ── Progress bar
-    progress_pct = completed / total if total > 0 else 0
-    prog_label   = f"Generating... {completed} of {total} complete" if not finished else f"All {total} sections complete"
-    st.progress(progress_pct, text=prog_label)
+    st.progress(completed / max(total, 1), text=f"{'Done' if finished else 'Generating'}… {completed}/{total}")
+    st.markdown('<div style="height:0.5rem"></div>', unsafe_allow_html=True)
 
-    st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
+    slabel("Section progress")
+    for sec_name in sections:
+        s       = sec_states.get(sec_name, {})
+        state   = s.get("status", "pending")
+        score   = s.get("quality_score")
+        is_ip   = (sec_name == in_progress or state == "in_progress")
 
-    # ── Section status cards
-    slabel("Section Progress")
-    for section_name in sections:
-        s     = sec_states.get(section_name, {})
-        state = s.get("status", "pending")
-        score = s.get("quality_score")
-        regen = s.get("regenerated", False)
-        is_ip = (section_name == in_progress)
-
-        # Colors and icons per state
-        if is_ip or state == "in_progress":
-            border = "#c7d4fd"; bg = "#f5f7ff"; ico_name = "loader"; ico_color = "%234f6ef7"
-            state_label = '<span class="badge badge-blue">Generating...</span>'
+        if is_ip:
+            bg, border, badge = "#eff6ff","#bfdbfe", '<span class="badge b-blue">Generating…</span>'
         elif state == "success":
-            border = "#b9e8ce"; bg = "#f0faf5"; ico_name = "check-circle"; ico_color = "%231a7a46"
-            state_label = f'<span class="badge badge-green">✓ {score}</span>'
+            bg, border, badge = "#f0fdf4","#bbf7d0", f'<span class="badge b-green">{score}</span>'
         elif state == "low_quality":
-            border = "#fde68a"; bg = "#fffceb"; ico_name = "alert-triangle"; ico_color = "%23b45309"
-            state_label = f'<span class="badge badge-amber">⚠ {score}</span>'
+            bg, border, badge = "#fffbeb","#fde68a", f'<span class="badge b-amber">{score}</span>'
         elif state == "failed":
-            border = "#fecaca"; bg = "#fff5f5"; ico_name = "x-circle"; ico_color = "%23b91c1c"
-            state_label = '<span class="badge badge-red">Failed</span>'
+            bg, border, badge = "#fff5f5","#fecaca", '<span class="badge b-red">Failed</span>'
         else:
-            border = "#e8eaed"; bg = "#fafafa"; ico_name = "clock"; ico_color = "%23c4c9d4"
-            state_label = '<span class="badge badge-gray">Pending</span>'
-
-        regen_badge = (
-            '<span class="badge badge-amber" style="margin-left:0.4rem;">↻ Regenerated</span>'
-            if regen else ""
-        )
-        s_ico = lucide(ico_name, 14, ico_color)
+            bg, border, badge = "#fafafa","#e5e7eb", '<span class="badge b-gray">Pending</span>'
 
         st.markdown(
             f'<div style="display:flex;align-items:center;justify-content:space-between;'
-            f'padding:0.7rem 1rem;border-radius:8px;border:1px solid {border};'
-            f'background:{bg};margin-bottom:0.3rem;">'
-            f'<div style="display:flex;align-items:center;gap:0.65rem;">'
-            f'{s_ico}<span style="font-size:0.82rem;font-weight:500;color:#374151;">{section_name}</span>'
-            f'</div>'
-            f'<div>{state_label}{regen_badge}</div></div>',
-            unsafe_allow_html=True
+            f'padding:0.65rem 1rem;border-radius:8px;border:1px solid {border};background:{bg};margin-bottom:0.28rem">'
+            f'<span style="font-size:0.81rem;font-weight:500;color:#374151">{sec_name}</span>{badge}</div>',
+            unsafe_allow_html=True,
         )
 
-    # ── Auto-refresh while in progress
-        if not finished:
-            import time
-            time.sleep(3)
-            st.rerun()
+    if not finished:
+        time.sleep(3); st.rerun()
     else:
         st.session_state.generation_finished = True
-
-        # Fetch full section contents once and store for Assembly
         if not st.session_state.get("generation_results"):
-            results_data, results_err = api_call("get", f"/generate/results/{pid}")
-            if not results_err and results_data:
-                st.session_state.generation_results = results_data.get("sections", [])
+            r, e = api_call("get", f"/generate/results/{pid}")
+            if not e and r:
+                st.session_state.generation_results = r.get("sections", [])
+        success_n = sum(1 for s in sec_states.values() if s["status"] == "success")
+        notice(f"Generation complete — {success_n}/{total} sections succeeded.", "ok")
+        if st.button("Continue to Review →", use_container_width=True): go(4); st.rerun()
 
-        success_count = sum(1 for s in sec_states.values() if s["status"] == "success")
-        low_count     = sum(1 for s in sec_states.values() if s["status"] == "low_quality")
-        failed_count  = sum(1 for s in sec_states.values() if s["status"] == "failed")
-        avg_score     = (
-            sum(s["quality_score"] for s in sec_states.values() if s["quality_score"] is not None)
-            / max(total, 1)
-        )
-
-        st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
-        notice(f"Generation complete. {success_count} succeeded · {low_count} low quality · {failed_count} failed.", "ok", "check-circle")
-
-        mc = st.columns(4)
-        with mc[0]: mcard("Total Sections", str(total),         icon_name="file-text")
-        with mc[1]: mcard("Succeeded",      str(success_count), icon_name="check-circle")
-        with mc[2]: mcard("Avg Quality",    f"{avg_score:.2f}", icon_name="bar-chart-2")
-        with mc[3]: mcard("Regenerated",    str(sum(1 for s in sec_states.values() if s["regenerated"])), icon_name="refresh-cw")
-
-        st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
-        if st.button("Continue to Assembly →", key="go4"):
-            go(4); st.rerun()
-
-
-
+# ═════════════════════════════════════════════════════════════════════════════
+# STEP 4 — REVIEW  (includes reorder + inline edit + approve/reject)
+# ═════════════════════════════════════════════════════════════════════════════
 elif cur == 4:
     if not st.session_state.project_id:
-        notice("No project loaded — complete Step 01 first.", "error", "alert-circle")
-        if st.button("← Ingest"): go(0); st.rerun()
+        notice("Complete Step 1 first.", "error"); st.stop()
+    if not st.session_state.generation_finished:
+        notice("Complete Step 4 (Generate) first.", "warn")
+        if st.button("← Generate"): go(3); st.rerun(); st.stop()
+
+    pid      = st.session_state.project_id
+    gen_secs = get_gen_sections()
+
+    if not gen_secs:
+        # Try fetching from API
+        r, e = api_call("get", f"/generate/results/{pid}")
+        if not e and r:
+            st.session_state.generation_results = r.get("sections", [])
+            gen_secs = get_gen_sections()
+    if not gen_secs:
+        notice("No generated sections found. Go back and re-run generation.", "error")
+        if st.button("← Generate"): go(3); st.rerun()
         st.stop()
 
-    if not st.session_state.confirmed_sections:
-        notice("No sections confirmed — complete Step 02 first.", "warn", "alert-triangle")
-        if st.button("← Sections"): go(1); st.rerun()
-        st.stop()
+    # Seed review state on first load
+    valid_init = [{"name": s["name"], "content": s["content"],
+                   "order": s["order"], "quality_score": s["quality_score"]}
+                  for s in gen_secs if s["name"]]
+    if valid_init:
+        api_call("post", f"/review/{pid}/init", json={"sections": valid_init})
 
-    # ── Auto-fetch results from backend if not already in session state
-    if not st.session_state.get("generation_results"):
-        results_data, results_err = api_call("get", f"/generate/results/{st.session_state.project_id}")
-        if not results_err and results_data:
-            sections = results_data.get("sections", [])
-            sections_with_content = [s for s in sections if s.get("content", "").strip()]
-            if sections_with_content:
-                st.session_state.generation_results = sections_with_content
+    # Ensure section_order is populated
+    if not st.session_state.section_order:
+        st.session_state.section_order = [s["name"] for s in sorted(gen_secs, key=lambda x: x["order"])]
 
-    gen_results = st.session_state.get("generation_results", [])
+    st.markdown(
+        '<div class="ph"><div class="ph-title">Review & Arrange</div>'
+        '<div class="ph-sub">Edit content, approve or reject sections, and drag them into '
+        'the order you want in the final document before assembly.</div></div>',
+        unsafe_allow_html=True,
+    )
 
-    left, right = st.columns([18, 7], gap="large")
+    # ── Summary metrics ──────────────────────────────────────────────────────
+    decisions = st.session_state.review_decisions
+    approved  = sum(1 for v in decisions.values() if v.get("action") == "approve")
+    rejected  = sum(1 for v in decisions.values() if v.get("action") == "reject")
+    pending   = len(gen_secs) - approved - rejected
+    avg_q = (sum(s["quality_score"] for s in gen_secs if s.get("quality_score")) / max(len(gen_secs), 1))
+
+    m = st.columns(4)
+    with m[0]: mc("Total",    str(len(gen_secs)))
+    with m[1]: mc("Approved", str(approved), "sections")
+    with m[2]: mc("Pending",  str(pending),  "sections")
+    with m[3]: mc("Avg Qual", f"{avg_q:.0%}")
+
+    st.markdown('<div style="height:0.75rem"></div>', unsafe_allow_html=True)
+
+    # ── Two tabs: Review | Reorder ────────────────────────────────────────────
+    tab_rev, tab_ord = st.tabs(["Review Sections", "Arrange Order"])
+
+    with tab_rev:
+        # Build a map for quick lookup
+        sec_map = {s["name"]: s for s in gen_secs}
+
+        for sec_name in st.session_state.section_order:
+            sec = sec_map.get(sec_name)
+            if not sec: continue
+
+            score     = sec.get("quality_score", 0.0)
+            dec       = decisions.get(sec_name, {})
+            status    = dec.get("action", "pending")
+            score_cls = "b-green" if score >= 0.7 else "b-amber" if score >= 0.5 else "b-red"
+            sta_cls   = "b-green" if status == "approve" else "b-red" if status == "reject" else "b-gray"
+            sta_lbl   = status.upper() if status != "pending" else "PENDING"
+
+            with st.expander(
+                f"{sec_name}  —  {len(sec['content'].split()):,} words",
+                expanded=(status == "pending"),
+            ):
+                hd = st.columns([3, 1])
+                with hd[0]:
+                    st.markdown(
+                        f'<span class="badge {sta_cls}">{sta_lbl}</span>'
+                        f'<span class="badge {score_cls}" style="margin-left:0.4rem">Quality {int(score*100)}</span>',
+                        unsafe_allow_html=True,
+                    )
+                with hd[1]:
+                    if st.button("Regenerate", key=f"regen_{sec_name}", use_container_width=True):
+                        with st.spinner("Regenerating…"):
+                            r, e = api_call("post", f"/review/{pid}/regenerate",
+                                            json={"section_name": sec_name})
+                        if e:
+                            notice(f"Regeneration failed: {e}", "error")
+                        else:
+                            # Update local cache with new content
+                            new_content = r.get("result", {}).get("content", sec["content"])
+                            for gs in st.session_state.generation_results:
+                                if (gs.get("name") or gs.get("section_name")) == sec_name:
+                                    gs["content"] = new_content
+                                    gs["quality_score"] = r.get("result", {}).get("quality_score", score)
+                            notice(f"'{sec_name}' regenerated.", "ok")
+                            st.rerun()
+
+                current_content = dec.get("edited_content") or sec["content"]
+                edited = st.text_area("Content (edit freely)", value=current_content, height=280,
+                                      key=f"edit_{sec_name}")
+                note_val = st.text_input("Reviewer note (optional)", key=f"note_{sec_name}")
+
+                ca, cr = st.columns(2)
+                with ca:
+                    if st.button("✓  Approve", key=f"app_{sec_name}", use_container_width=True):
+                        st.session_state.review_decisions[sec_name] = {
+                            "action": "approve",
+                            "edited_content": edited if edited != sec["content"] else None,
+                            "note": note_val or None,
+                        }
+                        api_call("post", f"/review/{pid}/decide", json={
+                            "section_name": sec_name, "action": "approve",
+                            "edited_content": edited if edited != sec["content"] else None,
+                            "note": note_val or None,
+                        })
+                        st.rerun()
+                with cr:
+                    if st.button("✕  Reject", key=f"rej_{sec_name}", use_container_width=True):
+                        st.session_state.review_decisions[sec_name] = {
+                            "action": "reject", "edited_content": None, "note": note_val or None,
+                        }
+                        api_call("post", f"/review/{pid}/decide", json={
+                            "section_name": sec_name, "action": "reject",
+                            "edited_content": None, "note": note_val or None,
+                        })
+                        st.rerun()
+
+    with tab_ord:
+        st.markdown(
+            '<div style="font-size:0.78rem;color:#6b7280;margin-bottom:1rem">'
+            'Use the ↑ ↓ buttons to move sections. This order will be used in the assembled document.</div>',
+            unsafe_allow_html=True,
+        )
+        order = st.session_state.section_order
+        for i, sec_name in enumerate(order):
+            ca, cb, cc = st.columns([6, 1, 1])
+            with ca:
+                dec = decisions.get(sec_name, {})
+                sta = dec.get("action", "pending")
+                dot_color = "#15803d" if sta == "approve" else "#dc2626" if sta == "reject" else "#d1d5db"
+                st.markdown(
+                    f'<div class="reorder-row">'
+                    f'<span class="reorder-num">{i+1:02d}</span>'
+                    f'<span style="width:8px;height:8px;border-radius:50%;background:{dot_color};flex-shrink:0"></span>'
+                    f'{sec_name}</div>',
+                    unsafe_allow_html=True,
+                )
+            with cb:
+                if i > 0 and st.button("↑", key=f"up_{i}", use_container_width=True):
+                    order[i], order[i-1] = order[i-1], order[i]
+                    st.session_state.section_order = order
+                    st.rerun()
+            with cc:
+                if i < len(order) - 1 and st.button("↓", key=f"dn_{i}", use_container_width=True):
+                    order[i], order[i+1] = order[i+1], order[i]
+                    st.session_state.section_order = order
+                    st.rerun()
+
+    hr()
+    if pending > 0:
+        notice(f"<b>{pending}</b> section(s) still pending review. You can still proceed.", "warn")
+
+    if st.button("Continue to Assembly →", use_container_width=True, key="go_assemble"):
+        go(5); st.rerun()
+
+# ═════════════════════════════════════════════════════════════════════════════
+# STEP 5 — ASSEMBLE
+# ═════════════════════════════════════════════════════════════════════════════
+elif cur == 5:
+    if not st.session_state.project_id:
+        notice("Complete Step 1 first.", "error"); st.stop()
+    if not st.session_state.generation_finished:
+        notice("Complete generation first.", "warn")
+        if st.button("← Generate"): go(3); st.rerun(); st.stop()
+
+    pid      = st.session_state.project_id
+    gen_secs = get_gen_sections()
+    order    = st.session_state.section_order or [s["name"] for s in gen_secs]
+    decisions = st.session_state.review_decisions
+
+    # Build final ordered section list — use edited content when available
+    ordered_sections = []
+    sec_map = {s["name"]: s for s in gen_secs}
+    for i, name in enumerate(order):
+        sec = sec_map.get(name)
+        if not sec: continue
+        dec = decisions.get(name, {})
+        if dec.get("action") == "reject":
+            continue  # skip rejected
+        ordered_sections.append({
+            "name":          name,
+            "content":       dec.get("edited_content") or sec["content"],
+            "order":         i,
+            "quality_score": sec.get("quality_score", 0.0),
+        })
+
+    left, right = st.columns([6, 5], gap="large")
 
     with left:
-        ph_ico = lucide("book-open", 20, "%234f6ef7")
         st.markdown(
-            f'<div class="page-head">'
-            f'<div class="page-head-title">{ph_ico} Document Assembly</div>'
-            f'<div class="page-head-sub">All generated sections are merged in order into a professional '
-            f'<code style="background:#f1f3f5;color:#374151;padding:0.1rem 0.3rem;border-radius:3px;font-size:0.77rem;">.docx</code> '
-            f'with title page, table of contents, headers, footers, and page numbers.</div></div>',
-            unsafe_allow_html=True
+            '<div class="ph"><div class="ph-title">Document Assembly & Delivery</div>'
+            '<div class="ph-sub">Assemble sections into a .docx with title page, '
+            'table of contents, and headers. Then download or send by email.</div></div>',
+            unsafe_allow_html=True,
         )
 
-        # ── Already assembled
-        if st.session_state.get("assembly_result"):
+        if st.session_state.assembly_result:
             r = st.session_state.assembly_result
-            notice("Document assembled successfully. Download it below.", "ok", "check-circle")
-
-            mc = st.columns(3)
-            with mc[0]: mcard("Word Count", f"{r['word_count']:,}", "words",  "", "file-text")
-            with mc[1]: mcard("Est. Pages", str(r["page_estimate"]), "pages", "", "book-open")
-            with mc[2]: mcard("Sections",   str(r["section_count"]), "merged","", "layers")
-
-            st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
-            slabel("Section Order")
-            for i, sec in enumerate(sorted(gen_results, key=lambda s: s.get("order", i))):
-                qs        = sec.get("quality_score", 0) or 0
-                badge_cls = "badge-green" if qs >= 0.7 else "badge-amber" if qs >= 0.5 else "badge-red"
-                wc        = len(sec.get("content", "").split())
-                st.markdown(
-                    f'<div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.7rem 1rem;">'
-                    f'<div style="display:flex;align-items:center;gap:0.6rem;">'
-                    f'<span style="font-size:0.65rem;color:#9aa0ad;font-weight:700;width:20px;">{i+1:02d}</span>'
-                    f'<span style="font-size:0.82rem;font-weight:600;color:#374151;">{sec["name"]}</span></div>'
-                    f'<div style="display:flex;align-items:center;gap:0.6rem;">'
-                    f'<span style="font-size:0.68rem;color:#9aa0ad;">{wc:,} words</span>'
-                    f'<span class="badge {badge_cls}">{int(qs * 100)}%</span></div></div>',
-                    unsafe_allow_html=True
-                )
-
-            st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
-            docx_path = r["file_path"]
+            notice("Document assembled successfully.", "ok")
+            m = st.columns(3)
+            with m[0]: mc("Est. Word Count", f"{r['word_count']:,}")
+            with m[1]: mc("Est. Pages", str(r["page_estimate"]))
+            with m[2]: mc("Sections",   str(r["section_count"]))
+            hr()
+            slabel("Download")
+            # .docx download
+            docx_path = r.get("file_path", "")
             try:
                 with open(docx_path, "rb") as f:
+                    fname = st.session_state.metadata.get("project_name","document").replace(" ","_")
                     st.download_button(
-                        label="⬇  Download .docx",
+                        "Download .docx",
                         data=f.read(),
-                        file_name=f"{st.session_state.metadata.get('project_name', 'document').replace(' ', '_')}.docx",
+                        file_name=f"{fname}.docx",
                         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                         use_container_width=True,
                     )
             except FileNotFoundError:
-                notice(f"File not found at {docx_path}. Re-assemble.", "error", "alert-circle")
+                notice(f"File not found at {docx_path}. Try re-assembling.", "error")
 
-            st.markdown("<div style='height:0.6rem'></div>", unsafe_allow_html=True)
-            if st.button("Continue to Review →", key="go5", use_container_width=True):
-                go(5); st.rerun()
+            # PDF download
+            pdf_path = docx_path.replace(".docx", ".pdf")
+            try:
+                with open(pdf_path, "rb") as f:
+                    st.download_button(
+                        "Download .pdf",
+                        data=f.read(),
+                        file_name=f"{fname}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True,
+                    )
+            except FileNotFoundError:
+                pdf_data, pdf_err = api_call("post", f"/assemble/{pid}/export-pdf")
+                if not pdf_err:
+                    try:
+                        with open(pdf_path, "rb") as f:
+                            fname = st.session_state.metadata.get("project_name","document").replace(" ","_")
+                            st.download_button(
+                                "Download .pdf",
+                                data=f.read(),
+                                file_name=f"{fname}.pdf",
+                                mime="application/pdf",
+                                use_container_width=True,
+                            )
+                    except Exception:
+                        pass
+
+            hr()
+            slabel("Send by email")
+            recipients_raw = st.text_input("Recipients", placeholder="alice@acme.com, bob@acme.com")
+            subj = st.text_input("Subject", placeholder=f"Technical Documentation — {st.session_state.metadata.get('project_name','')}")
+            msg  = st.text_area("Message (optional)", height=80)
+            if st.button("Send Document", use_container_width=True, key="send_email"):
+                recipients = [r.strip() for r in recipients_raw.split(",") if r.strip()]
+                if not recipients:
+                    st.error("Enter at least one recipient.")
+                else:
+                    with st.spinner("Sending…"):
+                        result, err = api_call("post", f"/publish/{pid}/email", json={
+                            "project_name": st.session_state.metadata.get("project_name",""),
+                            "docx_path": docx_path,
+                            "recipients": recipients,
+                            "subject": subj or None,
+                            "message": msg or None,
+                        })
+                    if err:
+                        notice(f"Delivery failed: {err}", "error")
+                    else:
+                        notice(f"Sent to {', '.join(recipients)}", "ok")
+
+            hr()
+            if st.button("Re-assemble with changes", key="reassemble"):
+                st.session_state.assembly_result = None; st.rerun()
 
         else:
-            # ── Pre-assembly state
-            if not gen_results:
-                notice(
-                    "No generated sections found — complete Phase 3 (Section Generation) first. "
-                    "If generation already ran, the server may have restarted and lost the in-memory state. "
-                    "Go back to Phase 3 and re-run generation.",
-                    "warn", "alert-triangle"
+            if not ordered_sections:
+                notice("All sections were rejected or no sections available. Go back to Review.", "error")
+                if st.button("← Review"): go(4); st.rerun()
+                st.stop()
+
+            slabel(f"{len(ordered_sections)} sections ready to assemble")
+            for i, sec in enumerate(ordered_sections):
+                wc = len(sec["content"].split())
+                q  = sec.get("quality_score", 0)
+                qc = "b-green" if q >= 0.7 else "b-amber" if q >= 0.5 else "b-red"
+                dec_name = decisions.get(sec["name"], {}).get("action", "pending")
+                dc = "b-green" if dec_name == "approve" else "b-gray"
+                st.markdown(
+                    f'<div class="card" style="display:flex;justify-content:space-between;'
+                    f'align-items:center;padding:0.65rem 1rem">'
+                    f'<div style="display:flex;align-items:center;gap:0.6rem">'
+                    f'<span style="font-size:0.62rem;color:#9ca3af;font-weight:700;width:20px">{i+1:02d}</span>'
+                    f'<span style="font-size:0.82rem;font-weight:600;color:#374151">{sec["name"]}</span>'
+                    f'</div><div style="display:flex;gap:0.4rem;align-items:center">'
+                    f'<span style="font-size:0.67rem;color:#9ca3af">{wc:,} w</span>'
+                    f'<span class="badge {qc}">{int(q*100)}</span>'
+                    f'<span class="badge {dc}">{dec_name.upper()}</span>'
+                    f'</div></div>',
+                    unsafe_allow_html=True,
                 )
-                if st.button("← Back to Generation", key="back_to_gen"):
-                    go(3); st.rerun()
-            else:
-                slabel(f"{len(gen_results)} sections ready to assemble")
-                for i, sec in enumerate(sorted(gen_results, key=lambda s: s.get("order", i))):
-                    wc = len(sec.get("content", "").split())
-                    st.markdown(
-                        f'<div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.65rem 1rem;">'
-                        f'<div style="display:flex;align-items:center;gap:0.6rem;">'
-                        f'<span style="font-size:0.65rem;color:#9aa0ad;font-weight:700;width:20px;">{i+1:02d}</span>'
-                        f'<span style="font-size:0.82rem;font-weight:500;color:#374151;">{sec["name"]}</span></div>'
-                        f'<span style="font-size:0.68rem;color:#9aa0ad;">{wc:,} words</span></div>',
-                        unsafe_allow_html=True
-                    )
 
-                st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
-
-                if st.button("Assemble Document", key="btn_assemble", use_container_width=True):
-                    bar = st.progress(0, text="Preparing sections...")
-                    for pct, msg in [
-                        (20, "Rendering title page..."),
-                        (45, "Generating table of contents..."),
-                        (65, "Formatting sections..."),
-                        (85, "Adding headers & footers..."),
-                        (95, "Saving .docx..."),
-                    ]:
-                        time.sleep(0.35)
-                        bar.progress(pct, text=msg)
-
-                    payload = {
-                        "project_id": st.session_state.project_id,
-                        "metadata":   st.session_state.metadata,
-                        "sections":   gen_results,
-                    }
-                    data, err = api_call("post", f"/api/assemble/{st.session_state.project_id}", json=payload)
-                    bar.progress(100, text="Done.")
-
-                    if err:
-                        notice(f"Assembly failed: {err}", "error", "alert-circle")
-                    else:
-                        st.session_state.assembly_result = data
-                        notice("Document assembled successfully!", "ok", "check-circle")
-                        st.rerun()
+            st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
+            if st.button("Assemble Document", use_container_width=True, key="btn_assemble"):
+                bar = st.progress(0, text="Preparing…")
+                for p, msg in [(20,"Rendering title page…"),(45,"Building table of contents…"),
+                               (65,"Formatting sections…"),(85,"Adding headers & footers…"),(95,"Saving…")]:
+                    time.sleep(0.35); bar.progress(p, text=msg)
+                payload = {
+                    "project_id": pid,
+                    "metadata":   st.session_state.metadata,
+                    "sections":   ordered_sections,
+                }
+                data, err = api_call("post", f"/api/assemble/{pid}", json=payload)
+                bar.progress(100, text="Done.")
+                if err:
+                    notice(f"Assembly failed: {err}", "error")
+                else:
+                    st.session_state.assembly_result = data
+                    st.rerun()
 
     with right:
-        st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
-        slabel("What's included")
-        for ico, lbl in [
-            ("file-text", "Title page — name, client, team, date"),
-            ("list",      "Auto table of contents"),
-            ("type",      "H1 / H2 / H3 heading hierarchy"),
-            ("code",      "Monospace code blocks"),
-            ("table",     "Tables for APIs & tech stack"),
-            ("bookmark",  "Page numbers + headers/footers"),
-        ]:
+        st.markdown('<div style="height:0.5rem"></div>', unsafe_allow_html=True)
+        slabel("Section order for assembly")
+        for i, name in enumerate(order):
+            if name not in [s["name"] for s in ordered_sections]:
+                continue
+            dec = decisions.get(name, {}).get("action", "pending")
+            dot = "#15803d" if dec == "approve" else "#9ca3af"
             st.markdown(
-                f'<div class="stat-row">'
-                f'<div class="stat-label">{lucide(ico, 11, "%239aa0ad")}&nbsp;{lbl}</div></div>',
-                unsafe_allow_html=True
+                f'<div style="display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0;'
+                f'border-bottom:1px solid #f0f0ee">'
+                f'<span style="font-size:0.62rem;color:#9ca3af;width:18px">{i+1}</span>'
+                f'<span style="width:7px;height:7px;border-radius:50%;background:{dot};flex-shrink:0"></span>'
+                f'<span style="font-size:0.78rem;color:#374151">{name}</span></div>',
+                unsafe_allow_html=True,
             )
-
-
-
-# ══════════════════════════════════════════════════════
-# PAGE 5 — STATUS
-# ══════════════════════════════════════════════════════
-elif cur == 5:
-    if not st.session_state.project_id:
-        fo_ico = lucide("folder-open", 36, "%23d1d5db")
-        st.markdown(
-            f'<div class="card" style="text-align:center;padding:4.5rem 2rem;">'
-            f'{fo_ico}<div style="font-size:0.86rem;color:#9aa0ad;margin-top:1.2rem;">'
-            f'No project loaded — complete Step 01 to begin.</div></div>',
-            unsafe_allow_html=True
-        )
-        if st.button("Go to Ingest"): go(0); st.rerun()
-        st.stop()
-
-    meta  = st.session_state.metadata
-    an    = st.session_state.analysis or {}
-    pname = meta.get("project_name", "Unnamed Project")
-    cl    = meta.get("client_name", "—")
-    team  = meta.get("team_members") or []
-    tstr  = ", ".join(team) if team else "—"
-    desc  = meta.get("description", "")
-    pid   = st.session_state.project_id or ""
-
-    left, right = st.columns([17, 6], gap="large")
-
-    with left:
-        ph_ico = lucide("layout-dashboard", 20, "%234f6ef7")
-        st.markdown(
-            f'<div class="page-head">'
-            f'<div class="page-head-title">{ph_ico} Project Status</div>'
-            f'<div class="page-head-sub">Full pipeline overview. Phases 1–3 reflect your current progress. '
-            f'Phases 4–8 unlock in upcoming releases.</div></div>',
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            f'<div class="card-blue" style="margin-bottom:1.5rem;">'
-            f'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">'
-            f'<div style="flex:1;min-width:0;">'
-            f'<div style="font-size:1.1rem;font-weight:700;color:#111318;letter-spacing:-0.025em;margin-bottom:0.25rem;">{pname}</div>'
-            f'<div style="font-size:0.72rem;color:#6b8af0;margin-bottom:0.2rem;">Client: {cl}&nbsp;&nbsp;·&nbsp;&nbsp;Team: {tstr}</div>'
-            f'<div style="font-size:0.71rem;color:#9aa0ad;max-width:500px;line-height:1.65;">{desc}</div>'
-            f'</div><div style="font-family:monospace;font-size:0.58rem;color:#b0bcf8;flex-shrink:0;">{pid}</div>'
-            f'</div></div>',
-            unsafe_allow_html=True
-        )
-
-        slabel("Pipeline")
-        PHASES = [
-            ("upload-cloud",  "Phase 1", "Ingest & Analyze",   bool(an)),
-            ("list-checks",   "Phase 2", "Section Selection",  bool(st.session_state.confirmed_sections)),
-            ("database",      "Phase 3", "Context Building",   bool(st.session_state.context_result)),
-            ("file-text",     "Phase 4", "Section Generation", False),
-            ("book-open",     "Phase 5", "Document Assembly",  False),
-            ("user-check",    "Phase 6", "Human Review",       False),
-            ("send",          "Phase 7", "Publishing",         False),
-            ("bar-chart-2",   "Phase 8", "Output & Reporting", False),
-        ]
-        for ico_name, ph, name, done_ph in PHASES:
-            state = "done" if done_ph else "locked"
-            p_ico = lucide(ico_name, 11, "%231a7a46" if done_ph else "%23c4c9d4")
-            badge = ('<span class="badge badge-green" style="margin-left:auto;">Complete</span>'
-                     if done_ph else
-                     '<span class="badge badge-gray" style="margin-left:auto;">Pending</span>')
-            st.markdown(
-                f'<div class="pline pline-{state}">'
-                f'<div class="pline-dot pline-dot-{state}">{p_ico}</div>'
-                f'<div class="pline-phase">{ph}</div>'
-                f'<div class="pline-name pline-name-{state}">{name}</div>'
-                f'{badge}</div>',
-                unsafe_allow_html=True
-            )
-
-        if an:
+        if decisions:
             hr()
-            slabel("Codebase Analysis")
-            mc = st.columns(4)
-            with mc[0]: mcard("Total LOC",     f"{an.get('total_loc',0):,}", icon_name="code-2")
-            with mc[1]: mcard("API Endpoints", str(an.get("api_endpoints_count", 0)), icon_name="network")
-            with mc[2]: mcard("Dockerfile",    "Yes" if an.get("has_dockerfile") else "No", icon_name="container")
-            with mc[3]: mcard("CI / CD",       "Yes" if an.get("has_cicd") else "No", icon_name="git-merge")
-
-            LBL2 = "font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#9aa0ad;margin:0.75rem 0 0.4rem;"
-            tc = st.columns(3)
-            for col, key, lbl in zip(tc, ["languages","frameworks","databases"], ["Languages","Frameworks","Databases"]):
-                with col:
-                    st.markdown(f'<div style="{LBL2}">{lbl}</div>', unsafe_allow_html=True)
-                    tagrow(an.get(key) or [])
-
-        if st.session_state.confirmed_sections:
-            hr()
-            slabel(f"Confirmed Sections — {len(st.session_state.confirmed_sections)}")
+            slabel("Review summary")
+            approved_n = sum(1 for v in decisions.values() if v.get("action") == "approve")
+            rejected_n = sum(1 for v in decisions.values() if v.get("action") == "reject")
+            edited_n   = sum(1 for v in decisions.values() if v.get("edited_content"))
             st.markdown(
-                "".join(f'<span class="cbadge">{s}</span>' for s in st.session_state.confirmed_sections),
-                unsafe_allow_html=True
-            )
-
-        if st.session_state.context_result:
-            hr()
-            slabel("Context Database")
-            r  = st.session_state.context_result
-            rm = st.columns(3)
-            with rm[0]: mcard("Chunks Stored", f"{r['total_chunks']:,}", icon_name="layers")
-            with rm[1]: mcard("DB Size",        f"{r['vector_db_size_mb']} MB", icon_name="hard-drive")
-            with rm[2]: mcard("Strategy",       r["strategy"].upper(), icon_name="git-branch")
-
-    with right:
-        st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
-        slabel("Quick Actions")
-        if not an:
-            if st.button("Start Ingest", use_container_width=True): go(0); st.rerun()
-        elif not st.session_state.confirmed_sections:
-            if st.button("Select Sections", use_container_width=True): go(1); st.rerun()
-        elif not st.session_state.context_result:
-            if st.button("Build Context", use_container_width=True): go(2); st.rerun()
-        st.markdown("<div style='height:0.4rem'></div>", unsafe_allow_html=True)
-        if st.button("New Project", use_container_width=True, key="qa_reset"):
-            for k, v in DEFAULTS.items(): st.session_state[k] = v
-            st.rerun()
-
-        st.markdown("<div style='height:0.9rem'></div>", unsafe_allow_html=True)
-        slabel("Coming Next")
-        upcoming = [
-            ("file-text",  "Section Generation", "Phase 4"),
-            ("book-open",  "Document Assembly",  "Phase 5"),
-            ("user-check", "Human Review",        "Phase 6"),
-            ("send",       "Publishing",          "Phase 7"),
-        ]
-        for ico_name, lbl, ph in upcoming:
-            up_ico = lucide(ico_name, 11, "%23c4c9d4")
-            st.markdown(
-                f'<div class="stat-row">'
-                f'<div class="stat-label">{up_ico}&nbsp;{lbl}</div>'
-                f'<div style="font-size:0.62rem;color:#c4c9d4;">{ph}</div></div>',
-                unsafe_allow_html=True
+                f'<div style="font-size:0.78rem;color:#374151">'
+                f'<div style="margin-bottom:0.3rem">✓ Approved: <b>{approved_n}</b></div>'
+                f'<div style="margin-bottom:0.3rem">✕ Rejected: <b>{rejected_n}</b></div>'
+                f'<div>✎ Edited: <b>{edited_n}</b></div></div>',
+                unsafe_allow_html=True,
             )
