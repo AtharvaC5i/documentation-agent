@@ -1,15 +1,19 @@
 from typing import List
 from sentence_transformers import SentenceTransformer
+import os
+
 
 # all-MiniLM-L6-v2: ~80MB, fast on CPU, excellent for code + prose
 _MODEL_NAME = "all-MiniLM-L6-v2"
+_LOCAL_MODELS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "models")
+_MODEL_PATH = os.path.join(_LOCAL_MODELS_DIR, _MODEL_NAME)
 _model: SentenceTransformer = None
 
 
 def _get_model() -> SentenceTransformer:
     global _model
     if _model is None:
-        _model = SentenceTransformer(_MODEL_NAME)
+        _model = SentenceTransformer(_MODEL_PATH)
     return _model
 
 
