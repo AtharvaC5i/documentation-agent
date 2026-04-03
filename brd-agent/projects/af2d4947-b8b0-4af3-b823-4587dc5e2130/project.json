@@ -1,0 +1,184 @@
+{
+  "id": "af2d4947-b8b0-4af3-b823-4587dc5e2130",
+  "project_name": "ShopEase-2",
+  "client_name": "RetailCorp ",
+  "industry": "E-Commerce",
+  "description": "testing",
+  "team_members": [
+    "ABC",
+    "XYZ"
+  ],
+  "status": "complete",
+  "progress": 100,
+  "progress_message": "Document ready for download.",
+  "created_at": "2026-04-03T10:25:39.723099",
+  "selected_sections": [
+    "Executive Summary",
+    "Business Context and Background",
+    "Project Objectives and Success Criteria",
+    "Scope",
+    "Stakeholder Register",
+    "Functional Requirements",
+    "Non-Functional Requirements",
+    "Business Rules",
+    "User Roles and Permissions",
+    "User Journeys and Use Cases",
+    "Data Requirements",
+    "Integration Requirements",
+    "Assumptions",
+    "Constraints",
+    "Dependencies",
+    "Risks",
+    "Glossary",
+    "Appendices"
+  ],
+  "suggested_sections": [
+    {
+      "id": "executive_summary",
+      "name": "Executive Summary",
+      "description": "High-level project overview for non-technical stakeholders",
+      "suggested": true,
+      "reason": "Always required for client-facing BRDs",
+      "coverage": "weak"
+    },
+    {
+      "id": "business_context",
+      "name": "Business Context and Background",
+      "description": "Current state, problem statement, and business drivers",
+      "suggested": true,
+      "reason": "Coverage found in inputs (weak)",
+      "coverage": "weak"
+    },
+    {
+      "id": "objectives",
+      "name": "Project Objectives and Success Criteria",
+      "description": "Measurable goals and how success is defined",
+      "suggested": true,
+      "reason": "Coverage found in inputs (weak)",
+      "coverage": "weak"
+    },
+    {
+      "id": "scope",
+      "name": "Scope",
+      "description": "In-scope, out-of-scope, and future scope items",
+      "suggested": true,
+      "reason": "Always required for client-facing BRDs",
+      "coverage": "weak"
+    },
+    {
+      "id": "stakeholders",
+      "name": "Stakeholder Register",
+      "description": "All parties with a stake in the project",
+      "suggested": true,
+      "reason": "Always required for client-facing BRDs",
+      "coverage": "strong"
+    },
+    {
+      "id": "functional_req",
+      "name": "Functional Requirements",
+      "description": "What the system must do — full requirements list",
+      "suggested": true,
+      "reason": "Always required for client-facing BRDs",
+      "coverage": "strong"
+    },
+    {
+      "id": "non_functional_req",
+      "name": "Non-Functional Requirements",
+      "description": "Performance, security, scalability, compliance",
+      "suggested": true,
+      "reason": "Coverage found in inputs (strong)",
+      "coverage": "strong"
+    },
+    {
+      "id": "business_rules",
+      "name": "Business Rules",
+      "description": "Policies and logic governing system behavior",
+      "suggested": true,
+      "reason": "Coverage found in inputs (strong)",
+      "coverage": "strong"
+    },
+    {
+      "id": "user_roles",
+      "name": "User Roles and Permissions",
+      "description": "All user types and their access levels",
+      "suggested": true,
+      "reason": "Coverage found in inputs (strong)",
+      "coverage": "strong"
+    },
+    {
+      "id": "user_journeys",
+      "name": "User Journeys and Use Cases",
+      "description": "Narrative walkthroughs of key workflows",
+      "suggested": true,
+      "reason": "Coverage found in inputs (strong)",
+      "coverage": "strong"
+    },
+    {
+      "id": "data_requirements",
+      "name": "Data Requirements",
+      "description": "Data entities, volumes, migration needs",
+      "suggested": true,
+      "reason": "Coverage found in inputs (weak)",
+      "coverage": "weak"
+    },
+    {
+      "id": "integrations",
+      "name": "Integration Requirements",
+      "description": "External systems and APIs to connect with",
+      "suggested": true,
+      "reason": "Coverage found in inputs (strong)",
+      "coverage": "strong"
+    },
+    {
+      "id": "assumptions",
+      "name": "Assumptions",
+      "description": "Unconfirmed beliefs the project is based on",
+      "suggested": true,
+      "reason": "Coverage found in inputs (strong)",
+      "coverage": "strong"
+    },
+    {
+      "id": "constraints",
+      "name": "Constraints",
+      "description": "Hard limits on technology, budget, timeline",
+      "suggested": true,
+      "reason": "Coverage found in inputs (strong)",
+      "coverage": "strong"
+    },
+    {
+      "id": "dependencies",
+      "name": "Dependencies",
+      "description": "External deliverables the project depends on",
+      "suggested": true,
+      "reason": "Coverage found in inputs (weak)",
+      "coverage": "weak"
+    },
+    {
+      "id": "risks",
+      "name": "Risks",
+      "description": "Known risks and mitigation strategies",
+      "suggested": false,
+      "reason": "No coverage found and not inferred from context",
+      "coverage": "none"
+    },
+    {
+      "id": "glossary",
+      "name": "Glossary",
+      "description": "Project-specific terminology definitions",
+      "suggested": true,
+      "reason": "Always required for client-facing BRDs",
+      "coverage": "none"
+    },
+    {
+      "id": "appendices",
+      "name": "Appendices",
+      "description": "Supporting materials and references",
+      "suggested": false,
+      "reason": "No coverage found and not inferred from context",
+      "coverage": "none"
+    }
+  ],
+  "document_path": "D:\\Abhishek\\Projects\\brd-agent\\backend\\pipelines\\../../outputs\\BRD_ShopEase-2_v1.docx",
+  "version": 1,
+  "previous_versions": []
+}

@@ -1,0 +1,120 @@
+MEETING TRANSCRIPT — Discovery Call
+Project: ShopEase E-Commerce Platform
+Client: RetailCorp India Pvt. Ltd.
+Date: March 10, 2026
+Duration: 45 minutes
+
+Participants:
+- Rajesh Mehta [Client PM]
+- Sunita Agarwal [Client CEO]
+- Arjun Shah [Our BA]
+- Priya Nair [Our PM]
+
+---
+
+[00:00:45]
+Arjun Shah: Good morning everyone, thank you for joining. So today we want to understand your requirements for the ShopEase platform. Sunita, maybe you can start with giving us the big picture?
+
+Sunita Agarwal: Yes of course. So basically, um, we are a mid-size retail chain, we have around 200 stores across India and we want to go online now. Our main problem is that, you know, our competitors are already online and we are losing customers. So we need a full e-commerce platform. And it should be live in 6 months maximum.
+
+Arjun Shah: Understood. And what kind of products are you selling?
+
+Sunita Agarwal: We sell home appliances, electronics, furniture. So the products are big ticket items, not small things. Average order value is around 15,000 rupees.
+
+Rajesh Mehta: Yes and we also need EMI options because customers won't pay 50,000 rupees for a sofa in one shot.
+
+Arjun Shah: Makes sense. So payment flexibility is critical. What payment methods do you want to support?
+
+Rajesh Mehta: Credit card, debit card, UPI, net banking. And like I said EMI — both credit card EMI and also no-cost EMI through financing partners like Bajaj Finance, ZestMoney.
+
+Priya Nair: Ok so we will need integration with these financing APIs then. Do you have existing agreements with these partners?
+
+Rajesh Mehta: Yes with Bajaj Finance we have agreement. ZestMoney we are still in talks.
+
+[00:08:30]
+Arjun Shah: Let's talk about users. Who will be using this platform?
+
+Sunita Agarwal: End customers obviously, they will browse and buy. Then we have our store managers — each store has a manager who should be able to see orders from their region, manage returns. And then our central admin team who manages everything — products, pricing, promotions.
+
+Arjun Shah: So three types of users — customers, store managers, and central admins?
+
+Sunita Agarwal: Yes. And also we have vendor partners — some products are not our own, vendors list their products on our platform. So vendors also need their own login to manage their listings.
+
+Rajesh Mehta: Actually Sunita I was thinking — should vendors be able to set their own prices or we control pricing?
+
+Sunita Agarwal: No no, we control all pricing. Vendors just manage their inventory and product information. We set the prices.
+
+[00:15:20]
+Arjun Shah: What about the product catalog? How many products are we talking about?
+
+Rajesh Mehta: Currently in our system we have around 8,000 SKUs. But once vendors come on board it could go to 25,000 easily.
+
+Arjun Shah: And do you have existing product data we can migrate?
+
+Rajesh Mehta: Yes we have it in our ERP — it's SAP. So we need SAP integration for product data and inventory sync.
+
+Priya Nair: Real time sync or batch?
+
+Rajesh Mehta: Inventory should be real time because we cannot show a product as available if it's sold out in stores. Product information — batch is fine, once a day.
+
+[00:22:10]
+Arjun Shah: Let's talk about the customer experience. What features are must-have for the customer side?
+
+Sunita Agarwal: Search — very good search. Customers should be able to search by product name, category, brand. And filters — price range, brand, ratings, delivery time.
+
+Rajesh Mehta: Reviews and ratings are very important. We want customers to write reviews. But we should be able to moderate them before they go live.
+
+Sunita Agarwal: Yes moderated reviews. And wishlist — customers should save products for later.
+
+Arjun Shah: What about delivery? Do you have your own logistics or third party?
+
+Sunita Agarwal: We use third party — Delhivery and BlueDart. So integration with their APIs for shipping rates and tracking.
+
+Rajesh Mehta: And we want customers to be able to track their order in real time from the platform itself.
+
+[00:30:45]
+Arjun Shah: Any specific requirements around data and compliance?
+
+Sunita Agarwal: We need to be GDPR compliant — we have some NRI customers. And also Indian IT Act compliance.
+
+Rajesh Mehta: Customer data should not be stored outside India. So servers must be in India.
+
+Arjun Shah: Understood — data residency requirement. What about performance expectations?
+
+Sunita Agarwal: During sale events like Diwali we expect very high traffic. Last year our physical stores had around 50,000 customers in a single day. So the platform should handle at least that.
+
+Rajesh Mehta: And it should not be slow. Pages should load in under 3 seconds.
+
+[00:38:00]
+Priya Nair: One last area — reporting and analytics. What do you need to see?
+
+Sunita Agarwal: Sales reports — daily, weekly, monthly. By region, by category, by vendor.
+
+Rajesh Mehta: And we want to know which products customers are looking at but not buying. So cart abandonment analytics.
+
+Sunita Agarwal: Also we want to send promotional emails and SMS to customers. So some kind of marketing tool or integration.
+
+Arjun Shah: CRM integration or standalone?
+
+Sunita Agarwal: We use Salesforce for our B2B sales. But for B2C customers we don't have a CRM yet. So maybe standalone for now, but in future we might want Salesforce integration.
+
+Rajesh Mehta: Actually — I want to say something about the mobile app. We need a mobile app also, not just website.
+
+Sunita Agarwal: Yes yes mobile app is must. Both Android and iOS.
+
+Arjun Shah: Ok noted. That's important — so we're building web platform AND mobile apps.
+
+[00:44:00]
+Priya Nair: Any other things you want to make sure we capture?
+
+Sunita Agarwal: I think the most important thing is that the platform should feel premium. We are not a discount brand. So design and user experience should be top quality.
+
+Rajesh Mehta: And the admin panel should be easy to use. Our store managers are not very tech savvy.
+
+Sunita Agarwal: Yes simple admin. And also — I want to be able to see everything from my phone. Executive dashboard on mobile.
+
+Arjun Shah: Perfect. I think we have a good picture. We will send you a summary and the BRD draft within 2 weeks.
+
+Sunita Agarwal: Great. Thank you.
+
+[END OF TRANSCRIPT]
