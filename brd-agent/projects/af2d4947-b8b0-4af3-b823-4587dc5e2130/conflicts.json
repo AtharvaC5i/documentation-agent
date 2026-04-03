@@ -1,0 +1,165 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "GDPR compliance requirement conflicts with strict India-only data residency constraint",
+      "version_a": {
+        "req_id": "TR-024",
+        "text": "The platform must comply with GDPR regulations to support NRI customers. It must also comply with the Indian IT Act."
+      },
+      "version_b": {
+        "req_id": "TR-025",
+        "text": "All customer data must be stored exclusively on servers located within India. No customer data may be stored or processed outside India."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-002",
+      "description": "ZestMoney is listed as a required in-scope integration in TR-005 but TR-033 and TR-006 classify it as contingent and potentially post-launch, creating ambiguity about launch scope",
+      "version_a": {
+        "req_id": "TR-005",
+        "text": "The platform must support credit card EMI and no-cost EMI through financing partners including Bajaj Finance and ZestMoney."
+      },
+      "version_b": {
+        "req_id": "TR-033",
+        "text": "ZestMoney integration will be included in scope but may be delivered post-launch pending commercial agreement finalization."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-003",
+      "description": "TR-018 and US-003 define product search by name, category, and brand, but TR-019 and US-004 add filtering by price range, ratings, and delivery time — the search and filter boundary is inconsistently defined across requirements, with US-003 partially duplicating TR-018 scope",
+      "version_a": {
+        "req_id": "TR-018",
+        "text": "The platform must provide a product search capability allowing customers to search by product name, category, and brand."
+      },
+      "version_b": {
+        "req_id": "US-003",
+        "text": "The system shall allow customers to search for products by name, brand, or category so that they can quickly locate desired products."
+      },
+      "impact": "low",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-004",
+      "description": "TR-026 requires handling 50,000 concurrent users as a fixed minimum, while TR-039 requires elastic scaling to handle sudden spikes without specifying an upper bound — these may imply different architectural approaches and cost profiles that need alignment",
+      "version_a": {
+        "req_id": "TR-026",
+        "text": "The platform must handle a minimum of 50,000 concurrent users to support peak traffic during sale events such as Diwali."
+      },
+      "version_b": {
+        "req_id": "TR-039",
+        "text": "The platform must be designed to scale elastically to handle sudden traffic spikes during promotional sale events without performance degradation."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-005",
+      "description": "US-011 restricts review submission to customers who have received a delivered product, while TR-020 states customers must be able to submit reviews without specifying a purchase or delivery precondition, creating inconsistency in eligibility rules",
+      "version_a": {
+        "req_id": "TR-020",
+        "text": "Customers must be able to submit product reviews and ratings. All reviews must go through a moderation workflow before being published."
+      },
+      "version_b": {
+        "req_id": "US-011",
+        "text": "The system shall allow customers who have received a delivered product to submit a written review and star rating so that only verified purchasers can review products."
+      },
+      "impact": "medium",
+      "resolved": false
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions to client"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions to client"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions to client"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}
