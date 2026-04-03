@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "title": "Pre-Meeting Discovery Question Bank",
+  "description": "Standard questions to ask in every client discovery call to ensure BRD can be fully populated.",
+  "sections": [
+    {
+      "section": "Business Context",
+      "questions": [
+        "Can you describe your business and the industry you operate in?",
+        "What specific problem or opportunity is driving this project?",
+        "What does your current process or system look like today (as-is state)?",
+        "Why is the current situation no longer adequate?",
+        "What happens to your business if this project is not built?"
+      ]
+    },
+    {
+      "section": "Project Objectives",
+      "questions": [
+        "What does success look like for this project 6 months after launch?",
+        "Can you define 3-5 measurable outcomes you expect from this project?",
+        "Are there any hard deadlines we must meet and why?",
+        "What is the overall budget range for this project?"
+      ]
+    },
+    {
+      "section": "Stakeholders",
+      "questions": [
+        "Who are the key decision makers for this project on your side?",
+        "Who will be the primary point of contact for requirements and approvals?",
+        "Are there any departments or teams whose buy-in is critical?",
+        "Who are the end users of the system and what are their technical skill levels?"
+      ]
+    },
+    {
+      "section": "Scope",
+      "questions": [
+        "What are the absolute must-have features for the first release?",
+        "What features are important but can wait for a later phase?",
+        "Is there anything you explicitly do NOT want in scope?",
+        "Are there any existing systems this must replace or work alongside?"
+      ]
+    },
+    {
+      "section": "Users and Roles",
+      "questions": [
+        "Who are all the different types of users who will use this system?",
+        "What can each user type see and do that others cannot?",
+        "Who has the highest level of administrative access?",
+        "Will external parties like vendors or partners need access?"
+      ]
+    },
+    {
+      "section": "Functional Requirements",
+      "questions": [
+        "Can you walk us through the most critical user journey step by step?",
+        "Are there any business rules that govern how the system must behave?",
+        "What notifications or alerts does the system need to send and to whom?",
+        "Does the system need to support multiple languages or currencies?"
+      ]
+    },
+    {
+      "section": "Integrations",
+      "questions": [
+        "What existing systems does this new platform need to connect with?",
+        "For each integration — is the API documented and are credentials available?",
+        "Should data sync be real-time or batch? At what frequency?",
+        "What happens if an integration goes down — what is the fallback?"
+      ]
+    },
+    {
+      "section": "Non-Functional Requirements",
+      "questions": [
+        "How many users do you expect at launch? What is peak concurrent usage?",
+        "What is acceptable page load time for your users?",
+        "What uptime SLA do you require (99%, 99.9%, 99.99%)?",
+        "Are there specific browsers, devices, or operating systems that must be supported?",
+        "Do you have any accessibility requirements (WCAG standards)?"
+      ]
+    },
+    {
+      "section": "Data and Compliance",
+      "questions": [
+        "What types of sensitive data will the system store (PII, financial, health)?",
+        "Are there regulatory compliance requirements (GDPR, HIPAA, PCI-DSS, Indian IT Act)?",
+        "Are there data residency requirements — must data stay in a specific country?",
+        "How long must data be retained and what is the archival/deletion policy?",
+        "Do you have an existing data migration requirement from legacy systems?"
+      ]
+    },
+    {
+      "section": "Assumptions and Constraints",
+      "questions": [
+        "Are there any technology choices already mandated (cloud provider, framework, database)?",
+        "Do you have existing infrastructure we must work within?",
+        "Is there anything on your side that has a dependency or timeline we should know about?",
+        "What assumptions are you making about what we will deliver?"
+      ]
+    },
+    {
+      "section": "Reporting and Analytics",
+      "questions": [
+        "What reports or dashboards are critical for your business operations?",
+        "Who needs access to analytics and at what level of detail?",
+        "Do you need data export capabilities and in what formats?",
+        "Are there any third-party analytics tools you already use that we should integrate with?"
+      ]
+    }
+  ]
+}
