@@ -101,11 +101,7 @@ export default function Layout() {
         <header className="topbar">
           <span className="topbar-title">BRD Generation Agent</span>
           <div className="flex items-center gap-3">
-            {inProject && currentStage && (
-              <span className="stage-pill">
-                Stage: {STAGES.find(s => s.key === currentStage)?.label}
-              </span>
-            )}
+
             <span className="powered-pill">Powered by Databricks LLMs</span>
           </div>
         </header>

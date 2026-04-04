@@ -1,0 +1,104 @@
+MEETING TRANSCRIPT — Follow-Up Discovery Call #2
+Project: ShopEase E-Commerce Platform
+Client: RetailCorp India Pvt. Ltd.
+Date: March 28, 2026
+Duration: 35 minutes
+
+Participants:
+- Rajesh Mehta [Client PM]
+- Sunita Agarwal [Client CEO]
+- Vikram Patel [Client Head of IT]
+- Arjun Shah [Our BA]
+- Priya Nair [Our PM]
+
+---
+
+[00:01:12]
+Arjun Shah: Good afternoon everyone. Following our first call, we've drafted the initial BRD and shared it with you. Today we want to go through your feedback and capture any changes.
+
+Sunita Agarwal: Yes we reviewed it. Overall it looks good. But we have some important changes.
+
+Rajesh Mehta: First thing — we discussed internally and we are NOT going with ZestMoney. That integration is cancelled. We only want Bajaj Finance for the no-cost EMI.
+
+Arjun Shah: Understood, so ZestMoney is out of scope entirely?
+
+Rajesh Mehta: Yes completely. Remove it.
+
+[00:04:30]
+Sunita Agarwal: Second thing — we want to add WhatsApp integration. Our customers use WhatsApp heavily. We want to send order confirmations, shipping updates, and promotional messages on WhatsApp in addition to SMS and email.
+
+Arjun Shah: Is this using the WhatsApp Business API?
+
+Sunita Agarwal: Yes. We already have a WhatsApp Business account. We need to integrate it.
+
+Vikram Patel: We use Gupshup as our WhatsApp service provider. They have an API. I will share the documentation.
+
+Priya Nair: Noted — WhatsApp via Gupshup API for transactional and promotional messages.
+
+[00:09:15]
+Rajesh Mehta: Third point — the mobile app. In the first call we said Android and iOS. We want to add a PWA also. Progressive Web App. Some of our customers in smaller cities have low-end phones and cannot install apps easily. PWA will serve them.
+
+Arjun Shah: So three delivery channels now — Android native app, iOS native app, and PWA?
+
+Rajesh Mehta: Correct.
+
+Sunita Agarwal: The PWA should have the full purchase flow. Not a lite version.
+
+[00:14:40]
+Vikram Patel: I want to raise something about the SAP integration. In the previous discussion we said real-time inventory sync. But our SAP team has now told us that real-time webhooks from SAP are not possible with our current SAP version. We are on SAP ECC 6.0. The maximum we can do is every 15 minutes batch sync.
+
+Arjun Shah: That is a significant change. So instead of real-time inventory, we have 15-minute polling?
+
+Vikram Patel: Yes. And for product data, we said once a day before — that remains. But for inventory it is 15-minute batch, not real-time.
+
+Priya Nair: This affects our low-stock and out-of-stock logic. We need to build a buffer.
+
+Vikram Patel: Yes exactly. I suggest we maintain a 10% safety stock buffer in the platform. If SAP says 100 units, we show 90 on the website.
+
+Arjun Shah: Good business rule — 10% buffer on displayed inventory.
+
+[00:21:05]
+Sunita Agarwal: We also want to change the return window. For electronics we said 7 days. We want to increase that to 10 days. Furniture stays at 30 days.
+
+Rajesh Mehta: Also we want to add a replacement option not just refund. Some customers will prefer a replacement unit rather than money back.
+
+Arjun Shah: So the return flow now has two options — refund to original payment method OR replacement of the same product?
+
+Rajesh Mehta: Yes. And replacement should only be available if the product is in stock.
+
+[00:26:30]
+Vikram Patel: One more thing from the IT side. We need two-factor authentication for the admin panel. All admin users and store managers must use 2FA. Customers do not need it.
+
+Arjun Shah: OTP-based 2FA?
+
+Vikram Patel: Yes, mobile OTP. We don't want authenticator apps — our store managers are not tech-savvy enough.
+
+Sunita Agarwal: For the executive dashboard on mobile — I want to be able to download reports as PDF from my phone. Right now the BRD just says view reports. I want PDF export.
+
+[00:31:00]
+Priya Nair: Any changes to the compliance requirements?
+
+Rajesh Mehta: Yes actually. We are registering as a company in Singapore for international operations. So we now need to comply with Singapore PDPA in addition to Indian IT Act and GDPR for NRI customers.
+
+Arjun Shah: Three compliance regimes — Indian IT Act, GDPR for NRI customers, and Singapore PDPA for international operations.
+
+Sunita Agarwal: Correct.
+
+Priya Nair: This also means some data may need to be stored in Singapore for those customers. The data residency requirement becomes more complex.
+
+Vikram Patel: We will need to discuss this more. For now flag it as a decision pending.
+
+[00:34:20]
+Arjun Shah: Any other changes?
+
+Rajesh Mehta: The vendor onboarding — in the first call we said vendors just upload products and admin approves. We now want a vendor KYC process. Vendors must submit GST certificate, PAN card, and bank account details before they can list products. This needs to be a formal onboarding workflow.
+
+Sunita Agarwal: Yes vendor compliance is important. We cannot have unverified vendors on the platform.
+
+Arjun Shah: Understood. Vendor KYC with document submission and admin verification workflow.
+
+Priya Nair: Great. I think we have captured everything. We will update the BRD with these changes and share v2 within the week.
+
+Sunita Agarwal: Thank you.
+
+[END OF TRANSCRIPT]

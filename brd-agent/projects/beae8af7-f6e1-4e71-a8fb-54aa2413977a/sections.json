@@ -1,0 +1,335 @@
+{
+  "sections": [
+    {
+      "id": "604afbc4-f661-4cb5-8b0c-b68d97b85e16",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\n### Business Problem\nLearners across all age groups—from school students to elderly adults—lack a single, accessible platform to pursue academic, professional, and hobby-based learning. Existing solutions fail to serve this full demographic range with the simplicity and inclusivity required.\n\n### Proposed Solution\nEducation4All is a web-based, multi-role online learning platform enabling learners to discover, enroll in, and complete courses across all categories, while empowering independent instructors to create and monetize content under structured admin oversight.\n\n### Key Objectives\n- Deliver a browsable, searchable course catalog supporting free and paid enrollment across all learner demographics\n- Enable instructors to register, build, and publish video-based courses through a streamlined creation and approval workflow\n- Equip admins with account management, course approval controls, and real-time analytics dashboards\n- Ensure platform security, mobile responsiveness, WCAG 2.1 accessibility compliance, and scalability for thousands of concurrent users\n\n### Expected Outcomes\nEducation4All will provide a trusted, inclusive learning environment where learners earn verified digital certificates, instructors generate revenue through a secure payment-sharing model, and admins maintain full platform governance. The platform will deliver measurable engagement growth through personalized recommendations, real-time performance analytics, and a user experience comparable to industry leaders Coursera and Udemy.",
+      "quality_score": 0.75,
+      "quality_pct": "75%",
+      "word_count": 199,
+      "approved": true,
+      "status": "edited",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013"
+      ],
+      "req_count": 54
+    },
+    {
+      "id": "a76ed1ff-0e1f-45a2-bfdc-615ff22209fd",
+      "name": "Business Context and Background",
+      "content": "## Business Context\n\n### Current State\nEducation4All (TR-001: Tom Anderson, client) is a greenfield online learning platform targeting learners across **all age groups**, designed to compete with Coursera and Udemy (TR-035) through independent instructor-led course delivery (TR-031) via standard web browsers (TR-030).\n\n### Problem\nThe platform must simultaneously address three competing tensions:\n\n| Tension | Requirement Reference |\n|---|---|\n| Accessibility vs. Feature Parity | TR-034 (WCAG 2.1) vs. TR-035 (Coursera/Udemy scope) |\n| Monetisation complexity | TR-032 (third-party payment gateway for paid courses) |\n| Instructor independence vs. Quality control | TR-031 (independent creators) vs. Course Approval workflow |\n\nWithout resolving these, the platform risks excluding elderly/beginner learners through poor accessibility, delivering inconsistent course quality without a governed approval workflow, and failing payment compliance under TR-032.\n\n### Impact if Unresolved\nFailure to balance WCAG 2.1 compliance (TR-034, **MUST_HAVE**) with full feature delivery risks regulatory exposure, learner drop-off across age groups, and loss of competitive positioning against established platforms — directly undermining Education4All's core inclusive education mission.",
+      "quality_score": 0.65,
+      "quality_pct": "65%",
+      "word_count": 167,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-030",
+        "TR-031",
+        "TR-032",
+        "TR-033",
+        "TR-034",
+        "TR-035"
+      ],
+      "req_count": 8
+    },
+    {
+      "id": "dfc3155b-93b5-451f-99e0-0b3e048223c5",
+      "name": "Project Objectives and Success Criteria",
+      "content": "## Project Objectives | # | Objective | Metric | Target | |---|-----------|--------|--------| | 1 | Launch a scalable multi-role online learning platform supporting Learners, Instructors, and Admins | Concurrent users supported without performance degradation | ≥ 10,000 simultaneous users | | 2 | Enable course discovery and enrollment across 3 content categories | Course search response time; categories available at launch | < 2 seconds; 3 categories live | | 3 | Deliver automated certification upon course completion | % of completions triggering instant certificate generation | 100% automated issuance | | 4 | Implement secure, PCI-DSS compliant payment processing for paid courses | Payment compliance audit score; plain-text card data incidents | Full PCI-DSS compliance; 0 incidents | | 5 | Provide personalised recommendations driving learner engagement | Minimum recommendations displayed per learner dashboard | ≥ 5 recommendations per user | | 6 | Equip admins and instructors with real-time analytics dashboards | KPIs tracked; dashboard data refresh rate | ≥ 6 KPIs; real-time (≤ 60s delay) | The Education4All platform is targeted for full delivery within an agreed project timeline, with all MUST_HAVE requirements completed prior to launch.",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "word_count": 191,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 47
+    },
+    {
+      "id": "0db0915e-eb47-4826-9623-0411631a1e13",
+      "name": "Scope",
+      "content": "## Scope ### In Scope - **Multi-role user system** (Admin, Instructor, Learner) with distinct permissions and access controls — TR-022, US-020 - **Learner features**: registration, course browsing/search, enrollment (free & paid), progress tracking, certificate generation — US-001 to US-005, TR-009 to TR-012 - **Instructor features**: account registration, course creation tools, video/document uploads, content editing, revenue payouts — US-008 to US-012, TR-006 to TR-008 - **Admin panel**: user/instructor account management, course approval workflow, transaction management, refund processing — US-013, US-014, US-017, TR-016, TR-017 - **Course catalog**: academic, professional, and hobby categories; browsable and keyword-searchable — TR-005, US-001, US-002 - **Payment processing**: PCI-DSS compliant, third-party gateway integration for paid course enrollment — US-018, TR-013, TR-014, TR-032 - **Analytics dashboards**: engagement metrics (active users, session duration, enrollments), revenue tracking, instructor enrollment stats — TR-019, TR-021, US-011, US-016 - **Accessibility & inclusivity**: WCAG 2.1 compliance supporting all age groups including elderly learners — TR-034, TR-004 - **Mobile responsiveness**: all core learner features functional on iOS and Android — US-007 - **Personalized recommendations**: algorithm-driven suggestions based on enrollment history — TR-015, US-006 - **Secure authentication**: encrypted credentials, password reset via verified email link — US-020, US-021 ### Out of Scope - Native mobile applications (iOS/Android); web browser access only — TR-030 - Multi-language support; English only at launch — TR-033 - Live/synchronous classes, webinars, or real-time instructor-learner sessions - Platform-employed instructor contracts or exclusivity arrangements — TR-031 - Third-party LMS integrations (e.g.",
+      "quality_score": 0.64,
+      "quality_pct": "64%",
+      "word_count": 237,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 45
+    },
+    {
+      "id": "fcda7ba5-7d43-4901-a677-0814a819b04d",
+      "name": "Stakeholder Register",
+      "content": "## Stakeholder Register | Name | Role | Organisation | Key Responsibility | Availability | |---|---|---|---|---| | Tom Anderson | Client / Project Sponsor | Education4All | Defining platform requirements, vision, and strategic direction; final sign-off on deliverables | As required | | Ramesh | Business Analyst / Technical Lead | Education4All (Project Team) | Requirement gathering, technical clarification, and liaison between client and development team | Full-time | | Learners | End Users | External | Browsing course catalog, enrolling in free and paid courses, completing courses, receiving certificates | On-demand | | Instructors | Course Creators | External | Uploading video content, creating courses, submitting courses for approval workflow | On-demand | | Platform Admin | System Administrator | Education4All | Managing course approvals, user management, platform oversight and content governance | Full-time | | Payment Gateway Provider | Third-Party Vendor | External | Processing payments for paid course enrollments securely and reliably | As required | | Certificate Authority | Compliance / Credential Body | External | Validating and governing digital certificate issuance standards | As required | | Recommendation Engine Team | Technical Team | Education4All | Developing and maintaining the personalized course recommendation algorithm |...",
+      "quality_score": 0.85,
+      "quality_pct": "85%",
+      "word_count": 200,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002"
+      ],
+      "req_count": 2
+    },
+    {
+      "id": "6f310046-808f-4689-aa6d-1b33e6b307ca",
+      "name": "Functional Requirements",
+      "content": "# Education4All — Functional Requirements --- ### User Registration & Authentication | FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC | |--------|----------------------------------------------|----------|--------| | FR-AUTH-001 | System SHALL support registration for school students, college students, professionals, and elderly learners. | MUST HAVE | All four groups register and access content successfully. | | FR-AUTH-002 | System SHALL provide secure user registration with encrypted credential storage. | MUST HAVE | Credentials stored encrypted; access granted only after valid authentication. | | FR-AUTH-003 | System SHALL allow users to reset password via verified, expiring email link. | MUST HAVE | Reset email delivers secure expiring link enabling password update. | | FR-AUTH-004 | System SHALL enforce a multi-role system: Admin, Instructor, and Learner. | MUST HAVE | Each role has distinct permissions enforced across all platform areas. | | FR-AUTH-005 | System SHALL allow instructors to register and create a verified instructor account. | MUST HAVE | Instructor completes registration and accesses course creation tools upon approval. | --- ### Course Catalog & Discovery | FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC | |--------|----------------------------------------------|----------|--------| | FR-CAT-001 | System SHALL display a browsable catalog of all published courses to learners. | MUST HAVE | Learner views all available courses in list or grid view. | | FR-CAT-002 | System SHALL allow learners to search courses by keyword within 2 seconds. | MUST HAVE | Search returns relevant results matching keywords within 2 seconds. | | FR-CAT-003 | System SHALL support academic, professional skills, and hobby-based course categories. | MUST HAVE | Courses from all three categories are browsable and enrollable. | | FR-CAT-004 | System SHALL provide personalized course recommendations based on learner history and interests. | SHOULD HAVE | Learner sees at least 5 relevant recommendations on their dashboard. | --- ### Enrollment & Learning Progress | FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC | |--------|----------------------------------------------|----------|--------| | FR-ENR-001 | System SHALL allow learners to enroll in available courses and access content immediately. | MUST HAVE | Learner clicks enroll and gains immediate access to course content. | | FR-ENR-002 | System SHALL support enrollment in both free and paid courses. | MUST HAVE | Free courses accessible without payment; paid courses require successful payment. | | FR-ENR-003 | System SHALL display course completion percentage per enrolled course on learner dashboard. | MUST HAVE | Dashboard shows accurate, updated completion percentage per enrolled course. | | FR-ENR-004 | System SHALL automatically generate and issue a certificate upon course completion. | MUST HAVE | Learner receives downloadable certificate immediately after completing all course requirements. | | FR-ENR-005 | System SHALL ensure all core learner features are functional on mobile devices. | MUST HAVE | All core features render and function correctly on iOS and Android.",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "word_count": 477,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 39
+    },
+    {
+      "id": "dfd0ba45-df31-4d2c-bee5-74f9ec74f35b",
+      "name": "Non-Functional Requirements",
+      "content": "# Education4All — Functional Requirements --- ### User Registration & Authentication | FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC | |---|---|---|---| | FR-AUTH-001 | System SHALL support registration for school students, college students, professionals, and elderly learners. | MUST HAVE | All four groups register and access content successfully. | | FR-AUTH-002 | System SHALL provide secure user registration with encrypted credential storage. | MUST HAVE | Credentials stored encrypted; access granted only after valid authentication. | | FR-AUTH-003 | System SHALL allow users to reset password via verified, expiring email link. | MUST HAVE | User receives secure expiring reset link; password update completes successfully. | | FR-AUTH-004 | System SHALL enforce a multi-role system: Admin, Instructor, and Learner. | MUST HAVE | Each role has distinct permissions enforced across all platform areas. | | FR-AUTH-005 | System SHALL allow instructors to register and create a verified instructor account. | MUST HAVE | Instructor completes registration and accesses course creation tools upon approval. | --- ### Course Catalog & Discovery | FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC | |---|---|---|---| | FR-CAT-001 | System SHALL display a browsable catalog of all published courses to learners. | MUST HAVE | Learner views all available courses in list or grid view. | | FR-CAT-002 | System SHALL support academic, professional skills, and hobby-based course categories. | MUST HAVE | Courses from all three categories are browsable and enrollable. | | FR-CAT-003 | System SHALL allow learners to search courses by keyword and return relevant results. | MUST HAVE | Search returns relevant results matching entered keywords within 2 seconds. | | FR-CAT-004 | System SHALL provide personalized course recommendations based on learner interests and history. | SHOULD HAVE | Learner sees at least 5 personalized recommendations on their dashboard. | --- ### Enrollment & Learning Progress | FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC | |---|---|---|---| | FR-ENR-001 | System SHALL allow learners to enroll in available courses to begin learning. | MUST HAVE | Learner clicks enroll and gains immediate access to course content. | | FR-ENR-002 | System SHALL support both free and paid course enrollment options. | MUST HAVE | Free courses accessible without payment; paid courses require successful payment to enroll. | | FR-ENR-003 | System SHALL display course completion progress as a percentage per enrolled learner. | MUST HAVE | Learner dashboard shows accurate completion percentage for each enrolled course. | | FR-ENR-004 | System SHALL automatically generate and issue a certificate upon course completion. | MUST HAVE | Learner receives downloadable certificate immediately after completing all course requirements. | | FR-ENR-005 | System SHALL be fully accessible and functional on mobile devices for learners. | MUST HAVE | All core learner features render and function correctly on iOS and Android.",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "word_count": 483,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 39
+    },
+    {
+      "id": "c0e434b5-ffca-46c5-9e01-6de04a80a391",
+      "name": "Business Rules",
+      "content": "## Business Rules | BR-ID | Rule (max 20 words) | Module | Priority | |-------|---------------------|--------|----------| | BR-001 | Courses must receive admin approval before becoming visible or enrollable by learners. | Course Approval | MUST_HAVE | | BR-002 | Unapproved courses must not appear in search results or catalog browsing. | Course Catalog | MUST_HAVE | | BR-003 | Certificates are issued only upon recording 100% completion of all course requirements. | Certificate | MUST_HAVE | | BR-004 | Learners cannot access paid course content without a confirmed successful payment record. | Paid Course | MUST_HAVE | | BR-005 | Instructors must be registered and verified before submitting courses for approval. | Course Approval | MUST_HAVE | | BR-006 | Free courses must allow immediate enrollment without any payment processing step. | Free Course | MUST_HAVE | | BR-007 | Personalized recommendations must only surface courses published and approved in the catalog. | Course Catalog | MUST_HAVE | | BR-008 | A learner may not enroll in the same course more than once simultaneously. | Course Catalog | MUST_HAVE | | BR-009 | Admins may revoke course approval, immediately removing the course from learner visibility. | Course Approval | MUST_HAVE | | BR-010 | Certificate generation must be triggered automatically upon confirmed 100% course completion. | Certificate | MUST_HAVE | | BR-011 | Refunded paid courses must immediately revoke learner access to course content.",
+      "quality_score": 0.85,
+      "quality_pct": "85%",
+      "word_count": 235,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-027",
+        "TR-028",
+        "TR-029"
+      ],
+      "req_count": 3
+    },
+    {
+      "id": "f454c00c-49b1-4af9-9928-9c509b2de1bb",
+      "name": "User Roles and Permissions",
+      "content": "## User Roles and Permissions ### Role Definitions **Learner** — Registers, browses, enrolls in, and completes courses to earn certificates **Instructor** — Creates, uploads, and manages course content; earns revenue from paid enrollments **Admin** — Manages users, approves courses, monitors platform activity and financial transactions --- ### Permissions Matrix | Feature | Learner | Instructor | Admin | |---|---|---|---| | Register & Login (TR-022, US-020) | ✓ | ✓ | ✓ | | Browse & Search Course Catalog (TR-009, US-001, US-002) | ✓ | ✓ | ✓ | | Enroll in Free & Paid Courses (TR-010, TR-013, US-003) | ✓ | ✗ | ✗ | | Track Learning Progress (TR-011, US-004) | ✓ | ✗ | ✗ | | Receive Completion Certificate (TR-012, US-005) | ✓ | ✗ | ✗ | | View Personalized Recommendations (TR-015, US-006) | ✓ | ✗ | ✗ | | View Purchase History (US-019) | ✓ | ✗ | ✗ | | Password Reset via Email (US-021) | ✓ | ✓ | ✓ | | Create, Edit & Publish Courses (TR-007, US-009, US-010) | ✗ | ✓ | ✗ | | Upload Video & Document Content (TR-008, US-009) | ✗ | ✓ | ✗ | | View Enrollment Analytics Dashboard (US-011) | ✗ | Limited | ✗ | | Receive Revenue Payouts for Paid Enrollments (US-012) | ✗ | ✓ | ✗ | | Approve or Reject Submitted Courses (TR-017, US-014) | ✗ | ✗ | ✓ | | Manage User & Instructor Accounts (TR-016,...",
+      "quality_score": 0.65,
+      "quality_pct": "65%",
+      "word_count": 250,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013"
+      ],
+      "req_count": 41
+    },
+    {
+      "id": "0ab96094-157e-4929-b7f8-870e4eee7391",
+      "name": "User Journeys and Use Cases",
+      "content": "### UC-001: Learner Enrolls in a Paid Course & Earns Certificate **Actor:** Learner | **Goal:** Purchase a course and obtain a completion certificate | # | Step | Requirement | |---|------|-------------| | 1 | Learner searches course catalog using keyword | TR-009, US-002 | | 2 | Selects course; reviews details and clicks Enroll | US-003, TR-010 | | 3 | Completes secure PCI-DSS payment via encrypted gateway | TR-014, US-018 | | 4 | Accesses content; tracks progress via dashboard percentage | TR-011, US-004 | | 5 | Completes all modules; downloadable certificate auto-generated | TR-012, US-005 | **Result:** Learner gains full course access post-payment and receives a verified digital certificate upon completion. --- ### UC-002: Instructor Creates & Publishes a Course **Actor:** Instructor | **Goal:** Build, upload, and get a course approved for publication | # | Step | Requirement | |---|------|-------------| | 1 | Instructor registers and submits verified account application | TR-006, US-008 | | 2 | Accesses course creation tools; enters title, description, category | TR-007, TR-005 | | 3 | Uploads video content and supporting documents | TR-008, US-009 | | 4 | Submits course for admin review | TR-017, US-014 | | 5 | Admin approves; course publishes live to Course Catalog | TR-017, US-001 | **Result:** Course becomes publicly discoverable and enrollable only after explicit admin approval, ensuring quality control.",
+      "quality_score": 0.65,
+      "quality_pct": "65%",
+      "word_count": 228,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 39
+    },
+    {
+      "id": "1621e928-ecbf-431a-9468-29082c0a64ce",
+      "name": "Integration Requirements",
+      "content": "## Integration Requirements | # | System | Type | Direction | Data | Frequency | Status | |---|--------|------|-----------|------|-----------|--------| | 1 | Payment Gateway (e.g. Stripe/PayPal) | External API | Bidirectional | Payment transactions, refunds, confirmations | Real-time | Required | | 2 | Video Hosting/CDN (e.g. AWS S3/Cloudflare) | Cloud Service | Bidirectional | Video uploads, streaming, document storage | On-demand | Required | | 3 | Email Service (e.g. SendGrid/SES) | External API | Outbound | Password resets, enrollment confirmations, notifications | Event-triggered | Required | | 4 | Certificate Generation Engine | Internal Service | Bidirectional | Completion data, learner details, certificate PDFs | Event-triggered | Required | | 5 | Instructor Payout System (e.g. Stripe Connect) | External API | Outbound | Revenue share calculations, payout disbursements | Scheduled/Periodic | Required | | 6 | Recommendation Engine | Internal Service | Bidirectional | Enrollment history, user preferences, course suggestions | Real-time | Desired | | 7 | Analytics & Reporting Platform (e.g. Mixpanel/custom) | Internal/External | Inbound | User engagement, session data, enrollment trends, revenue | Real-time | Required | | 8 | Authentication/SSO Provider (e.g.",
+      "quality_score": 0.64,
+      "quality_pct": "64%",
+      "word_count": 190,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 41
+    },
+    {
+      "id": "7fc6c505-30ec-4531-9991-bf91c7ecb56a",
+      "name": "Assumptions",
+      "content": "## Assumptions | A-ID | Assumption (max 20 words) | Risk if Wrong | |------|--------------------------|---------------| | A-001 | Platform will be web-based, accessible via standard internet browsers. | Mobile-only users may face accessibility issues; native app development required. | | A-002 | Instructors are independent creators, not exclusively platform-employed staff. | Content ownership, liability, and quality control policies may need redesign. | | A-003 | A third-party payment gateway will handle all paid course transactions. | Custom payment processing increases development cost, time, and compliance burden. | | A-004 | English is the primary and only supported language at initial launch. | Non-English-speaking learners will be excluded, limiting platform reach significantly. | | A-005 | Learners have reliable internet access to stream video course content. | Poor connectivity regions will experience high dropout and dissatisfaction rates. | | A-006 | Certificates will be digitally issued and do not require physical delivery. | Learner expectations for physical credentials may require additional fulfilment processes. | | A-007 | All age groups share a single unified platform interface and experience. | Younger learners may require a separate child-safe, age-appropriate interface.",
+      "quality_score": 0.67,
+      "quality_pct": "67%",
+      "word_count": 187,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-030",
+        "TR-031",
+        "TR-032",
+        "TR-033"
+      ],
+      "req_count": 4
+    },
+    {
+      "id": "abdb76f1-f62f-43a2-b793-84dadb059119",
+      "name": "Constraints",
+      "content": "## Constraints | C-ID | Constraint (max 20 words) | Category | Impact | |------|--------------------------|----------|--------| | CON-001 | Platform must comply with WCAG 2.1 accessibility guidelines for elderly and beginner users. | Regulatory | High | | CON-002 | Platform feature scope must be comparable to Coursera and Udemy at launch. | Technical | High | | CON-003 | All courses must pass admin approval workflow before becoming publicly visible. | Technical | Medium | | CON-004 | Paid course enrollment must only activate after successful payment processing completion. | Technical | High | | CON-005 | Certificates must only be issued upon verified learner course completion criteria. | Regulatory | Medium | | CON-006 | Platform must support learners across all age groups without feature restrictions. | Technical | High | | CON-007 | Instructor-uploaded content must meet platform quality standards before catalog listing. | Technical | Medium | | CON-008 | Personalized recommendation algorithm must comply with applicable data privacy regulations. | Regulatory | High | | CON-009 | Platform must support scalable infrastructure to handle Udemy/Coursera-level concurrent users.",
+      "quality_score": 0.79,
+      "quality_pct": "79%",
+      "word_count": 181,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-034",
+        "TR-035"
+      ],
+      "req_count": 2
+    }
+  ]
+}

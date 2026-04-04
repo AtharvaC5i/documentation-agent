@@ -1,0 +1,319 @@
+/* Inter + JetBrains Mono via Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base resets ──────────────────────────────────────────────────────────── */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    font-size: 14px;
+  }
+
+  body {
+    @apply bg-bg text-text font-sans;
+    min-height: 100dvh;
+    line-height: 1.6;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+    line-height: 1.3;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+    max-width: 72ch;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  /* Focus ring — consistent everywhere */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-bg;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-primary/10 text-text;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ── Component layer — reusable primitives ───────────────────────────────── */
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2
+           font-medium text-sm rounded-md
+           transition-colors duration-150
+           focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-primary focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           select-none;
+  }
+
+  .btn-sm {
+    @apply btn px-3 py-1.5 text-xs;
+  }
+  .btn-md {
+    @apply btn px-4 py-2 text-sm;
+  }
+  .btn-lg {
+    @apply btn px-5 py-2.5 text-base;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-hover
+           active:bg-primary-active shadow-sm;
+  }
+
+  .btn-secondary {
+    @apply bg-surface text-text border border-border
+           hover:bg-surface-offset active:bg-surface-dynamic shadow-sm;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-text-muted
+           hover:bg-surface-offset hover:text-text
+           active:bg-surface-dynamic;
+  }
+
+  .btn-danger {
+    @apply bg-danger-bg text-danger-text border border-danger-border
+           hover:bg-danger/10 active:bg-danger/20;
+  }
+
+  .btn-success {
+    @apply bg-success-bg text-success-text border border-success-border
+           hover:bg-success/10 active:bg-success/20;
+  }
+
+  /* Full-width button variant */
+  .btn-block {
+    @apply w-full;
+  }
+
+  /* ── Form inputs ──────────────────────────────────────────────────────── */
+  .input {
+    @apply w-full bg-surface border border-border rounded-md
+           px-3 py-2 text-sm text-text
+           placeholder:text-text-faint
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary/40
+           focus:border-primary
+           disabled:opacity-50 disabled:bg-surface-offset
+           disabled:cursor-not-allowed;
+  }
+
+  .input-sm {
+    @apply input px-2.5 py-1.5 text-xs;
+  }
+
+  .textarea {
+    @apply input resize-none leading-relaxed;
+  }
+
+  /* ── Labels ───────────────────────────────────────────────────────────── */
+  .label {
+    @apply block text-xs font-semibold text-text-muted mb-1.5;
+  }
+
+  .label-required::after {
+    content: " *";
+    @apply text-[#dc2626];;
+  }
+
+  /* ── Section divider label ─────────────────────────────────────────────── */
+  .section-label {
+    @apply flex items-center gap-3 mb-3;
+  }
+
+  .section-label span {
+    @apply text-[11px] font-bold uppercase tracking-widest text-text-faint
+           whitespace-nowrap;
+  }
+
+  .section-label::after {
+    content: "";
+    @apply flex-1 h-px bg-divider;
+  }
+
+  /* ── Cards ────────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-surface border border-border rounded-xl p-5;
+  }
+
+  .card-sm {
+    @apply card p-4;
+  }
+  .card-lg {
+    @apply card p-6;
+  }
+
+  /* ── Inline stat row ─────────────────────────────────────────────────── */
+  /* Replaces MetricCard grid — lighter, faster to read */
+  .stat-row {
+    @apply flex items-center gap-6 py-3 border-b border-divider last:border-0;
+  }
+
+  .stat-value {
+    @apply text-2xl font-bold tabular-nums text-text leading-none;
+  }
+
+  .stat-label {
+    @apply text-xs text-text-muted mt-0.5;
+  }
+
+  /* ── Badges ───────────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5
+           text-[11px] font-bold uppercase tracking-wide
+           rounded border;
+  }
+
+  .badge-gray {
+    @apply badge bg-surface-offset  border-border        text-text-muted;
+  }
+  .badge-green {
+    @apply badge bg-success-bg      border-success-border text-success-text;
+  }
+  .badge-amber {
+    @apply badge bg-warning-bg      border-warning-border text-warning-text;
+  }
+  .badge-red {
+    @apply badge bg-danger-bg       border-danger-border  text-danger-text;
+  }
+  .badge-blue {
+    @apply badge bg-info-bg         border-info-border    text-info-text;
+  }
+  .badge-teal {
+    @apply badge bg-[#e6f3f3] border-primary/20 text-primary;
+  }
+
+  /* ── Notice banners ───────────────────────────────────────────────────── */
+  .notice {
+    @apply flex items-start gap-3 px-4 py-3
+           rounded-lg border text-sm mb-4;
+  }
+
+  .notice-ok {
+    @apply notice bg-success-bg border-success-border text-success-text;
+  }
+  .notice-warn {
+    @apply notice bg-warning-bg border-warning-border text-warning-text;
+  }
+  .notice-error {
+    @apply notice bg-danger-bg  border-danger-border  text-danger-text;
+  }
+  .notice-info {
+    @apply notice bg-info-bg    border-info-border    text-info-text;
+  }
+
+  /* ── Mono tag (language/framework chips) ─────────────────────────────── */
+  .tag {
+    @apply inline-flex items-center px-2 py-0.5
+           bg-surface-offset border border-border
+           rounded text-xs font-mono text-text-muted;
+  }
+
+  /* ── Skeleton loader ─────────────────────────────────────────────────── */
+  .skeleton {
+    @apply bg-surface-offset rounded animate-pulse;
+  }
+
+  /* ── Page container ──────────────────────────────────────────────────── */
+  .page-container {
+    @apply max-w-content mx-auto px-6 py-8;
+  }
+
+  /* ── Divider ─────────────────────────────────────────────────────────── */
+  .divider {
+    @apply h-px bg-divider w-full my-5;
+  }
+
+  /* ── Table primitives ────────────────────────────────────────────────── */
+  .data-table {
+    @apply w-full text-sm border border-border rounded-xl overflow-hidden;
+  }
+
+  .data-table thead tr {
+    @apply bg-surface-offset border-b border-divider;
+  }
+
+  .data-table thead th {
+    @apply px-4 py-3 text-left text-[11px] font-bold uppercase
+           tracking-widest text-text-faint;
+  }
+
+  .data-table tbody tr {
+    @apply border-b border-divider last:border-0
+           hover:bg-surface-offset transition-colors duration-100;
+  }
+
+  .data-table tbody td {
+    @apply px-4 py-3 text-sm text-text;
+  }
+
+  /* ── Step progress list ──────────────────────────────────────────────── */
+  .progress-step {
+    @apply flex items-center gap-3 py-2.5 text-sm;
+  }
+
+  .progress-step-icon {
+    @apply w-5 h-5 rounded-full flex items-center justify-center
+           flex-shrink-0 text-xs font-bold;
+  }
+}

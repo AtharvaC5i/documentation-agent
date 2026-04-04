@@ -1,0 +1,980 @@
+{
+  "requirements": [
+    {
+      "req_id": "TR-001",
+      "type": "stakeholder",
+      "description": "Tom Anderson is the client responsible for defining platform requirements and vision.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-002",
+      "type": "stakeholder",
+      "description": "Ramesh is a team member responsible for requirement gathering and technical clarification.",
+      "source": "transcript",
+      "speaker": "Ramesh",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-004",
+      "type": "functional",
+      "description": "Platform must support school students, college students, working professionals, and elderly learners.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "auth",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "All four user groups can register and access platform content successfully."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-005",
+      "type": "functional",
+      "description": "Platform must support academic, professional skills, and hobby-based course categories.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Courses from all three categories are browsable and enrollable by users."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-006",
+      "type": "functional",
+      "description": "Instructors must be able to register on the platform as course creators.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "auth",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Instructor registration form is available and creates a verified instructor account."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-007",
+      "type": "functional",
+      "description": "Instructors must have access to course creation tools to build and publish courses.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Instructor can create, edit, and publish a course using provided tools."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-008",
+      "type": "functional",
+      "description": "Instructors must be able to upload video content for their courses.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Instructor can upload video files that are playable by enrolled learners."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-009",
+      "type": "functional",
+      "description": "Users must be able to browse and search for courses on the platform.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "search",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Search returns relevant course results based on keyword input."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-010",
+      "type": "functional",
+      "description": "Users must be able to enroll in available courses on the platform.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "User can enroll in a course and gain immediate access to course content."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-011",
+      "type": "functional",
+      "description": "Users must be able to track their learning progress within enrolled courses.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "analytics",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Progress percentage is displayed and updated as user completes course modules."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-012",
+      "type": "functional",
+      "description": "Users must receive a certificate upon successful course completion.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Certificate is generated and accessible to user after completing all course requirements."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-013",
+      "type": "functional",
+      "description": "Platform must support both free and paid course enrollment options.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Free courses are accessible without payment; paid courses require successful payment to enroll."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-014",
+      "type": "functional",
+      "description": "Platform must integrate secure payment processing for paid course purchases.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Payment transaction completes securely and grants user access to purchased course."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-015",
+      "type": "functional",
+      "description": "Platform must provide personalized course recommendations to users.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 0.9,
+      "priority": "should_have",
+      "module_tag": "search",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Recommendations displayed are relevant to user's enrollment history or profile preferences."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-016",
+      "type": "functional",
+      "description": "Admin must be able to manage user and instructor accounts on the platform.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Admin can view, edit, suspend, or delete user and instructor accounts."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-017",
+      "type": "functional",
+      "description": "Admin must be able to approve or reject courses submitted by instructors.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Courses are only published on the platform after explicit admin approval."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-018",
+      "type": "functional",
+      "description": "Admin must be able to monitor overall platform activity and usage.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Admin dashboard displays real-time platform activity metrics."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-019",
+      "type": "functional",
+      "description": "Platform must provide analytics dashboards showing user engagement metrics.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "analytics",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Dashboard displays active users, session duration, and enrollment trends."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-021",
+      "type": "functional",
+      "description": "Platform must provide revenue tracking analytics for financial performance monitoring.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "analytics",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Revenue dashboard displays total earnings, transactions, and revenue per course."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-022",
+      "type": "functional",
+      "description": "Platform must support a multi-role system: Admin, Instructor, and Learner.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "auth",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Each role has distinct permissions and access levels enforced across the platform."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-023",
+      "type": "non_functional",
+      "description": "Platform must scale to support thousands of concurrent users without performance degradation.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Platform maintains acceptable response times under load of thousands of simultaneous users."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-024",
+      "type": "non_functional",
+      "description": "Platform must have a simple and intuitive user interface accessible to beginners.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "mobile",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "New users can navigate and enroll in a course without external assistance."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-025",
+      "type": "non_functional",
+      "description": "Platform must be mobile-friendly and responsive across devices.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "mobile",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "All core features are fully functional and visually correct on mobile devices."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-026",
+      "type": "non_functional",
+      "description": "Payment integration must be secure to protect user financial data.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Payment flow complies with PCI-DSS standards and no card data is stored in plain text."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-027",
+      "type": "business_rule",
+      "description": "Courses must be approved by admin before becoming visible and enrollable by learners.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Unapproved courses are not visible in search or browsing results."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-028",
+      "type": "business_rule",
+      "description": "Certificates are only issued to users who fully complete all course requirements.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 0.9,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Certificate is not generated until 100% course completion is recorded."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-029",
+      "type": "business_rule",
+      "description": "Paid courses require successful payment before granting learner access to content.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Learner cannot access paid course content without a confirmed payment record."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-030",
+      "type": "assumption",
+      "description": "Platform will be web-based, accessible via standard internet browsers.",
+      "source": "transcript",
+      "speaker": null,
+      "confidence": 0.8,
+      "priority": null,
+      "module_tag": "mobile",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-031",
+      "type": "assumption",
+      "description": "Instructors are assumed to be independent creators, not exclusively platform-employed staff.",
+      "source": "transcript",
+      "speaker": null,
+      "confidence": 0.8,
+      "priority": null,
+      "module_tag": "vendor",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-032",
+      "type": "assumption",
+      "description": "A third-party payment gateway will be used for processing paid course transactions.",
+      "source": "transcript",
+      "speaker": null,
+      "confidence": 0.85,
+      "priority": null,
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-033",
+      "type": "assumption",
+      "description": "Platform will support English as the primary language at initial launch.",
+      "source": "transcript",
+      "speaker": null,
+      "confidence": 0.7,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-034",
+      "type": "constraint",
+      "description": "Platform must be inclusive and accessible for all age groups including elderly users.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "compliance",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Platform meets WCAG 2.1 accessibility guidelines for elderly and beginner users."
+      ],
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-035",
+      "type": "constraint",
+      "description": "Platform design must be comparable in scope to Coursera and Udemy feature sets.",
+      "source": "transcript",
+      "speaker": "Tom Anderson",
+      "confidence": 0.85,
+      "priority": "should_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": null,
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-001",
+      "type": "functional",
+      "description": "The system shall display a browsable catalog of all available courses to learners.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Catalog",
+      "user_story_id": "US-001",
+      "acceptance_criteria": [
+        "Learner can view all available courses in a browsable list or grid view."
+      ],
+      "source_location": "US-001",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-002",
+      "type": "functional",
+      "description": "The system shall allow learners to search courses using keywords and return relevant results.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Search",
+      "user_story_id": "US-002",
+      "acceptance_criteria": [
+        "Search returns relevant courses matching entered keywords within 2 seconds."
+      ],
+      "source_location": "US-002",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-003",
+      "type": "functional",
+      "description": "The system shall allow learners to enroll in available courses to begin learning.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Enrollment",
+      "user_story_id": "US-003",
+      "acceptance_criteria": [
+        "Learner can click enroll and gain immediate access to course content."
+      ],
+      "source_location": "US-003",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-004",
+      "type": "functional",
+      "description": "The system shall display course progress tracking showing percentage of completion per learner.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Progress",
+      "user_story_id": "US-004",
+      "acceptance_criteria": [
+        "Learner dashboard shows accurate completion percentage for each enrolled course."
+      ],
+      "source_location": "US-004",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-005",
+      "type": "functional",
+      "description": "The system shall automatically generate and issue a certificate upon course completion.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Certification",
+      "user_story_id": "US-005",
+      "acceptance_criteria": [
+        "Learner receives a downloadable certificate immediately after completing all course requirements."
+      ],
+      "source_location": "US-005",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-006",
+      "type": "functional",
+      "description": "The system shall provide personalized course recommendations based on learner interests and history.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Recommendations",
+      "user_story_id": "US-006",
+      "acceptance_criteria": [
+        "Learner sees at least 5 personalized course recommendations on their dashboard."
+      ],
+      "source_location": "US-006",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-007",
+      "type": "functional",
+      "description": "The system shall be fully accessible and functional on mobile devices for learners.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Mobile",
+      "user_story_id": "US-007",
+      "acceptance_criteria": [
+        "All core learner features render and function correctly on iOS and Android devices."
+      ],
+      "source_location": "US-007",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-008",
+      "type": "functional",
+      "description": "The system shall allow instructors to register and create a verified instructor account.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Authentication",
+      "user_story_id": "US-008",
+      "acceptance_criteria": [
+        "Instructor can complete registration and access course creation tools upon approval."
+      ],
+      "source_location": "US-008",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-009",
+      "type": "functional",
+      "description": "The system shall allow instructors to upload videos and documents as course content.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "ContentManagement",
+      "user_story_id": "US-009",
+      "acceptance_criteria": [
+        "Instructor can successfully upload video and document files that become accessible to enrolled learners."
+      ],
+      "source_location": "US-009",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-010",
+      "type": "functional",
+      "description": "The system shall allow instructors to edit and update existing published course content.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "ContentManagement",
+      "user_story_id": "US-010",
+      "acceptance_criteria": [
+        "Instructor can modify course title, description, and content after initial publication."
+      ],
+      "source_location": "US-010",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-011",
+      "type": "functional",
+      "description": "The system shall provide instructors with a dashboard showing student enrollment counts per course.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Analytics",
+      "user_story_id": "US-011",
+      "acceptance_criteria": [
+        "Instructor dashboard displays total and per-course enrollment numbers updated in real time."
+      ],
+      "source_location": "US-011",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-012",
+      "type": "functional",
+      "description": "The system shall process and distribute revenue payments to instructors for paid course enrollments.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Payments",
+      "user_story_id": "US-012",
+      "acceptance_criteria": [
+        "Instructor receives correct revenue share payment for each paid enrollment within defined payout period."
+      ],
+      "source_location": "US-012",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-013",
+      "type": "functional",
+      "description": "The system shall allow admins to create, suspend, and delete user accounts.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "UserManagement",
+      "user_story_id": "US-013",
+      "acceptance_criteria": [
+        "Admin can view, edit, suspend, and delete any user account from the admin panel."
+      ],
+      "source_location": "US-013",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-014",
+      "type": "functional",
+      "description": "The system shall allow admins to approve or reject instructor-submitted courses before publication.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "CourseModeration",
+      "user_story_id": "US-014",
+      "acceptance_criteria": [
+        "Course is only published on the platform after explicit admin approval action."
+      ],
+      "source_location": "US-014",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-015",
+      "type": "functional",
+      "description": "The system shall provide admins with real-time monitoring of platform activity and system health.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Monitoring",
+      "user_story_id": "US-015",
+      "acceptance_criteria": [
+        "Admin can view live activity logs including logins, enrollments, and errors in the admin panel."
+      ],
+      "source_location": "US-015",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-016",
+      "type": "functional",
+      "description": "The system shall provide admins with analytics dashboards displaying platform performance and growth metrics.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Analytics",
+      "user_story_id": "US-016",
+      "acceptance_criteria": [
+        "Admin dashboard displays KPIs including total users, enrollments, and revenue with trend charts."
+      ],
+      "source_location": "US-016",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-017",
+      "type": "functional",
+      "description": "The system shall allow admins to view, manage, and reconcile all platform payments and transactions.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Payments",
+      "user_story_id": "US-017",
+      "acceptance_criteria": [
+        "Admin can view full transaction history, filter by date and status, and issue refunds."
+      ],
+      "source_location": "US-017",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-018",
+      "type": "functional",
+      "description": "The system shall process course payments securely using encrypted and compliant payment methods.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Payments",
+      "user_story_id": "US-018",
+      "acceptance_criteria": [
+        "Payment is processed via PCI-DSS compliant gateway with SSL encryption and confirmed to user."
+      ],
+      "source_location": "US-018",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-019",
+      "type": "functional",
+      "description": "The system shall display a complete purchase history for each user account.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Payments",
+      "user_story_id": "US-019",
+      "acceptance_criteria": [
+        "User can view a list of all past purchases including date, course name, and amount paid."
+      ],
+      "source_location": "US-019",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-020",
+      "type": "functional",
+      "description": "The system shall provide secure user registration and login with credential encryption.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Authentication",
+      "user_story_id": "US-020",
+      "acceptance_criteria": [
+        "User credentials are stored encrypted and login requires valid authentication before granting access."
+      ],
+      "source_location": "US-020",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-021",
+      "type": "functional",
+      "description": "The system shall allow users to reset their password via a verified email link.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Authentication",
+      "user_story_id": "US-021",
+      "acceptance_criteria": [
+        "User receives a password reset email with a secure expiring link that allows password update."
+      ],
+      "source_location": "US-021",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    }
+  ],
+  "glossary": {
+    "Education4All": "The project name for the inclusive online education platform being developed for client Tom Anderson.",
+    "Learner": "A registered user who browses, enrolls in, and completes courses on the platform; one of the three primary user roles.",
+    "Instructor": "A registered course creator who uploads video content, builds courses, and publishes them for learner enrollment.",
+    "Admin": "A platform administrator responsible for managing user accounts, approving courses, and monitoring platform activity.",
+    "Course Catalog": "The browsable and searchable collection of all published and approved courses available to learners on the platform.",
+    "Course Approval": "The admin-controlled workflow where instructor-submitted courses are reviewed and either approved or rejected before becoming publicly visible.",
+    "Certificate": "A digital credential automatically issued to a learner upon successful completion of all requirements within a course.",
+    "Paid Course": "A course that requires successful payment processing before a learner is granted access to its content.",
+    "Free Course": "A course available for enrollment without any payment requirement.",
+    "Personalized Recommendations": "An algorithmic feature that suggests relevant courses to learners based on their interests, enrollment history, and activity.",
+    "Progress Tracking": "A feature that displays a learner's percentage of completion within an enrolled course.",
+    "Revenue Tracking": "Analytics functionality that monitors financial performance including instructor payouts and platform earnings from paid courses.",
+    "Third-Party Payment Gateway": "An external payment processing service integrated into the platform to handle secure transactions for paid course purchases.",
+    "Multi-Role System": "The platform architecture supporting three distinct user roles — Admin, Instructor, and Learner — each with different permissions and capabilities.",
+    "Instructor Dashboard": "A dedicated interface providing instructors with data on student enrollment counts and course performance metrics."
+  },
+  "stakeholders": []
+}

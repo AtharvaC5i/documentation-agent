@@ -1,6 +1,7 @@
 """
-Section Prompts — with strict length constraints.
-Every prompt includes a word/format limit to keep the BRD to 45-60 pages.
+Section Prompts — strict length constraints.
+Target: entire BRD 35-50 pages. Max 2 pages per section.
+Tables must fit within page width. No sprawling prose.
 """
 
 from typing import Tuple, Optional, Dict
@@ -20,227 +21,215 @@ def get_section_prompt(
     base = f"""Project: {project_name} | Client: {client_name} | Industry: {industry}
 Description: {description}
 
-Glossary terms: {_fmt_glossary(glossary)}
+Glossary: {_fmt_glossary(glossary)}
 
 Requirements:
 {requirements_context}"""
 
-    fb = f"\n\nReviewer feedback to incorporate:\n{feedback}" if feedback else ""
+    fb = f"\n\nReviewer feedback:\n{feedback}" if feedback else ""
     sl = section_name.lower()
 
     # ── Executive Summary ──────────────────────────────────────────────────
     if "executive summary" in sl:
-        sys = """Senior BA writing Executive Summary for a CEO — non-technical audience.
-STRICT LIMIT: 350 words maximum. No padding.
-Structure (use these exact headings):
+        sys = """Senior BA writing Executive Summary. NON-TECHNICAL audience.
+HARD LIMIT: 300 words. No exceptions. No filler.
+FORMAT:
 ## Executive Summary
-### Business Problem (2-3 sentences)
-### Proposed Solution (2-3 sentences)
-### Key Objectives (3-5 bullet points, each one line)
-### Scope Overview (3-4 bullet points)
-### Expected Outcomes (2-3 sentences)
-Be direct. No filler phrases like "it is important to note that"."""
-        usr = f"{base}\n\nWrite the Executive Summary. Max 350 words.{fb}"
+### Business Problem (2 sentences max)
+### Proposed Solution (2 sentences max)
+### Key Objectives (3-4 bullets, one line each)
+### Expected Outcomes (2 sentences)
+Write tight. Every word must earn its place."""
+        usr = f"{base}\n\nExecutive Summary — 300 words MAXIMUM.{fb}"
 
     # ── Business Context ───────────────────────────────────────────────────
     elif "business context" in sl:
-        sys = """Senior BA writing Business Context section.
-STRICT LIMIT: 300 words maximum.
-Structure:
-## Business Context and Background
-### Current State (2-3 sentences — what exists today)
-### Business Problem (2-3 sentences — why this project is needed)
-### Cost of Inaction (1-2 sentences — what happens if nothing is built)"""
-        usr = f"{base}\n\nWrite Business Context. Max 300 words.{fb}"
+        sys = """Senior BA writing Business Context.
+HARD LIMIT: 200 words.
+FORMAT:
+## Business Context
+### Current State (1-2 sentences)
+### Problem (2-3 sentences)
+### Impact if Unresolved (1 sentence)"""
+        usr = f"{base}\n\nBusiness Context — 200 words MAXIMUM.{fb}"
 
     # ── Objectives ─────────────────────────────────────────────────────────
     elif "objective" in sl:
-        sys = """Senior BA writing Project Objectives section.
-STRICT LIMIT: 250 words. Every objective must be measurable (include a number or KPI).
-Structure:
-## Project Objectives and Success Criteria
-### Business Objectives
-1. [Objective with measurable KPI]
-(5-7 objectives maximum)
-### Success Criteria
-| Objective | Metric | Target |
-(table format — one row per objective)"""
-        usr = f"{base}\n\nWrite Objectives and Success Criteria. Max 250 words.{fb}"
+        sys = """Senior BA writing Objectives. ALL must be measurable with numbers.
+HARD LIMIT: 200 words.
+FORMAT:
+## Project Objectives
+| # | Objective | Metric | Target |
+(max 6 rows)
+Then 2 sentence closing on timeline."""
+        usr = f"{base}\n\nObjectives table — 200 words MAXIMUM.{fb}"
 
     # ── Scope ──────────────────────────────────────────────────────────────
     elif "scope" in sl:
-        sys = """Senior BA writing Scope section.
-STRICT LIMIT: 300 words.
-Structure:
+        sys = """Senior BA writing Scope. Explicit and complete.
+HARD LIMIT: 250 words.
+FORMAT:
 ## Scope
 ### In Scope
-- [item] (10-15 bullet points max)
+- bullet (8-12 items max)
 ### Out of Scope
-- [item] (5-8 items — be explicit, this prevents disputes)
-### Future Scope / Phase 2
-- [item] (3-5 items)"""
-        usr = f"{base}\n\nWrite the Scope section. Max 300 words.{fb}"
+- bullet (5-8 items — be explicit)
+### Future Phases
+- bullet (3-5 items)"""
+        usr = f"{base}\n\nScope section — 250 words MAXIMUM.{fb}"
 
     # ── Stakeholders ───────────────────────────────────────────────────────
     elif "stakeholder" in sl:
         sys = """Senior BA writing Stakeholder Register.
-STRICT LIMIT: Use a table — no prose descriptions.
-Structure:
+TABLE ONLY — no prose. Fit in one page.
+FORMAT:
 ## Stakeholder Register
-| Name | Role | Organisation | Responsibilities | Involvement |
-(one row per stakeholder — list every person mentioned in inputs)
-Then 2-3 sentences on communication plan."""
-        usr = f"{base}\n\nWrite Stakeholder Register as a table.{fb}"
+| Name | Role | Organisation | Key Responsibility | Availability |
+(max 10 rows)"""
+        usr = f"{base}\n\nStakeholder Register as table only.{fb}"
 
     # ── Functional Requirements ────────────────────────────────────────────
     elif "functional req" in sl:
-        sys = """Senior BA writing Functional Requirements section.
-CRITICAL FORMAT RULE: Use ONLY tables. No prose per requirement.
-Group by module. For each module:
+        sys = """Senior BA writing Functional Requirements.
+CRITICAL: TABLE FORMAT ONLY. No prose descriptions per requirement.
+GROUP by module. Each module gets one table.
+TABLE FORMAT per module:
 ### [Module Name]
-| FR-ID | Requirement (The system SHALL...) | Priority | Acceptance Criteria |
-Keep each requirement to ONE row, ONE sentence. Do not write paragraphs.
-Cover ALL functional requirements from the inputs."""
-        usr = f"{base}\n\nWrite Functional Requirements as tables grouped by module. Table format only.{fb}"
+| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |
+Keep AC column to ONE criterion max per row. If more needed, list as FR-XXX-a, FR-XXX-b.
+Max 8 columns total width — keep columns narrow.
+Cover ALL functional requirements but keep each row concise."""
+        usr = f"{base}\n\nFunctional Requirements — tables by module only. Keep rows concise.{fb}"
 
     # ── Non-Functional Requirements ────────────────────────────────────────
     elif "non-functional" in sl or "non functional" in sl:
-        sys = """Senior BA writing Non-Functional Requirements.
-STRICT LIMIT: Bullet points only — no paragraphs.
-Structure:
+        sys = """Senior BA writing NFRs.
+TABLE FORMAT. One table covering all categories.
+FORMAT:
 ## Non-Functional Requirements
-### Performance
-- [measurable requirement]
-### Security
-- [requirement]
-### Scalability
-- [requirement]
-### Availability
-- [requirement]
-### Compliance
-- [requirement]
-Each bullet = one specific, measurable NFR. Max 3-4 bullets per category."""
-        usr = f"{base}\n\nWrite NFRs as bullet points only. Max 4 bullets per category.{fb}"
+| Category | Requirement | Metric |
+Categories: Performance, Security, Scalability, Availability, Compliance, Usability
+Max 2 rows per category. Keep metric column measurable and brief."""
+        usr = f"{base}\n\nNFRs as single table. Max 2 rows per category.{fb}"
 
     # ── Business Rules ─────────────────────────────────────────────────────
     elif "business rule" in sl:
-        sys = """Senior BA writing Business Rules section.
-STRICT FORMAT: One-line rule statements only. Use a table.
+        sys = """Senior BA writing Business Rules.
+TABLE FORMAT ONLY.
+FORMAT:
 ## Business Rules
-| BR-ID | Rule Statement | Module | Priority |
-Keep each rule to ONE sentence. No explanatory prose."""
-        usr = f"{base}\n\nWrite Business Rules as a table. One sentence per rule.{fb}"
+| BR-ID | Rule (max 20 words) | Module | Priority |
+Max 15 rules. One sentence each."""
+        usr = f"{base}\n\nBusiness Rules as table. Max 15 rows.{fb}"
 
     # ── User Roles ─────────────────────────────────────────────────────────
     elif "user roles" in sl or "roles and permission" in sl:
-        sys = """Senior BA writing User Roles and Permissions.
-Structure:
+        sys = """Senior BA writing User Roles & Permissions.
+FORMAT:
 ## User Roles and Permissions
-### Role Definitions (one paragraph per role — 2 sentences max each)
+### Role Definitions
+One line per role: **Role Name** — description (max 15 words)
 ### Permissions Matrix
-| Feature | [Role1] | [Role2] | [Role3] | [Role4] |
-Use ✓ Allowed / ✗ Denied / Limited
-List 15-20 key features in the matrix."""
-        usr = f"{base}\n\nWrite User Roles and Permissions with a permissions matrix.{fb}"
+| Feature | [Role1] | [Role2] | [Role3] |
+Use ✓ / ✗ / Limited. Max 15 features, max 5 roles."""
+        usr = f"{base}\n\nUser Roles with compact permissions matrix.{fb}"
 
     # ── User Journeys ──────────────────────────────────────────────────────
     elif "user journey" in sl or "use case" in sl:
         sys = """Senior BA writing User Journeys.
-STRICT LIMIT: 5 journeys maximum. Each journey max 100 words.
-Structure per journey:
-### UC-00X: [Journey Name]
-**Actor**: | **Goal**: | **Steps**: (numbered, max 6 steps) | **Outcome**:
-Pick only the 5 most critical user journeys."""
-        usr = f"{base}\n\nWrite 5 most critical User Journeys. Max 100 words each.{fb}"
+HARD LIMIT: 3 journeys only. Each max 80 words.
+FORMAT per journey:
+### UC-00X: [Name]
+**Actor** | **Goal** | **Steps** (max 5, numbered) | **Result**
+Pick only the 3 most business-critical flows."""
+        usr = f"{base}\n\n3 most critical User Journeys — 80 words each max.{fb}"
 
     # ── Data Requirements ──────────────────────────────────────────────────
     elif "data req" in sl:
         sys = """Senior BA writing Data Requirements.
-STRICT LIMIT: 250 words. Use tables.
-Structure:
+HARD LIMIT: 200 words. Tables only.
+FORMAT:
 ## Data Requirements
-### Key Data Entities
-| Entity | Key Attributes | Estimated Volume |
-### Data Migration
-2-3 sentences only.
-### Data Retention
-2-3 sentences only."""
-        usr = f"{base}\n\nWrite Data Requirements. Use tables. Max 250 words.{fb}"
+| Entity | Key Attributes | Est. Volume | Sensitivity |
+(max 8 entities)
+Then 1 sentence on migration if applicable."""
+        usr = f"{base}\n\nData Requirements table — 200 words max.{fb}"
 
     # ── Integration Requirements ───────────────────────────────────────────
     elif "integration" in sl:
         sys = """Senior BA writing Integration Requirements.
-STRICT FORMAT: One table per integration system found in requirements.
+ONE compact table listing all integrations.
+FORMAT:
 ## Integration Requirements
-For each system:
-### [System Name]
-| Attribute | Detail |
-Rows: Type / Direction / Data Exchanged / Frequency / Owner / Fallback / Status
-List only systems explicitly mentioned in the inputs."""
-        usr = f"{base}\n\nWrite Integration Requirements as attribute tables. One table per system.{fb}"
+| System | Type | Direction | Data | Frequency | Status |
+Then if a system needs detail, add ONE brief note line under the table.
+Max 10 integration rows."""
+        usr = f"{base}\n\nIntegrations as one compact table.{fb}"
 
     # ── Assumptions ───────────────────────────────────────────────────────
     elif "assumption" in sl:
-        sys = """Senior BA writing Assumptions section.
-STRICT FORMAT: Table only.
+        sys = """Senior BA writing Assumptions.
+TABLE FORMAT ONLY.
+FORMAT:
 ## Assumptions
-| A-ID | Assumption Statement | Risk if Wrong | Owner |
-Keep each assumption to ONE sentence.
-List only assumptions explicitly stated or strongly implied in inputs."""
-        usr = f"{base}\n\nWrite Assumptions as a table.{fb}"
+| A-ID | Assumption (max 20 words) | Risk if Wrong |
+Max 10 assumptions."""
+        usr = f"{base}\n\nAssumptions as table. Max 10 rows.{fb}"
 
     # ── Constraints ────────────────────────────────────────────────────────
     elif "constraint" in sl:
-        sys = """Senior BA writing Constraints section.
-STRICT FORMAT: Table only.
+        sys = """Senior BA writing Constraints.
+TABLE FORMAT ONLY.
+FORMAT:
 ## Constraints
-| C-ID | Constraint | Category | Impact |
-Category = Technical / Timeline / Budget / Regulatory / Organisational
-ONE sentence per constraint."""
-        usr = f"{base}\n\nWrite Constraints as a table.{fb}"
+| C-ID | Constraint (max 20 words) | Category | Impact |
+Max 10 constraints. Categories: Technical / Timeline / Budget / Regulatory."""
+        usr = f"{base}\n\nConstraints as table. Max 10 rows.{fb}"
 
     # ── Dependencies ───────────────────────────────────────────────────────
     elif "dependenc" in sl:
-        sys = """Senior BA writing Dependencies section.
-STRICT FORMAT: Table only.
+        sys = """Senior BA writing Dependencies.
+TABLE FORMAT ONLY.
+FORMAT:
 ## Dependencies
-| # | Dependency | Owner | Required By | Impact if Delayed |"""
-        usr = f"{base}\n\nWrite Dependencies as a table.{fb}"
+| # | Dependency | Owner | Needed By | Impact if Delayed |
+Max 8 rows."""
+        usr = f"{base}\n\nDependencies as table. Max 8 rows.{fb}"
 
     # ── Risks ──────────────────────────────────────────────────────────────
     elif "risk" in sl:
-        sys = """Senior BA writing Risks section.
-STRICT FORMAT: Table only. Max 10 risks.
+        sys = """Senior BA writing Risks.
+TABLE FORMAT ONLY. Max 8 risks.
+FORMAT:
 ## Risks
-| Risk ID | Risk | Probability | Impact | Level | Mitigation |
-Probability / Impact = Low / Medium / High
-Level = Low × Low = Low, Medium × High = High, etc."""
-        usr = f"{base}\n\nWrite top 10 risks as a table.{fb}"
+| Risk ID | Risk (max 15 words) | Probability | Impact | Level | Mitigation (max 10 words) |"""
+        usr = f"{base}\n\nTop 8 risks as table only.{fb}"
 
     # ── Glossary ───────────────────────────────────────────────────────────
     elif "glossary" in sl:
-        sys = """Senior BA writing Glossary section.
-STRICT FORMAT: Table only. Alphabetical order.
+        sys = """Senior BA writing Glossary.
+TABLE FORMAT. Alphabetical. One line definitions.
+FORMAT:
 ## Glossary
-| Term | Definition |
-ONE sentence per definition. Include all terms from the project glossary provided."""
-        usr = f"{base}\n\nWrite Glossary as an alphabetical table.{fb}"
+| Term | Definition (max 15 words) |"""
+        usr = f"{base}\n\nGlossary as alphabetical table. One-line definitions.{fb}"
 
     # ── Appendices ─────────────────────────────────────────────────────────
     elif "appendix" in sl or "appendices" in sl:
-        sys = """Senior BA writing Appendices section.
-STRICT LIMIT: 150 words.
+        sys = """Senior BA writing Appendices.
+HARD LIMIT: 100 words.
+FORMAT:
 ## Appendices
-### Appendix A: Reference Documents (list only)
-### Appendix B: Open Questions and Action Items (bullet list)"""
-        usr = f"{base}\n\nWrite Appendices. Max 150 words.{fb}"
+### Reference Documents (list only — no descriptions)
+### Open Questions (bullet list — max 5 items)"""
+        usr = f"{base}\n\nAppendices — 100 words max.{fb}"
 
-    # ── Custom / Generic ───────────────────────────────────────────────────
+    # ── Custom ─────────────────────────────────────────────────────────────
     else:
-        sys = f"""Senior BA writing the '{section_name}' section of a BRD.
-STRICT LIMIT: 300 words. Use tables and bullet points where possible.
+        sys = f"""Senior BA writing '{section_name}' section.
+HARD LIMIT: 200 words. Use tables and bullets where possible.
 Start with: ## {section_name}"""
-        usr = f"{base}\n\nWrite '{section_name}'. Max 300 words.{fb}"
+        usr = f"{base}\n\n'{section_name}' section — 200 words MAXIMUM.{fb}"
 
     return sys, usr
 
@@ -248,5 +237,5 @@ Start with: ## {section_name}"""
 def _fmt_glossary(glossary: Dict[str, str]) -> str:
     if not glossary:
         return "None"
-    items = list(glossary.items())[:15]
-    return " | ".join(f"{k}: {v[:60]}" for k, v in items)
+    items = list(glossary.items())[:10]
+    return " | ".join(f"{k}: {v[:50]}" for k, v in items)

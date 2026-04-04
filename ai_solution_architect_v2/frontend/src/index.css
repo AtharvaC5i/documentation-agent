@@ -1,0 +1,103 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base resets ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: "DM Sans", sans-serif;
+  background-color: #f7f5ff;
+  color: #1a1a2e;
+}
+
+/* ── Focus rings — visible only on keyboard nav ── */
+:focus-visible {
+  outline: 2px solid #7c5cbf;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── Interactive elements get smooth transitions by default ── */
+a,
+button,
+[role="button"],
+input,
+textarea,
+select {
+  transition:
+    color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Text selection ── */
+::selection {
+  background: rgba(124, 92, 191, 0.18);
+  color: #1b2a5e;
+}
+
+/* ── Scrollbar (webkit) — subtle, brand-matched ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f7f5ff;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4cbf0;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9b93cc;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Textarea resize handle color ── */
+textarea {
+  resize: vertical;
+}
+
+/* ── Pulse animation for generating hint text ── */
+@keyframes pulse-text {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.animate-pulse-text {
+  animation: pulse-text 2s ease-in-out infinite;
+}

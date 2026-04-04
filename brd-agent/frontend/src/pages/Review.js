@@ -137,6 +137,10 @@ export default function Review() {
   };
 
   const handleGenerateDoc = async () => {
+    if (!allApproved) {
+      alert(`Please approve all ${sections.length} sections before generating the document. Currently ${approvedCount} of ${sections.length} are approved.`);
+      return;
+    }
     setGenerating(true);
     await generateDocument(projectId);
   };
@@ -233,6 +237,11 @@ export default function Review() {
                 {hasEdits && !isEditing && <span className="badge badge-orange">Unsaved</span>}
                 {section.req_count > 0 && (
                   <span className="text-xs text-muted">{section.req_count} reqs</span>
+                )}
+                {section.word_count > 0 && (
+                  <span className="text-xs" style={{
+                    color: section.word_count > 400 ? "#fcd34d" : "var(--text-muted)"
+                  }}>{section.word_count}w</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -411,37 +420,7 @@ export default function Review() {
         );
       })}
 
-      {/* Bottom CTA */}
-      <div
-        className="card mt-6"
-        style={{
-          padding: "18px 22px",
-          background: "linear-gradient(135deg, rgba(124,58,237,.15) 0%, rgba(37,99,235,.15) 100%)",
-          border: "1px solid rgba(99,102,241,.25)",
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-semibold" style={{ color: "var(--text-primary)" }}>
-              Ready to generate the final BRD?
-            </div>
-            <div className="text-sm text-muted mt-1">
-              {allApproved
-                ? "All sections approved — document will include all sections."
-                : `${approvedCount} of ${sections.length} sections approved. All sections will be included.`}
-            </div>
-          </div>
-          <button
-            className="btn btn-primary btn-lg"
-            disabled={generating}
-            onClick={handleGenerateDoc}
-          >
-            {generating
-              ? <><div className="spinner" style={{ width: 16, height: 16 }} /> Generating...</>
-              : <><FileDown size={16} /> Generate & Download BRD</>}
-          </button>
-        </div>
-      </div>
+
     </div>
   );
 }

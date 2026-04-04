@@ -1,0 +1,27 @@
+2. USER STORIES
+👤 Learner/User Stories
+As a learner, I want to browse available courses so that I can find topics of interest.
+As a learner, I want to search for courses using keywords so that I can quickly find relevant content.
+As a learner, I want to enroll in courses so that I can start learning.
+As a learner, I want to track my course progress so that I know how much I have completed.
+As a learner, I want to receive a certificate after completing a course so that I can showcase my achievement.
+As a learner, I want personalized course recommendations so that I can discover relevant content easily.
+As a learner, I want to access courses on mobile devices so that I can learn anytime, anywhere.
+👨‍🏫 Instructor/User Stories
+As an instructor, I want to register on the platform so that I can create and publish courses.
+As an instructor, I want to upload course content (videos, documents) so that learners can access my material.
+As an instructor, I want to edit and update my courses so that content stays relevant.
+As an instructor, I want to track student enrollment so that I can measure course success.
+As an instructor, I want to earn revenue from paid courses so that I am incentivized to create content.
+🛠️ Admin/User Stories
+As an admin, I want to manage users so that I can maintain platform integrity.
+As an admin, I want to approve or reject courses so that only quality content is published.
+As an admin, I want to monitor platform activity so that I can ensure smooth operations.
+As an admin, I want to view analytics dashboards so that I can track performance and growth.
+As an admin, I want to manage payments and transactions so that financial operations are secure.
+💳 Payment/User Stories
+As a user, I want to pay securely for courses so that my transactions are safe.
+As a user, I want to view my purchase history so that I can track my spending.
+🔐 Authentication/User Stories
+As a user, I want to register/login securely so that my account is protected.
+As a user, I want to reset my password so that I can recover access if needed.

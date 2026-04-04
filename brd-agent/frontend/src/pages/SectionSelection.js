@@ -107,7 +107,7 @@ export default function SectionSelection() {
           <button className="btn btn-secondary" onClick={addCustom}><Plus size={16} /></button>
         </div>
         {customSections.map((s) => (
-          <div key={s} className="flex items-center justify-between" style={{ padding: "8px 10px", background: "var(--grey-50)", borderRadius: 8, marginBottom: 6 }}>
+          <div key={s} className="flex items-center justify-between" style={{ padding: "8px 10px", background: "var(--bg-elevated)", borderRadius: 8, marginBottom: 6 }}>
             <span className="text-sm">{s}</span>
             <button className="btn-icon" onClick={() => setCustomSections((cs) => cs.filter((x) => x !== s))}><Trash2 size={14} /></button>
           </div>

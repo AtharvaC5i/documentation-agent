@@ -204,9 +204,11 @@ export default function PipelineNavigator() {
           </div>
           <div className="card" style={{ textAlign: "center" }}>
             <div style={{ fontSize: "2rem", fontWeight: 700, color: "#10b981" }}>
-              {requirements.filter(r => r.source === "transcript").length} / {requirements.filter(r => r.source === "user_story").length}
+              {new Set(requirements.filter(r => r.source === "transcript").map(r => r.req_id)).size}
+              {" / "}
+              {new Set(requirements.filter(r => r.source === "user_story").map(r => r.req_id)).size}
             </div>
-            <div className="text-sm text-muted mt-1">Transcript / Stories</div>
+            <div className="text-sm text-muted mt-1">Transcript Reqs / Story Reqs</div>
           </div>
         </div>
 
@@ -309,11 +311,11 @@ export default function PipelineNavigator() {
                 <span className="text-sm font-semibold">{c.description}</span>
               </div>
               <div className="grid-2 mt-2" style={{ gap: 8 }}>
-                <div style={{ background: "#eff6ff", borderRadius: 6, padding: "8px 12px", fontSize: ".82rem" }}>
+                <div style={{ background: "rgba(59,130,246,.08)", borderRadius: 6, padding: "8px 12px", fontSize: ".82rem" }}>
                   <div className="text-xs font-semibold text-muted mb-1">VERSION A — {c.version_a?.req_id}</div>
                   {c.version_a?.text}
                 </div>
-                <div style={{ background: "#fef3c7", borderRadius: 6, padding: "8px 12px", fontSize: ".82rem" }}>
+                <div style={{ background: "rgba(245,158,11,.08)", borderRadius: 6, padding: "8px 12px", fontSize: ".82rem" }}>
                   <div className="text-xs font-semibold text-muted mb-1">VERSION B — {c.version_b?.req_id}</div>
                   {c.version_b?.text}
                 </div>
@@ -423,13 +425,13 @@ export default function PipelineNavigator() {
                     <div className="text-xs font-semibold text-muted mb-2">SOURCE REQUIREMENTS</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                       {s.source_req_ids.map((id) => (
-                        <code key={id} style={{ background: "var(--grey-100)", padding: "2px 7px", borderRadius: 4, fontSize: ".73rem" }}>{id}</code>
+                        <code key={id} style={{ background: "var(--bg-elevated)", padding: "2px 7px", borderRadius: 4, fontSize: ".73rem" }}>{id}</code>
                       ))}
                     </div>
                   </div>
                 )}
                 {/* Content preview */}
-                <div style={{ background: "var(--grey-50)", borderRadius: 8, padding: "14px 18px", maxHeight: 450, overflowY: "auto" }}>
+                <div style={{ background: "var(--bg-elevated)", borderRadius: 8, padding: "14px 18px", maxHeight: 450, overflowY: "auto" }}>
                   <div className="md-content">
                     <ReactMarkdown>{s.content || "*No content.*"}</ReactMarkdown>
                   </div>

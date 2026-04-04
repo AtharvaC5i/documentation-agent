@@ -58,9 +58,9 @@ export default function Home() {
 
       {/* Quick actions */}
       <div className="grid-2 mb-6">
-        <div className="card" style={{ cursor: "pointer", border: "1.5px solid #2563eb" }} onClick={() => navigate("/new-project")}>
+        <div className="card" style={{ cursor: "pointer", border: "1px solid rgba(99,102,241,.4)", background: "rgba(99,102,241,.06)" }} onClick={() => navigate("/new-project")}>
           <div className="flex items-center gap-3">
-            <div style={{ background: "#eff6ff", borderRadius: 10, padding: 10 }}><Plus size={20} color="#2563eb" /></div>
+            <div style={{ background: "rgba(59,130,246,.12)", borderRadius: 8, padding: 8 }}><Plus size={20} color="#2563eb" /></div>
             <div>
               <div className="font-semibold">Start New Project</div>
               <div className="text-sm text-muted">Upload transcripts and generate a BRD</div>
@@ -70,7 +70,7 @@ export default function Home() {
         </div>
         <div className="card" style={{ cursor: "pointer" }} onClick={() => navigate("/question-bank")}>
           <div className="flex items-center gap-3">
-            <div style={{ background: "#ecfdf5", borderRadius: 10, padding: 10 }}><BookOpen size={20} color="#10b981" /></div>
+            <div style={{ background: "rgba(16,185,129,.12)", borderRadius: 8, padding: 8 }}><BookOpen size={20} color="#10b981" /></div>
             <div>
               <div className="font-semibold">View Question Bank</div>
               <div className="text-sm text-muted">Pre-meeting discovery questions guide</div>

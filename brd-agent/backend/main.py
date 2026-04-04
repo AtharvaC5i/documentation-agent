@@ -261,7 +261,15 @@ def save_section_content(request: SaveSectionContentRequest):
 
 @app.post("/api/projects/{project_id}/generate-document")
 async def generate_document(project_id: str, background_tasks: BackgroundTasks):
-    _get_or_404(project_id)
+    project = _get_or_404(project_id)
+    # Validate all sections are approved
+    if project.generated_sections:
+        unapproved = [s for s in project.generated_sections if not s.get("approved")]
+        if unapproved:
+            raise HTTPException(
+                status_code=400,
+                detail=f"{len(unapproved)} section(s) not yet approved. Approve all sections before generating the document."
+            )
     background_tasks.add_task(run_document_generation, project_id)
     return {"status": "document_generation_started"}
 

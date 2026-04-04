@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle, ChevronDown, ChevronRight } from "lucide-re
 import { getConflicts, resolveConflict } from "../utils/api";
 import StepIndicator from "../components/StepIndicator";
 
-const COVERAGE_COLORS = { strong: "badge-green", weak: "badge-orange", none: "badge-red" };
+const COVERAGE_BADGE = { strong: "badge-green", weak: "badge-orange", none: "badge-red" };
 
 export default function ConflictResolution() {
   const { projectId } = useParams();
@@ -20,9 +20,9 @@ export default function ConflictResolution() {
       .catch(() => setLoading(false));
   }, [projectId]);
 
-  const resolve = async (conflictId, version, customText) => {
+  const resolve = async (conflictId, version) => {
     setResolving((r) => ({ ...r, [conflictId]: true }));
-    await resolveConflict({ project_id: projectId, conflict_id: conflictId, chosen_version: version, custom_text: customText });
+    await resolveConflict({ project_id: projectId, conflict_id: conflictId, chosen_version: version });
     setData((d) => ({
       ...d,
       conflicts: d.conflicts.map((c) =>
@@ -32,11 +32,11 @@ export default function ConflictResolution() {
     setResolving((r) => ({ ...r, [conflictId]: false }));
   };
 
-  if (loading) return <div className="full-center"><div className="spinner" /></div>;
+  if (loading) return <div className="full-center"><div className="spinner" style={{ width: 28, height: 28, borderWidth: 3 }} /></div>;
   if (!data) return <div className="alert alert-error">Failed to load conflict data.</div>;
 
   const unresolvedConflicts = data.conflicts?.filter((c) => !c.resolved) || [];
-  const resolvedConflicts = data.conflicts?.filter((c) => c.resolved) || [];
+  const resolvedConflicts   = data.conflicts?.filter((c) => c.resolved) || [];
 
   return (
     <div>
@@ -48,18 +48,16 @@ export default function ConflictResolution() {
 
       {/* Summary */}
       <div className="grid-3 mb-6">
-        <div className="card" style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "2rem", fontWeight: 700, color: unresolvedConflicts.length > 0 ? "#ef4444" : "#10b981" }}>{unresolvedConflicts.length}</div>
-          <div className="text-sm text-muted mt-1">Unresolved Conflicts</div>
-        </div>
-        <div className="card" style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "2rem", fontWeight: 700, color: "#f59e0b" }}>{data.gaps?.length || 0}</div>
-          <div className="text-sm text-muted mt-1">Coverage Gaps</div>
-        </div>
-        <div className="card" style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "2rem", fontWeight: 700, color: "#10b981" }}>{resolvedConflicts.length}</div>
-          <div className="text-sm text-muted mt-1">Resolved</div>
-        </div>
+        {[
+          { label: "Unresolved Conflicts", value: unresolvedConflicts.length, color: unresolvedConflicts.length > 0 ? "#fca5a5" : "#6ee7b7" },
+          { label: "Coverage Gaps",        value: data.gaps?.length || 0,    color: "#fcd34d" },
+          { label: "Resolved",             value: resolvedConflicts.length,   color: "#6ee7b7" },
+        ].map((s) => (
+          <div key={s.label} className="card" style={{ textAlign: "center" }}>
+            <div style={{ fontSize: "2rem", fontWeight: 800, color: s.color }}>{s.value}</div>
+            <div className="text-sm text-muted mt-1">{s.label}</div>
+          </div>
+        ))}
       </div>
 
       {/* Conflicts */}
@@ -72,37 +70,72 @@ export default function ConflictResolution() {
               <div className="section-review-header" onClick={() => setOpen((o) => ({ ...o, [c.id]: !o[c.id] }))}>
                 <div className="flex items-center gap-3">
                   {c.resolved
-                    ? <CheckCircle size={16} color="#10b981" />
-                    : <AlertTriangle size={16} color="#f59e0b" />}
+                    ? <CheckCircle size={16} color="#6ee7b7" />
+                    : <AlertTriangle size={16} color="#fcd34d" />}
                   <span className="font-semibold text-sm">{c.description}</span>
-                  <span className={`badge ${c.impact === "high" ? "badge-red" : c.impact === "medium" ? "badge-orange" : "badge-grey"}`}>{c.impact} impact</span>
+                  <span className={`badge ${c.impact === "high" ? "badge-red" : c.impact === "medium" ? "badge-orange" : "badge-grey"}`}>
+                    {c.impact} impact
+                  </span>
                   {c.resolved && <span className="badge badge-green">Resolved</span>}
                 </div>
                 {open[c.id] ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
               </div>
+
               {open[c.id] && (
                 <div style={{ padding: "16px 20px" }}>
-                  <div className="grid-2 mb-4">
-                    <div style={{ background: "#eff6ff", borderRadius: 8, padding: 14 }}>
-                      <div className="text-xs font-semibold text-muted mb-2">VERSION A — {c.version_a?.req_id}</div>
-                      <div className="text-sm">{c.version_a?.text}</div>
+                  <div className="grid-2 mb-4" style={{ gap: 12 }}>
+                    {/* Version A */}
+                    <div style={{
+                      background: "rgba(59,130,246,.08)",
+                      border: "1px solid rgba(59,130,246,.25)",
+                      borderRadius: 8, padding: 14,
+                    }}>
+                      <div className="text-xs font-semibold mb-2" style={{ color: "#93c5fd", letterSpacing: ".05em" }}>
+                        VERSION A — {c.version_a?.req_id}
+                      </div>
+                      <div className="text-sm" style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                        {c.version_a?.text}
+                      </div>
                       {!c.resolved && (
-                        <button className="btn btn-sm btn-primary mt-3" disabled={resolving[c.id]} onClick={() => resolve(c.id, "a")}>
+                        <button
+                          className="btn btn-primary btn-sm mt-3"
+                          disabled={resolving[c.id]}
+                          onClick={() => resolve(c.id, "a")}
+                        >
                           Use Version A
                         </button>
                       )}
                     </div>
-                    <div style={{ background: "#fef3c7", borderRadius: 8, padding: 14 }}>
-                      <div className="text-xs font-semibold text-muted mb-2">VERSION B — {c.version_b?.req_id}</div>
-                      <div className="text-sm">{c.version_b?.text}</div>
+
+                    {/* Version B */}
+                    <div style={{
+                      background: "rgba(245,158,11,.08)",
+                      border: "1px solid rgba(245,158,11,.25)",
+                      borderRadius: 8, padding: 14,
+                    }}>
+                      <div className="text-xs font-semibold mb-2" style={{ color: "#fcd34d", letterSpacing: ".05em" }}>
+                        VERSION B — {c.version_b?.req_id}
+                      </div>
+                      <div className="text-sm" style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                        {c.version_b?.text}
+                      </div>
                       {!c.resolved && (
-                        <button className="btn btn-sm btn-secondary mt-3" disabled={resolving[c.id]} onClick={() => resolve(c.id, "b")}>
+                        <button
+                          className="btn btn-secondary btn-sm mt-3"
+                          disabled={resolving[c.id]}
+                          onClick={() => resolve(c.id, "b")}
+                        >
                           Use Version B
                         </button>
                       )}
                     </div>
                   </div>
-                  {c.resolved && <div className="alert alert-success">Resolved: version {c.chosen?.toUpperCase()} chosen.</div>}
+                  {c.resolved && (
+                    <div className="alert alert-success">
+                      <CheckCircle size={14} />
+                      Resolved: version {c.chosen?.toUpperCase()} chosen.
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -112,23 +145,24 @@ export default function ConflictResolution() {
 
       {data.conflicts?.length === 0 && (
         <div className="alert alert-success mb-6">
-          <CheckCircle size={16} />
-          No conflicts detected between sources.
+          <CheckCircle size={16} /> No conflicts detected between sources.
         </div>
       )}
 
-      {/* Gaps */}
+      {/* Coverage Gaps */}
       {data.gaps?.length > 0 && (
         <div className="card mb-6">
           <div className="card-title mb-1">Coverage Gaps</div>
-          <div className="card-sub">These BRD sections have insufficient input coverage. They will be marked TBD or generated with limited context.</div>
+          <div className="card-sub">
+            These BRD sections have insufficient input coverage. They will be generated with limited context or marked TBD.
+          </div>
           <table className="data-table">
             <thead><tr><th>BRD Section</th><th>Coverage</th><th>Suggested Action</th></tr></thead>
             <tbody>
               {data.gaps.map((g) => (
                 <tr key={g.id}>
                   <td className="font-semibold text-sm">{g.section}</td>
-                  <td><span className={`badge ${COVERAGE_COLORS[g.coverage_level]}`}>{g.coverage_level}</span></td>
+                  <td><span className={`badge ${COVERAGE_BADGE[g.coverage_level]}`}>{g.coverage_level}</span></td>
                   <td className="text-sm text-muted">{g.suggested_action}</td>
                 </tr>
               ))}
@@ -137,31 +171,28 @@ export default function ConflictResolution() {
         </div>
       )}
 
-      {/* Section coverage overview */}
+      {/* Full Section Coverage Map */}
       {data.coverage && (
         <div className="card mb-6">
-          <div className="card-title mb-4">Full Section Coverage Map</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <div className="card-title mb-1">Full Section Coverage Map</div>
+          <div className="card-sub">
+            Shows how well each of the 19 BRD sections is covered by your inputs. Strong = enough to generate well. Weak = partial, will need review. None = no data found.
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
             {Object.entries(data.coverage).map(([section, level]) => (
-              <div key={section} className="flex items-center justify-between" style={{ padding: "6px 0", borderBottom: "1px solid var(--grey-100)" }}>
-                <span className="text-sm">{section}</span>
-                <span className={`badge ${COVERAGE_COLORS[level] || "badge-grey"}`}>{level}</span>
+              <div key={section} className="flex items-center justify-between"
+                style={{ padding: "7px 4px", borderBottom: "1px solid var(--border)" }}>
+                <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{section}</span>
+                <span className={`badge ${COVERAGE_BADGE[level] || "badge-grey"}`}>{level}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="flex gap-3">
-        <button className="btn btn-primary btn-lg" onClick={() => navigate(`/project/${projectId}/sections`)}>
-          Continue to Section Selection →
-        </button>
-        {unresolvedConflicts.length > 0 && (
-          <div className="alert alert-warning" style={{ alignItems: "center" }}>
-            <AlertTriangle size={15} /> {unresolvedConflicts.length} conflict(s) still unresolved. You can proceed but they may affect quality.
-          </div>
-        )}
-      </div>
+      <button className="btn btn-primary btn-lg" onClick={() => navigate(`/project/${projectId}/sections`)}>
+        Continue to Section Selection →
+      </button>
     </div>
   );
 }

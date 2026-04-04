@@ -4,17 +4,17 @@ import { Link2, Download, RefreshCw, ArrowLeft, Filter, FileText } from "lucide-
 import { getTraceability, generateTraceability, downloadTraceability, listProjects } from "../utils/api";
 
 const TYPE_COLORS = {
-  "Functional":      { bg: "#dbeafe", text: "#1d4ed8" },
-  "Non Functional":  { bg: "#fef3c7", text: "#92400e" },
-  "Business Rule":   { bg: "#d1fae5", text: "#065f46" },
-  "Assumption":      { bg: "#f1f5f9", text: "#475569" },
-  "Constraint":      { bg: "#fee2e2", text: "#991b1b" },
-  "Stakeholder":     { bg: "#ede9fe", text: "#5b21b6" },
+  "Functional":      { bg: "rgba(59,130,246,.15)",  text: "#93c5fd" },
+  "Non Functional":  { bg: "rgba(245,158,11,.15)",  text: "#fcd34d" },
+  "Business Rule":   { bg: "rgba(16,185,129,.12)",  text: "#6ee7b7" },
+  "Assumption":      { bg: "rgba(100,116,139,.15)", text: "#94a3b8" },
+  "Constraint":      { bg: "rgba(239,68,68,.12)",   text: "#fca5a5" },
+  "Stakeholder":     { bg: "rgba(139,92,246,.12)",  text: "#c4b5fd" },
 };
 
 const SOURCE_COLORS = {
-  "Transcript":   { bg: "#eff6ff", text: "#1d4ed8" },
-  "User Story":   { bg: "#ecfdf5", text: "#065f46" },
+  "Transcript": { bg: "rgba(59,130,246,.12)",  text: "#93c5fd" },
+  "User Story": { bg: "rgba(16,185,129,.10)",  text: "#6ee7b7" },
 };
 
 export default function Traceability() {
@@ -220,16 +220,16 @@ export default function Traceability() {
                 </thead>
                 <tbody>
                   {filtered.map((row, i) => {
-                    const tc = TYPE_COLORS[row.req_type] || { bg: "#f1f5f9", text: "#475569" };
-                    const sc = SOURCE_COLORS[row.source] || { bg: "#f1f5f9", text: "#475569" };
+                    const tc = TYPE_COLORS[row.req_type] || { bg: "var(--bg-elevated)", text: "#475569" };
+                    const sc = SOURCE_COLORS[row.source] || { bg: "var(--bg-elevated)", text: "#475569" };
                     const isNewSection = i === 0 || filtered[i - 1].section_name !== row.section_name;
                     return (
-                      <tr key={i} style={{ background: i % 2 === 0 ? "#f8fafc" : "#fff" }}>
-                        <td className="font-semibold text-sm" style={{ color: isNewSection ? "#1f3a5f" : "#94a3b8" }}>
+                      <tr key={i} style={{ background: i % 2 === 0 ? "var(--bg-elevated)" : "var(--bg-surface)" }}>
+                        <td className="font-semibold text-sm" style={{ color: isNewSection ? "var(--text-primary)" : "var(--text-muted)" }}>
                           {isNewSection ? row.section_name : "↳"}
                         </td>
                         <td>
-                          <code style={{ fontSize: ".75rem", background: "#f1f5f9", padding: "2px 6px", borderRadius: 4 }}>
+                          <code style={{ fontSize: ".75rem", background: "var(--bg-elevated)", padding: "2px 6px", borderRadius: 4 }}>
                             {row.req_id}
                           </code>
                         </td>
@@ -243,7 +243,7 @@ export default function Traceability() {
                             </span>
                           )}
                         </td>
-                        <td style={{ fontSize: ".82rem", color: "#374151", lineHeight: 1.5 }}>
+                        <td style={{ fontSize: ".82rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
                           {row.description}
                         </td>
                         <td>
@@ -282,12 +282,12 @@ export default function Traceability() {
             <div className="card mt-4" style={{ background: "var(--navy)", border: "none", padding: "16px 24px" }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-semibold" style={{ color: "#fff" }}>Download Traceability Matrix</div>
+                  <div className="font-semibold" style={{ color: "var(--bg-surface)" }}>Download Traceability Matrix</div>
                   <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,.55)" }}>
                     Professional Word document with styled table, cover page, and summary stats
                   </div>
                 </div>
-                <button className="btn" style={{ background: "#06b6d4", color: "#fff" }}
+                <button className="btn" style={{ background: "#06b6d4", color: "var(--bg-surface)" }}
                   onClick={handleDownload} disabled={downloading}>
                   <Download size={15} /> {downloading ? "Preparing..." : "Download .docx"}
                 </button>

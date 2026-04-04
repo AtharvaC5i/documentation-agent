@@ -1,0 +1,440 @@
+{
+  "sections": [
+    {
+      "id": "88cebe05-0f75-4280-93a0-6abf50d94557",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\n### Business Problem\nRetailCorp India, operating 200 physical stores nationwide, has no e-commerce presence and risks losing significant market share as retail spending shifts online. With average order values of INR 15,000 across high-ticket categories, the absence of a digital channel represents a material revenue gap.\n\n### Proposed Solution\nShopEase, a multi-vendor e-commerce platform, will be built and deployed within six months to bring RetailCorp online with full transactional capability. The platform will integrate with RetailCorp's existing SAP ERP, two logistics providers, and multiple payment and financing partners.\n\n### Key Objectives\n- Launch a fully functional web and mobile platform supporting end customers, store managers, central admins, and vendor partners\n- Integrate with SAP ERP for real-time inventory sync and daily product data updates across 25,000+ SKUs\n- Deliver flexible checkout with credit/debit card, UPI, net banking, and no-cost EMI via Bajaj Finance\n- Ensure platform compliance with GDPR, the Indian IT Act, PCI-DSS, and Indian data residency requirements\n\n### Expected Outcomes\nAt launch, RetailCorp will have a scalable, compliant e-commerce channel capable of handling 50,000 concurrent users during peak events such as Diwali, with sub-3-second page loads and embedded analytics covering sales performance and cart abandonment. This positions RetailCorp to capture online revenue immediately while establishing the operational foundation for long-term digital growth.",
+      "quality_score": 0.84,
+      "quality_pct": "84%",
+      "approved": true,
+      "status": "edited",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010"
+      ],
+      "req_count": 71
+    },
+    {
+      "id": "b06aa460-1e69-4633-b6cb-f04eb65ac348",
+      "name": "Business Context and Background",
+      "content": "## Business Context\n\n### Current State\nRetailCorp India operates approximately 200 physical stores across India but has no existing e-commerce presence, managing inventory and product data through an incumbent SAP ERP system across an initial catalog of 8,000 SKUs.\n\n### Problem\nRetailCorp is entering online retail for the first time, requiring a net-new ShopEase platform that supports a multi-vendor marketplace model, scales to 25,000 SKUs post-vendor onboarding, and handles peak traffic of 50,000 concurrent users. The platform must integrate with SAP ERP, onboard third-party vendors, and support high-ticket transactions averaging INR 15,000 — with No-Cost EMI via Bajaj Finance confirmed at launch and ZestMoney availability still unresolved. Additionally, all customer data must remain within Indian borders, introducing infrastructure and compliance constraints that must be validated before go-live.\n\n### Impact if Unresolved\nFailure to deliver ShopEase within the CEO-mandated 6-month deadline — while meeting data residency obligations, SAP integration requirements, and vendor onboarding scope — will result in RetailCorp missing its online market entry window, losing competitive ground in high-ticket e-commerce categories, and potentially breaching regulatory data localisation obligations.",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-006",
+        "TR-007",
+        "TR-011",
+        "TR-017",
+        "TR-018",
+        "TR-030",
+        "TR-036",
+        "TR-037",
+        "TR-038"
+      ],
+      "req_count": 10
+    },
+    {
+      "id": "5ccb2abd-537c-455b-9704-35a6805ec4d9",
+      "name": "Project Objectives and Success Criteria",
+      "content": "## Project Objectives\n\n| # | Objective | Metric | Target |\n|---|-----------|--------|--------|\n| 1 | Launch ShopEasy platform for RetailCorp's first e-commerce presence | Go-live date achieved | 100% on-schedule delivery |\n| 2 | Deliver a scalable product catalog supporting vendor marketplace growth | Active SKUs supported at launch → post-onboarding | 8,000 SKUs at launch; 25,000 SKUs post vendor onboarding |\n| 3 | Ensure platform performance meets load and speed requirements | Concurrent users sustained; page/search load times | 50,000 concurrent users; pages ≤3 sec; search ≤2 sec (95th percentile) |\n| 4 | Achieve regulatory and security compliance across all applicable standards | Compliance audits passed pre-go-live | 100% adherence to GDPR, IT Act, and PCI-DSS Level 1 |\n| 5 | Integrate SAP ERP inventory sync with high reliability | Sync latency and success rate over rolling 30 days | ≤60-second latency; ≥99.9% sync success rate |\n| 6 | Enable No-Cost EMI checkout via confirmed financing partner at launch | EMI payment option available at go-live | Bajaj Finance integration live on Day 1; ZestMoney within 90 days post-launch |\n\nDelivery is targeted across a phased rollout, with core platform go-live preceding vendor onboarding by no more than 60 days. All 6 objectives must be validated through UAT sign-off before production release.",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-006",
+        "TR-007",
+        "TR-011",
+        "TR-017",
+        "TR-018",
+        "TR-028",
+        "TR-029",
+        "TR-031",
+        "TR-032",
+        "TR-037"
+      ],
+      "req_count": 19
+    },
+    {
+      "id": "e345a1ef-0536-421f-a769-4b5da893b15e",
+      "name": "Scope",
+      "content": "## Scope\n\n### In Scope\n- Build and launch the ShopEase e-commerce platform for RetailCorp India within 6 months of project kickoff\n- Multi-vendor marketplace supporting RetailCorp's own inventory alongside third-party Vendor Partner listings, including vendor onboarding workflows\n- Product catalog supporting approximately 8,000 SKUs at launch, architected to scale to 25,000 SKUs post vendor onboarding\n- User role implementation: Central Admin, Store Manager, and Vendor Partner access controls\n- SAP ERP integration for product data and inventory synchronisation (read/write)\n- No-cost EMI checkout via confirmed Bajaj Finance integration\n- Logistics integration with Delhivery and BlueDart APIs for order fulfilment and tracking\n- Platform infrastructure hosted exclusively within Indian data centers; full data residency compliance for all customer PII\n- Peak load capacity supporting up to 50,000 concurrent users\n\n### Out of Scope\n- ZestMoney no-cost EMI integration — agreement not finalised; excluded from launch scope\n- Migration or replacement of RetailCorp's existing SAP ERP system\n- Physical store operations, point-of-sale systems, or in-store digital touchpoints\n- Onboarding of vendor products beyond the initial catalog architecture (vendor SKU population is vendor-driven post-launch)\n- Any infrastructure or data storage outside Indian borders\n\n### Future Phases\n- ZestMoney integration, subject to agreement finalisation post-launch\n- Expansion of vendor onboarding tooling and self-service portal capabilities\n- Advanced analytics and demand forecasting leveraging platform sales data\n- Potential internationalisation or cross-border commerce features",
+      "quality_score": 0.84,
+      "quality_pct": "84%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-006",
+        "TR-007",
+        "TR-011",
+        "TR-017",
+        "TR-018",
+        "TR-030",
+        "TR-036",
+        "TR-037",
+        "TR-038"
+      ],
+      "req_count": 10
+    },
+    {
+      "id": "e4c2536c-0277-4656-aac1-024ac5c731a9",
+      "name": "Stakeholder Register",
+      "content": "## Stakeholder Register\n\n| Name | Role | Organisation | Key Responsibility | Availability |\n|---|---|---|---|---|\n| Sunita Agarwal | Client CEO | RetailCorp | Defines high-level platform vision, compliance requirements, and customer experience priorities; primary business decision-maker | As required |\n| Rajesh Mehta | Client PM | RetailCorp | Owns decisions on payments, integrations, inventory, and reporting; manages operational and technical requirements | Regular |\n| Arjun Shah | Business Analyst | Delivery Team | Elicits and documents requirements; facilitates the discovery process | Full-time |\n| Priya Nair | Project Manager | Delivery Team | Scopes integrations, manages delivery, and identifies technical integration dependencies | Full-time |",
+      "quality_score": 0.74,
+      "quality_pct": "74%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005"
+      ],
+      "req_count": 4
+    },
+    {
+      "id": "54432161-f8ee-4060-bd3e-99d31159a00e",
+      "name": "Functional Requirements",
+      "content": "# ShopEasy-3 Functional Requirements\n### Customer Registration & Authentication\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-AUTH-001 | System SHALL allow new customers to register via email or mobile number. | MUST | Duplicate email/mobile rejected with error message |\n| FR-AUTH-002 | System SHALL allow registered customers to log in via email/password. | MUST | Invalid credentials show error without revealing which field failed |\n| FR-AUTH-003 | System SHALL allow registered customers to log in via OTP. | MUST | OTP sent to registered mobile or email; login succeeds on valid OTP |\n\n---\n\n### Product Catalog & Search\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-CAT-001 | System SHALL allow customers to search products by name, brand, or category. | MUST | Search bar accessible from all platform pages |\n| FR-CAT-002 | System SHALL allow customers to filter search results by price, brand, rating, and delivery time. | MUST | Multiple filters applied simultaneously; results update accordingly |\n| FR-CAT-003 | System SHALL display a dedicated product page with full product details. | MUST | Page shows name, description, images, price, brand, stock status, ratings |\n| FR-CAT-004 | System SHALL return search results within an acceptable response time. | MUST | Results returned within defined performance threshold |\n| FR-CAT-005 | Central admin SHALL be able to add, edit, and deactivate products in the catalog. | MUST | Deactivated product hidden from customers without deletion |\n| FR-CAT-006 | Central admin SHALL be able to set base prices, discounts, and discount validity periods. | MUST | Discount validity period includes start and end date/time |\n\n---\n\n### Shopping Cart & Wishlist\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-CART-001 | System SHALL allow customers to add one or more products to a shopping cart. | MUST | Cart displays all items with quantity, unit price, and subtotal |\n| FR-CART-002 | System SHALL allow customers to update item quantities within the cart. | MUST | Cart totals recalculate immediately upon quantity change |\n| FR-WISH-001 | System SHALL allow customers to save products to a persistent wishlist. | SHOULD | Wishlist items retained after logout and re-login |\n| FR-WISH-002 | System SHALL allow customers to remove products from their wishlist. | SHOULD | Removed item no longer appears in wishlist |\n\n---\n\n### Checkout & Delivery Address\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-CHK-001 | System SHALL allow customers to add, select, edit, and delete delivery addresses at checkout. | MUST | Customer can select from previously saved addresses |\n| FR-CHK-002 | System SHALL display calculated shipping rates from Delhivery and BlueDart before order confirmation. | MUST | Rates retrieved based on delivery PIN code and order weight |\n\n---\n\n### Payment\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-PAY-001 | System SHALL support payment via credit card at checkout. | MUST | Customer can complete a purchase using credit card |\n| FR-PAY-002 | System SHALL support payment via debit card at checkout. | MUST | Customer can complete a purchase using debit card |\n| FR-PAY-003 | System SHALL support payment via UPI at checkout. | MUST | Customer can complete a purchase using UPI |\n| FR-PAY-004 | System SHALL support payment via net banking at checkout. | MUST | Customer can complete a purchase using net banking |\n| FR-PAY-005 | System SHALL support credit card EMI with tenures and rates displayed before order confirmation. | MUST | Available EMI tenures and interest rates shown before order placement |\n| FR-PAY-006 | System SHALL support no-cost EMI via Bajaj Finance at checkout. | MUST | Bajaj Finance API integrated and returns valid EMI offers |\n| FR-PAY-007 | System SHALL scope ZestMoney no-cost EMI integration, subject to partner agreement. | MUST | ZestMoney integration may be deferred pending signed agreement |\n\n---\n\n### Order Management & Tracking\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-ORD-001 | System SHALL provide customers with real-time order status tracking within the platform. | MUST | Tracking does not require customer to visit third-party logistics site |\n| FR-ORD-002 | System SHALL display estimated delivery date and time on the order tracking page. | MUST | Order status updates reflected in real time or near real time |\n| FR-ORD-003 | System SHALL pull real-time tracking data from Delhivery and BlueDart APIs. | MUST | Tracking information displayed on platform order tracking page |\n| FR-ORD-004 | System SHALL allow customers to initiate a return request within the eligible return window. | MUST | Customer must select a return reason; supporting images can be uploaded |\n\n---\n\n### Reviews & Ratings\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-REV-001 | System SHALL allow customers with a delivered order to submit one review per product. | SHOULD | Review form includes 1–5 star rating and written feedback field |\n| FR-REV-002 | System SHALL place all submitted reviews in a moderation queue before publishing. | MUST | Review visible to customers only after admin approval |\n| FR-REV-003 | Central admin SHALL be able to approve or reject reviews via a moderation interface. | SHOULD | Admin can reject a review with an optional reason |\n\n---\n\n### User Roles & Access Control\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-ROLE-001 | System SHALL support four distinct roles: customer, store manager, central admin, vendor partner. | MUST | Each role has a separate login and role-specific access |\n| FR-ROLE-002 | Customer login SHALL provide access to browse, purchase, wishlist, and order tracking. | MUST | Customer cannot access admin or vendor portal functions |\n| FR-ROLE-003 | Store manager login SHALL provide access to regional orders and returns management only. | MUST | Store manager cannot view orders outside their assigned region |\n| FR-ROLE-004 | Store manager SHALL be able to initiate or approve return requests for regional orders. | MUST | Store manager can filter orders by status |\n| FR-ROLE-005 | Central admin SHALL have full platform-wide access to products, pricing, and promotions. | MUST | Admin can create, edit, deactivate products and manage promotional campaigns |\n| FR-ROLE-006 | Vendor partner SHALL have a dedicated login to manage listings and inventory only. | MUST | Vendor cannot view or modify product pricing |\n\n---\n\n### Vendor Management\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-VEN-001 | System SHALL provide vendors a self-service portal to manage product listings. | MUST | Vendor can add new listings with required attributes |\n| FR-VEN-002 | System SHALL allow vendors to update product descriptions, images, specifications, and inventory quantities. | MUST | Vendor cannot access pricing controls |\n\n---\n\n### SAP ERP Integration & Inventory Sync\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-SAP-001 | System SHALL integrate with SAP ERP to migrate product data and inventory at launch. | MUST | Integration handles at least 25,000 SKUs without data loss |\n| FR-SAP-002 | System SHALL synchronize inventory levels with SAP ERP in real time. | MUST | Inventory update in SAP reflected on platform within 60 seconds |\n| FR-SAP-003 | System SHALL automatically mark products as out of stock when SAP inventory reaches zero. | MUST | Out-of-stock product cannot be added to cart |\n| FR-SAP-004 | System SHALL log inventory sync failures and trigger an alert to the operations team. | MUST | Alert triggered on any sync failure event |\n| FR-SAP-005 | System SHALL sync non-inventory product attributes from SAP via a daily batch process. | MUST | Scheduled batch job runs once per day; product attributes reflect last batch run |\n\n---\n\n### Logistics Integration\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-LOG-001 | System SHALL integrate with Delhivery and BlueDart APIs for shipping rates and tracking. | MUST | Both carrier integrations functional in production at launch |\n| FR-LOG-002 | System SHALL display shipping rates from both carriers to the customer at checkout. | MUST | Rates displayed before order confirmation |\n| FR-LOG-003 | System SHALL display real-time order tracking from both carriers within the platform. | MUST | Tracking information updated in real time from logistics provider API |\n\n---\n\n### Reporting & Analytics\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-RPT-001 | System SHALL provide sales reports with daily, weekly, and monthly views for central admins. | MUST | Report data consistent and accurate with order records |\n| FR-RPT-002 | Sales reports SHALL be filterable by region, product category, and vendor. | MUST | Admin can apply all three filters in combination |\n| FR-RPT-003 | System SHALL provide a cart abandonment report showing products added to cart but not purchased. | SHOULD | Report shows abandonment count and rate per product |\n| FR-RPT-004 | Cart abandonment report SHALL be filterable by configurable time periods. | SHOULD | Admin can filter by last 7 days, 30 days, or custom range |\n| FR-RPT-005 | System SHALL provide executives a mobile-accessible dashboard displaying key business metrics. | SHOULD | Dashboard displays revenue, order count, and top-selling products by configurable period |\n\n---\n\n### Marketing & Promotions\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-MKT-001 | System SHALL allow central admins to create and send promotional email campaigns to customer segments. | SHOULD | Admin can define target audience segment per campaign |\n| FR-MKT-002 | System SHALL allow central admins to send promotional SMS messages to customers. | SHOULD | Customers can opt out of marketing communications per regulatory requirements |\n| FR-MKT-003 | System SHALL allow admins to schedule campaigns for immediate or future delivery. | SHOULD | Campaign can be sent via email, SMS, or both |\n\n---\n\n### Mobile Application\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-MOB-001 | System SHALL provide a fully functional mobile application for Android and iOS platforms. | MUST | App available on Google Play Store and Apple App Store |\n| FR-MOB-002 | Mobile app SHALL support all core customer-facing features including search, cart, checkout, and tracking. | MUST | All core features functional on mobile equivalent to web |",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015",
+        "TR-019",
+        "TR-020",
+        "TR-021"
+      ],
+      "req_count": 43
+    },
+    {
+      "id": "1eac3aea-aff1-4104-b142-1f4eb5f19fe8",
+      "name": "Non-Functional Requirements",
+      "content": "# ShopEasy-3 Functional Requirements\n### Customer Registration & Authentication\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-AUTH-001 | System SHALL allow new customers to register via email or mobile number. | MUST | Duplicate email/mobile rejected with error message |\n| FR-AUTH-002 | System SHALL allow registered customers to log in via email/password. | MUST | Invalid credentials show error without revealing which field failed |\n| FR-AUTH-003 | System SHALL allow registered customers to log in via OTP. | MUST | OTP delivered to registered mobile or email |\n\n---\n\n### Product Catalog & Search\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-CAT-001 | System SHALL allow customers to search products by name, brand, or category. | MUST | Search bar accessible from all platform pages |\n| FR-CAT-002 | System SHALL allow customers to filter search results by price, brand, rating, and delivery time. | MUST | Multiple filters applied simultaneously; results update accordingly |\n| FR-CAT-003 | System SHALL display a dedicated product page with full product details. | MUST | Page shows name, description, images, price, brand, stock, and reviews |\n| FR-CAT-004 | System SHALL allow Central Admins to add, edit, and deactivate products in the catalog. | MUST | Deactivated product hidden from customers without deletion |\n| FR-CAT-005 | System SHALL allow Central Admins to set base prices and apply discounts with validity periods. | MUST | Discount validity period defined by start and end date/time |\n| FR-CAT-006a | System SHALL sync product metadata from SAP ERP via a daily scheduled batch process. | MUST | Batch job runs once per day; platform reflects SAP data as of last run |\n| FR-CAT-006b | System SHALL migrate all product data from SAP ERP at platform launch. | MUST | Migration handles ≥25,000 SKUs without data loss |\n\n---\n\n### Inventory Management\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-INV-001 | System SHALL synchronize inventory levels with SAP ERP in real time. | MUST | Inventory updated on platform within 60 seconds of SAP change |\n| FR-INV-002 | System SHALL automatically mark products as out of stock when inventory reaches zero. | MUST | Out-of-stock products cannot be added to cart |\n| FR-INV-003 | System SHALL log inventory sync failures and alert the operations team. | MUST | Alert triggered on any sync failure event |\n\n---\n\n### Shopping Cart & Checkout\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-CART-001 | System SHALL allow customers to add one or more products to a shopping cart. | MUST | Cart displays product, quantity, unit price, and subtotal |\n| FR-CART-002 | System SHALL allow customers to update product quantities within the cart. | MUST | Cart totals recalculate immediately upon quantity change |\n| FR-CART-003 | System SHALL allow customers to add, select, edit, and delete delivery addresses at checkout. | MUST | Customer can select from previously saved addresses |\n\n---\n\n### Payment\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-PAY-001 | System SHALL support payment via credit card, debit card, UPI, and net banking at checkout. | MUST | All four methods available and completable at checkout |\n| FR-PAY-002 | System SHALL support credit card EMI with tenure and interest rate display before order confirmation. | MUST | EMI plans presented to customer before order placement |\n| FR-PAY-003a | System SHALL support no-cost EMI via Bajaj Finance at checkout. | MUST | Bajaj Finance API integrated and returns valid EMI offers |\n| FR-PAY-003b | System SHALL scope ZestMoney no-cost EMI integration, subject to partner agreement. | MUST | ZestMoney integration may be deferred pending agreement |\n\n---\n\n### Wishlist\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-WISH-001 | System SHALL allow customers to add products to a persistent wishlist. | MUST | Wishlist items retained across logout and login sessions |\n| FR-WISH-002 | System SHALL allow customers to remove products from their wishlist. | SHOULD | Removal reflected immediately in wishlist view |\n\n---\n\n### Order Management & Tracking\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-ORD-001 | System SHALL provide customers with real-time order tracking within the platform. | MUST | Customer views status and location without visiting third-party site |\n| FR-ORD-002 | System SHALL display estimated delivery date and time on the order tracking page. | MUST | Tracking status updates in real time from logistics API |\n| FR-ORD-003 | System SHALL allow customers to initiate a return request for delivered products. | MUST | Return initiated from order history within eligible return window |\n| FR-ORD-004 | System SHALL require customers to select a return reason and optionally upload images. | MUST | Return reason selection is mandatory before submission |\n\n---\n\n### Logistics Integration\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-LOG-001 | System SHALL integrate with Delhivery and BlueDart APIs for shipping rate retrieval at checkout. | MUST | Rates calculated based on delivery PIN code and order weight |\n| FR-LOG-002 | System SHALL display shipping rates from both carriers to customer before order confirmation. | MUST | Both Delhivery and BlueDart rates shown at checkout |\n| FR-LOG-003 | System SHALL pull and display real-time tracking data from Delhivery and BlueDart APIs. | MUST | Tracking information displayed on platform order tracking page |\n\n---\n\n### Reviews & Ratings\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-REV-001 | System SHALL allow customers with a delivered order to submit one review and star rating. | SHOULD | Customer can submit only one review per purchased product |\n| FR-REV-002 | System SHALL place all submitted reviews in a pending moderation queue before publishing. | MUST | Review visible to customers only after admin approval |\n| FR-REV-003 | System SHALL provide Central Admins a moderation interface to approve or reject reviews. | SHOULD | Admin can reject a review with an optional reason |\n\n---\n\n### User Roles & Access Control\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-ROLE-001 | System SHALL support four distinct roles: Customer, Store Manager, Central Admin, Vendor Partner. | MUST | Each role has a separate login and role-specific access |\n| FR-ROLE-002 | System SHALL restrict Store Manager access to orders and returns within their assigned region only. | MUST | Store Manager cannot view orders outside their region |\n| FR-ROLE-003 | System SHALL grant Central Admins full platform-wide control over products, pricing, and promotions. | MUST | Central Admin can create, edit, deactivate products and manage campaigns |\n| FR-ROLE-004 | System SHALL provide Vendor Partners a self-service portal to manage listings and inventory only. | MUST | Vendor cannot view or modify product pricing |\n\n---\n\n### Vendor Management\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-VEND-001 | System SHALL allow Vendors to add new product listings with required attributes via vendor portal. | MUST | Vendor can log in to a dedicated vendor portal |\n| FR-VEND-002 | System SHALL allow Vendors to edit product descriptions, images, specifications, and inventory quantities. | MUST | Vendor cannot edit product pricing |\n\n---\n\n### Reporting & Analytics\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-RPT-001 | System SHALL provide Central Admins sales reports filterable by period, region, category, and vendor. | MUST | Reports available for daily, weekly, and monthly periods |\n| FR-RPT-002 | System SHALL provide a cart abandonment report showing products added to cart but not purchased. | SHOULD | Report shows abandonment count and rate per product |\n| FR-RPT-003 | System SHALL allow cart abandonment report to be filtered by configurable time periods. | SHOULD | Filter options include last 7 days and last 30 days |\n| FR-RPT-004 | System SHALL provide executives a mobile-accessible dashboard displaying key business metrics. | SHOULD | Dashboard shows revenue, order count, and top-selling products by period |\n\n---\n\n### Marketing & Promotions\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-MKT-001 | System SHALL allow Central Admins to create and send promotional email and SMS campaigns. | MUST | Campaign can be sent via email, SMS, or both |\n| FR-MKT-002 | System SHALL allow Central Admins to schedule campaigns for immediate or future delivery. | SHOULD | Admin defines target audience segment per campaign |\n| FR-MKT-003 | System SHALL allow customers to opt out of marketing communications per regulatory requirements. | MUST | Opt-out mechanism available and honoured for all channels |\n\n---\n\n### Mobile Application\n\n| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |\n|--------|----------------------------------------------|----------|--------|\n| FR-MOB-001 | System SHALL provide a fully functional mobile application for Android and iOS platforms. | MUST | App available on Google Play Store and Apple App Store |\n| FR-MOB-002 | System SHALL make all core customer features available on the mobile application. | MUST | Search, browse, cart, checkout, and order tracking functional on mobile |",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015",
+        "TR-019",
+        "TR-020",
+        "TR-021"
+      ],
+      "req_count": 43
+    },
+    {
+      "id": "e56b14d7-6108-43ff-a2e6-4c720d06b957",
+      "name": "Business Rules",
+      "content": "## Business Rules\n\n| BR-ID | Rule (max 20 words) | Module | Priority |\n|-------|---------------------|--------|----------|\n| BR-001 | Only RetailCorp Central Admin may set or modify product pricing on ShopEase. | Pricing Management | MUST_HAVE |\n| BR-002 | Vendor Partner portal must not expose any pricing input fields to vendors. | Vendor Portal | MUST_HAVE |\n| BR-003 | Any vendor API request to modify product pricing must be rejected with an authorization error. | API Security | MUST_HAVE |\n| BR-004 | Customer reviews must not be published without explicit approval by an authorized admin. | Review Moderation | MUST_HAVE |\n| BR-005 | Unmoderated or rejected customer reviews must never be visible to other customers on ShopEase. | Review Moderation | MUST_HAVE |\n| BR-006 | Customers who submit rejected reviews may be notified of the rejection outcome. | Review Moderation | SHOULD_HAVE |",
+      "quality_score": 0.84,
+      "quality_pct": "84%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-016",
+        "TR-040"
+      ],
+      "req_count": 2
+    },
+    {
+      "id": "ab61f18a-bf56-45dc-93ef-f22cfd84111c",
+      "name": "User Roles and Permissions",
+      "content": "## User Roles and Permissions\n\n### Role Definitions\n\n**Customer** — Registered end-user who browses, purchases, tracks orders, and manages personal account\n**Store Manager** — Regional staff who views and manages orders and returns within their assigned region only\n**Central Admin** — Platform-wide administrator with full catalog, pricing, promotions, and reporting control\n**Vendor Partner** — Third-party seller who manages own product listings and inventory; no pricing access\n**Executive** — Senior business user with read-only access to dashboards and key business performance metrics\n\n---\n\n### Permissions Matrix\n\n| Feature | Customer | Store Manager | Central Admin | Vendor Partner | Executive |\n|---|---|---|---|---|---|\n| Register / Login (own account) | ✓ | ✓ | ✓ | ✓ | ✓ |\n| Browse, Search & Filter Products | ✓ | ✗ | ✓ | Limited | ✗ |\n| Manage Shopping Cart & Checkout | ✓ | ✗ | ✗ | ✗ | ✗ |\n| Select Payment Method (Card / UPI / EMI) | ✓ | ✗ | ✗ | ✗ | ✗ |\n| Wishlist Management | ✓ | ✗ | ✗ | ✗ | ✗ |\n| Real-Time Order Tracking | ✓ | Limited | ✓ | ✗ | ✗ |\n| Initiate & Submit Return Requests | ✓ | ✗ | ✗ | ✗ | ✗ |\n| Submit Product Reviews & Ratings | ✓ | ✗ | ✗ | ✗ | ✗ |\n| Manage Delivery Addresses | ✓ | ✗ | ✗ | ✗ | ✗ |\n| View & Manage Regional Orders & Returns | ✗ | Limited | ✓ | ✗ | ✗ |\n| Product Catalog Management (Add/Edit/Deactivate) | ✗ | ✗ | ✓ | Limited | ✗ |\n| Pricing & Discount Management | ✗ | ✗ | ✓ | ✗ | ✗ |\n| Promotional Campaign Management (Email / SMS) | ✗ | ✗ | ✓ | ✗ | ✗ |\n| Review Moderation (Approve / Reject) | ✗ | ✗ | ✓ | ✗ | ✗ |\n| Sales & Cart Abandonment Reporting | ✗ | ✗ | ✓ | ✗ | Limited |\n\n---\n\n**Legend:**\n- ✓ = Full access\n- ✗ = No access\n- **Limited** = Scoped or restricted access as defined below\n\n**Limited Access Clarifications:**\n- **Store Manager — Order Tracking:** View and action orders and returns within assigned region only; no cross-region visibility (TR-013, US-017)\n- **Store Manager — Regional Orders & Returns:** Can initiate or approve returns for regional orders; cannot access orders outside assigned region\n- **Vendor Partner — Browse Products:** Can view own listings only; cannot browse full catalog or competitor listings\n- **Vendor Partner — Catalog Management:** Can add/edit own product listings (descriptions, images, specifications, inventory quantities); cannot create platform-wide catalog entries or modify pricing (TR-015, US-016)\n- **Executive — Reporting:** Read-only access to mobile dashboard showing revenue, order counts, and top-selling products for configurable periods; cannot generate or export detailed operational reports (US-022)",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-012",
+        "TR-013",
+        "TR-014"
+      ],
+      "req_count": 47
+    },
+    {
+      "id": "0fd499fb-7980-43ff-8eb6-90ffc06902a3",
+      "name": "User Journeys and Use Cases",
+      "content": "### UC-001: Customer Checkout & Payment\n\n**Actor:** Registered Customer\n**Goal:** Complete a purchase using preferred payment method\n\n**Steps:**\n1. Customer reviews cart and proceeds to checkout\n2. Selects or adds a delivery address\n3. Views real-time shipping rates from Delhivery/BlueDart\n4. Selects payment method (credit/debit card, UPI, net banking, or EMI via Bajaj Finance)\n5. Confirms order and receives order confirmation\n\n**Result:** Order is placed, inventory updated in SAP within 60 seconds, and confirmation sent to customer\n\n---\n\n### UC-002: Central Admin — Product & Catalog Management\n\n**Actor:** Central Admin\n**Goal:** Create, price, and activate a product for customer purchase\n\n**Steps:**\n1. Admin logs into platform with role-specific credentials\n2. Creates new product with name, description, images, category, brand, and base price\n3. Applies discount with defined validity period\n4. Publishes product; SAP batch sync updates product metadata daily\n5. Inventory levels reflect SAP real-time sync within 60 seconds\n\n**Result:** Product is live on platform with accurate pricing and stock status visible to customers\n\n---\n\n### UC-003: Store Manager — Regional Order & Returns Management\n\n**Actor:** Store Manager\n**Goal:** Review regional orders and process a customer return\n\n**Steps:**\n1. Store Manager logs in and accesses regional order dashboard\n2. Filters orders by status (e.g., return requested) within assigned region\n3. Reviews return request including reason and customer-uploaded images\n4. Approves return and initiates refund workflow\n5. Confirms access is restricted to assigned region only\n\n**Result:** Return is approved within regional scope; customer refund is triggered and order status updated on platform",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015",
+        "TR-019",
+        "TR-020",
+        "TR-021"
+      ],
+      "req_count": 43
+    },
+    {
+      "id": "b4d887e7-1d83-4b51-8729-c9b9ded7a018",
+      "name": "Data Requirements",
+      "content": "## Data Requirements\n\n| Entity | Key Attributes | Est. Volume | Sensitivity |\n|---|---|---|---|\n| Customer | CustomerID, name, email, mobile, hashed password, registration date, GDPR consent flag, opt-out preferences | 500K–1M records | High — PII, GDPR & IT Act applicable |\n| Product / SKU | SKU, name, description, brand, category, images, base price, discount, discount validity, stock status, active/inactive flag, SAP reference ID | 25,000 SKUs | Low–Medium |\n| Order | OrderID, CustomerID, SKU(s), quantity, unit price, total amount, payment method, EMI details, order status, region, logistics carrier, tracking ID, timestamp | 2M–5M/year | High — financial & personal data |\n| Inventory | SKU, warehouse/store location, quantity on hand, last SAP sync timestamp, sync status | 25,000 records | Medium |\n| User Account (Staff/Vendor) | UserID, role (Admin/Store Manager/Vendor), assigned region, login credentials, access permissions, last login | ~500 users | High — access control |\n| Payment Transaction | TransactionID, OrderID, payment method, EMI plan, financing partner, amount, PCI-DSS tokenised card reference, status, timestamp | Matches order volume | Critical — PCI-DSS |\n| Return Request | ReturnID, OrderID, CustomerID, reason code, supporting images, status, approving manager, refund amount | ~5–10% of orders | Medium–High |\n| Marketing Campaign | CampaignID, type (email/SMS), target segment, message content, schedule, DND-scrub status, delivery status, opt-out log | Hundreds/year | Medium — regulatory |\n\nProduct and inventory data must be migrated from SAP ERP prior to go-live, with a validated reconciliation confirming all 25,000 SKUs are accurately transferred before cutover.",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015",
+        "TR-019",
+        "TR-020",
+        "TR-021"
+      ],
+      "req_count": 55
+    },
+    {
+      "id": "e4be9de6-3a2d-4082-85fb-05758f740342",
+      "name": "Integration Requirements",
+      "content": "## Integration Requirements\n\n| System | Type | Direction | Data | Frequency | Status |\n|---|---|---|---|---|---|\n| SAP ERP | REST/Batch API | Bidirectional | Product catalogue (25,000+ SKUs), inventory levels, product metadata | Inventory: Real-time (<60 sec); Product attributes: Daily batch | Confirmed — hard constraint (TR-036) |\n| Payment Gateway (Credit/Debit/UPI/Net Banking) | REST API | Outbound (request) / Inbound (response) | Payment authorisation, transaction status, confirmation tokens | Per transaction (real-time) | Confirmed — gateway vendor TBD |\n| Bajaj Finance | REST API | Bidirectional | No-cost EMI offer retrieval, plan selection, financing confirmation | Per transaction (real-time) | Confirmed (TR-010) |\n| ZestMoney | REST API | Bidirectional | No-cost EMI offer retrieval, plan selection, financing confirmation | Per transaction (real-time) | Pending — subject to partner agreement (TR-010) |\n| Delhivery | REST API | Bidirectional | Shipping rate quotes (PIN code + weight), order dispatch, tracking updates | Rates: Per checkout; Tracking: Real-time poll/webhook | Confirmed (TR-026) |\n| BlueDart | REST API | Bidirectional | Shipping rate quotes (PIN code + weight), order dispatch, tracking updates | Rates: Per checkout; Tracking: Real-time poll/webhook | Confirmed (TR-026) |\n| SMS Gateway | REST API | Outbound | OTP, order status notifications, promotional SMS messages | Event-triggered + campaign-scheduled | Confirmed — vendor TBD (TR-035) |\n| Email Service Provider | REST API | Outbound | OTP, order confirmations, promotional email campaigns | Event-triggered + campaign-scheduled | Confirmed — vendor TBD (TR-035) |\n| Google Play Store | App Distribution | Outbound | Android mobile application binary and updates | Per release | Confirmed (US-021) |\n| Apple App Store | App Distribution | Outbound | iOS mobile application binary and updates | Per release | Confirmed (US-021) |\n\n> **SAP ERP:** Two distinct sync modes must be implemented and tested independently — real-time inventory sync (≤60 seconds, event-driven) and daily batch product metadata sync; sync failures must trigger automated alerts to the operations team (US-015).\n> **ZestMoney:** Integration must be fully scoped and architected at build time to allow activation without rework; go-live is deferred pending commercial agreement.",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-012",
+        "TR-013",
+        "TR-014",
+        "TR-015",
+        "TR-019",
+        "TR-020"
+      ],
+      "req_count": 46
+    },
+    {
+      "id": "4e62bede-b570-40cc-923e-05c2c0b2c0bd",
+      "name": "Assumptions",
+      "content": "## Assumptions\n\n| A-ID | Assumption (max 20 words) | Risk if Wrong |\n|------|--------------------------|---------------|\n| A-001 | RetailCorp operates ~200 physical stores and has no existing e-commerce platform in place. | Scope, integrations, and migration effort may be significantly underestimated. |\n| A-002 | Average order value is ~INR 15,000, reflecting high-ticket categories like appliances and electronics. | Payment, EMI, and fraud workflows may be incorrectly designed for actual order values. |\n| A-003 | Bajaj Finance agreement is signed; ZestMoney is not finalised and may not be available at launch. | No-cost EMI options at launch may be limited, impacting conversion rates. |\n| A-004 | Platform will support a multi-vendor marketplace model; vendor onboarding is within project scope. | Scope creep or gaps in vendor management functionality if model changes post-build. |\n| A-005 | Initial catalog has ~8,000 SKUs, scaling to ~25,000 SKUs after vendor onboarding. | Catalog architecture may not scale, causing performance or data management issues. |\n| A-006 | RetailCorp holds existing API agreements with Delhivery and BlueDart for logistics integration. | Delivery integration timelines and costs will increase if agreements are not in place. |\n| A-007 | Peak concurrent user load of 50,000 is based on physical store footfall as an online proxy. | Platform may be over- or under-provisioned, risking outages or unnecessary infrastructure cost. |",
+      "quality_score": 0.68,
+      "quality_pct": "68%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-006",
+        "TR-007",
+        "TR-011",
+        "TR-017",
+        "TR-018",
+        "TR-037",
+        "TR-038"
+      ],
+      "req_count": 7
+    },
+    {
+      "id": "0d590da7-d2ac-47ad-9006-64df44bfd0b9",
+      "name": "Constraints",
+      "content": "## Constraints\n\n| C-ID | Constraint (max 20 words) | Category | Impact |\n|------|--------------------------|----------|--------|\n| C-001 | ShopEase platform must be fully live within 6 months of project kickoff; hard CEO deadline. | Timeline | Compresses all design, build, test, and deployment phases; no schedule buffer permitted. |\n| C-002 | All customer PII must be stored and processed exclusively on India-based server infrastructure. | Regulatory | Restricts cloud provider selection to India-region data centres only; no global CDN for PII. |\n| C-003 | RetailCorp's existing SAP ERP system is mandatory for product and inventory integration; cannot be replaced. | Technical | All product catalogue and inventory flows must conform to SAP data structures and APIs. |\n| C-004 | Bajaj Finance is a confirmed No-Cost EMI partner; integration must be included at launch. | Technical | Checkout and payment flows must support Bajaj Finance API; adds integration and testing scope. |\n| C-005 | ZestMoney is a prospective EMI partner; integration readiness must be planned but not guaranteed at launch. | Technical | Architecture must support pluggable financing partners without core checkout redesign. |\n| C-006 | Vendor Partner product listings must use SKU as the unique identifier across the platform. | Technical | All catalogue, inventory, and order management modules must enforce SKU-based data consistency. |\n| C-007 | Store Manager role must be restricted to order viewing and inventory management only; no broader access. | Technical | Role-based access control must enforce strict permission boundaries at the feature level. |\n| C-008 | Central Admin role requires full platform-wide access; must be provisioned and secured at launch. | Technical | Admin module scope and security controls must be fully delivered within the 6-month timeline. |\n| C-009 | Data residency compliance must be verified and formally documented before platform launch. | Regulatory | A pre-launch compliance sign-off gate is required, adding audit effort to the project timeline. |\n| C-010 | No customer data may be transmitted to or processed on infrastructure outside Indian borders at any time. | Regulatory | Third-party services, analytics tools, and APIs must all be evaluated for cross-border data transfer risk. |",
+      "quality_score": 0.76,
+      "quality_pct": "76%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-030",
+        "TR-036"
+      ],
+      "req_count": 3
+    },
+    {
+      "id": "ae01e86e-e58c-4407-a0bd-544d3b49cd5d",
+      "name": "Dependencies",
+      "content": "## Dependencies\n\n| # | Dependency | Owner | Needed By | Impact if Delayed |\n|---|------------|-------|-----------|-------------------|\n| 1 | SAP ERP integration API specifications, credentials, and sandbox access must be provided by RetailCorp IT before platform development begins | Rajesh Mehta (RetailCorp IT) | Month 2 – Backend development start | Inventory and product data sync cannot be built or tested; risks entire platform launch against 6-month deadline (TR-036, TR-001) |\n| 2 | Bajaj Finance must provide No-Cost EMI API documentation, test credentials, and UAT environment access before checkout module development | Bajaj Finance Technical Team | Month 2 – Checkout module build | No-Cost EMI feature unavailable at launch; critical for high-ticket AOV of INR 15,000 categories (TR-011, TR-007) |\n| 3 | ZestMoney partnership agreement must be signed and API access confirmed before their EMI option is scoped or built | RetailCorp Legal / ZestMoney | Month 1 – Scope finalization | ZestMoney EMI cannot be included at launch; scope and timeline must be adjusted if agreement is delayed (TR-011) |\n| 4 | Delhivery and BlueDart must confirm API accessibility, share technical documentation, and provide sandbox environments before logistics integration development | RetailCorp Partnerships / Logistics Providers | Month 2 – Order management build | Shipping, tracking, and delivery features cannot be integrated; order fulfilment capability blocked at launch (TR-037) |\n| 5 | Indian data center infrastructure (cloud or co-location) must be procured, provisioned, and confirmed compliant before any customer data architecture is finalized | RetailCorp IT / Infrastructure Vendor | Month 1 – Architecture sign-off | Data residency compliance cannot be verified; platform legally cannot go live without confirmed India-only hosting (TR-030, TR-001) |\n| 6 | Initial catalog of 8,000 SKUs must be cleansed, structured, and delivered in agreed format before catalog ingestion and SAP sync can be tested | Rajesh Mehta (RetailCorp Merchandising) | Month 3 – Catalog and search testing | Product catalog unavailable for UAT; search, filtering, and vendor onboarding workflows cannot be validated at scale (TR-018) |\n| 7 | Vendor onboarding process, legal agreements, and vendor portal requirements must be defined and approved before vendor-facing features are designed or built | RetailCorp Commercial / Legal | Month 2 – Vendor module design | Multi-vendor marketplace features cannot be scoped accurately; SKU growth to 25,000 and vendor workflows remain undefined (TR-017, TR-018) |\n| 8 | RetailCorp must confirm and document physical store footfall data methodology and provide revised peak load estimates before performance and load testing is planned | Sunita Agarwal (RetailCorp Business) | Month 4 – Performance testing | Load testing targets based on unvalidated proxy data; platform may be under- or over-engineered for actual 50,000 peak user load (TR-038) |",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-006",
+        "TR-007",
+        "TR-011",
+        "TR-017",
+        "TR-018",
+        "TR-030",
+        "TR-036",
+        "TR-037",
+        "TR-038"
+      ],
+      "req_count": 10
+    },
+    {
+      "id": "233a2b97-d9a9-47f9-9202-11ee8203f12e",
+      "name": "Risks",
+      "content": "## Risks\n\n| Risk ID | Risk (max 15 words) | Probability | Impact | Level | Mitigation (max 10 words) |\n|---------|-------------------|-------------|--------|-------|--------------------------|\n| RSK-001 | 6-month hard deadline may be unachievable given full platform scope | High | High | Critical | Prioritise MVP scope; agree phased delivery with CEO |\n| RSK-002 | SAP ERP integration complexity may cause significant delays to launch | High | High | Critical | Begin SAP technical discovery and API mapping immediately |\n| RSK-003 | ZestMoney agreement unsigned; No-Cost EMI offering incomplete at launch | High | Medium | High | Launch with Bajaj Finance only; set ZestMoney contract deadline |\n| RSK-004 | Peak traffic estimate based on footfall data; platform may be under-provisioned | Medium | High | High | Conduct independent load testing; build auto-scaling infrastructure |\n| RSK-005 | Logistics API access with Delhivery and BlueDart unconfirmed; integration may fail | Medium | High | High | Formally verify API access and SLAs before sprint planning |\n| RSK-006 | Catalog scaling from 8,000 to 25,000 SKUs may expose architecture limitations | Medium | High | High | Design catalog architecture for 25,000 SKUs from outset |\n| RSK-007 | Multi-vendor onboarding adds scope complexity risking timeline and quality | High | Medium | High | Define vendor onboarding MVP; defer non-critical vendor features |\n| RSK-008 | Data residency compliance failure risks regulatory breach and launch block | Low | High | High | Audit and certify all infrastructure data centers pre-launch |",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-006",
+        "TR-007",
+        "TR-011",
+        "TR-017",
+        "TR-018",
+        "TR-030",
+        "TR-036",
+        "TR-037",
+        "TR-038"
+      ],
+      "req_count": 10
+    },
+    {
+      "id": "d5b130f9-79ea-43ac-b061-f4464f5675bc",
+      "name": "Glossary",
+      "content": "## Glossary\n\n| Term | Definition (max 15 words) |\n|---|---|\n| Bajaj Finance | Confirmed third-party financing partner providing no-cost EMI options at checkout. |\n| BlueDart | Logistics carrier integrated for shipping rate calculation and order tracking. |\n| Cart Abandonment | Products added to cart by customers who did not complete purchase. |\n| Central Admin | User role with full platform-wide access to products, pricing, and promotions. |\n| Delhivery | Logistics carrier integrated for shipping rate calculation and order tracking. |\n| GDPR | EU data protection regulation applicable to RetailCorp's NRI customer base. |\n| Indian IT Act | Indian legislation governing data protection and electronic commerce compliance. |\n| No-Cost EMI | Instalment payment option where the customer pays zero interest charges. |\n| OTP | One-time password used for customer authentication via mobile or email. |\n| PCI-DSS | Security standard governing safe handling and storage of payment card data. |\n| RetailCorp India | Client organisation; a mid-size Indian retail chain entering e-commerce. |\n| SAP ERP | RetailCorp's existing enterprise resource planning system for product and inventory data. |\n| ShopEase | The e-commerce platform being built for RetailCorp India. |\n| SKU | Stock Keeping Unit; unique identifier assigned to each individual product. |\n| Store Manager | User role restricted to viewing regional orders and managing returns. |\n| TRAI DND Registry | Indian regulatory list of customers who have opted out of SMS marketing. |\n| UPI | Unified Payments Interface; real-time Indian digital payment method supported at checkout. |\n| Vendor Partner | Third-party seller who lists products on the ShopEase platform. |\n| ZestMoney | Prospective third-party financing partner for no-cost EMI; agreement not yet finalised. |",
+      "quality_score": 0.76,
+      "quality_pct": "76%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010"
+      ],
+      "req_count": 71
+    },
+    {
+      "id": "59eaed04-6349-4c20-837b-e7edb18dd73c",
+      "name": "Appendices",
+      "content": "## Appendices\n\n### Reference Documents\n- RetailCorp ShopEase Project Charter\n- Sunita Agarwal Stakeholder Interview Transcript\n- Rajesh Mehta Stakeholder Interview Transcript\n- SAP ERP Integration Specification\n- Bajaj Finance No-Cost EMI API Agreement\n- Delhivery API Documentation\n- BlueDart API Documentation\n- GDPR Compliance Framework\n- Indian IT Act Compliance Checklist\n- TRAI DND Registry Guidelines\n- PCI-DSS Level 1 Requirements Standard\n\n### Open Questions\n- Is ZestMoney partnership agreement expected before launch?\n- Who owns review moderation — central admin or a dedicated content team?\n- What is the defined return eligibility window for customer returns?\n- Has RetailCorp confirmed Indian data centre infrastructure provider?\n- Are Delhivery and BlueDart API credentials available for integration testing?",
+      "quality_score": 0.6,
+      "quality_pct": "60%",
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010"
+      ],
+      "req_count": 71
+    }
+  ]
+}

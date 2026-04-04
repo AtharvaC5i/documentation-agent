@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Mail, RefreshCw, Copy, CheckCircle, AlertTriangle, ArrowLeft, Send } from "lucide-react";
+import { Mail, RefreshCw, Copy, CheckCircle, AlertTriangle, ArrowLeft } from "lucide-react";
 import { getFollowupEmail, generateFollowupEmail, getConflicts } from "../utils/api";
 
 export default function FollowupEmail() {
@@ -56,13 +56,8 @@ export default function FollowupEmail() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const openMailClient = () => {
-    // Extract subject line from email if present
-    const subjectMatch = edited.match(/Subject:\s*(.+)/i);
-    const subject = subjectMatch ? subjectMatch[1].trim() : "BRD Follow-Up — Clarifications Required";
-    const body = edited.replace(/Subject:.+\n?/i, "").trim();
-    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  };
+  // Note: mailto: links open the system default email client.
+  // We provide copy-to-clipboard instead for reliability across environments.
 
   if (loading) return <div className="full-center"><div className="spinner" /></div>;
 
@@ -148,7 +143,7 @@ export default function FollowupEmail() {
                 padding: "16px",
                 border: "1.5px solid var(--grey-200)",
                 borderRadius: 8,
-                background: "var(--grey-50)",
+                background: "var(--bg-elevated)",
                 color: "var(--grey-900)",
                 resize: "vertical",
                 outline: "none",
@@ -164,9 +159,7 @@ export default function FollowupEmail() {
             <button className="btn btn-primary" onClick={handleCopy}>
               {copied ? <><CheckCircle size={15} /> Copied!</> : <><Copy size={15} /> Copy to Clipboard</>}
             </button>
-            <button className="btn btn-secondary" onClick={openMailClient}>
-              <Send size={15} /> Open in Mail App
-            </button>
+
           </div>
 
           <div className="alert alert-warning mt-4">

@@ -1,0 +1,183 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "Real-time vs. batch sync for product information from SAP ERP — TR-020 mandates real-time inventory sync to prevent overselling, while TR-021 specifies that non-inventory product attributes use a daily batch process. However, US-015 states the system shall synchronise inventory levels with SAP in real time, which is consistent with TR-020, but the boundary between inventory data and product information is not explicitly defined, creating a risk of misinterpretation where implementers apply batch sync to data that operationally requires real-time treatment.",
+      "version_a": {
+        "req_id": "TR-020",
+        "text": "Inventory levels must be synchronized with SAP ERP in real time to prevent overselling. A product must reflect its current stock status immediately upon any inventory change in SAP."
+      },
+      "version_b": {
+        "req_id": "TR-021",
+        "text": "Product information (non-inventory attributes) must be synced from SAP ERP via a daily batch process. Real-time sync is not required for non-inventory attributes."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-002",
+      "description": "GDPR compliance requirement conflicts with the India-only data residency constraint. TR-028 requires GDPR compliance to support NRI customers, implying data subject rights and potentially cross-border data handling mechanisms applicable under EU law. TR-030 mandates that all customer data be stored exclusively on servers within India with no offshore processing. These two requirements may be mutually incompatible depending on how GDPR data portability, erasure, and transfer obligations are interpreted in conjunction with a strict India-only storage rule.",
+      "version_a": {
+        "req_id": "TR-028",
+        "text": "The platform must comply with GDPR regulations to support NRI customers. Applicable data subject rights and consent mechanisms must be implemented."
+      },
+      "version_b": {
+        "req_id": "TR-030",
+        "text": "All customer data must be stored exclusively on servers located within India. No customer data may be stored or processed outside India."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-003",
+      "description": "ZestMoney is referenced as a target integration in TR-010 but TR-011 explicitly states the ZestMoney agreement is not yet finalised. Including ZestMoney as a named integration requirement (TR-010) while simultaneously flagging it as an unconfirmed assumption (TR-011) creates an ambiguous scope commitment that could affect delivery planning and contractual obligations.",
+      "version_a": {
+        "req_id": "TR-010",
+        "text": "The system must support no-cost EMI through third-party financing partners, with confirmed integration with Bajaj Finance and ZestMoney."
+      },
+      "version_b": {
+        "req_id": "TR-011",
+        "text": "RetailCorp has an existing signed agreement with Bajaj Finance for no-cost EMI. ZestMoney agreement is not yet finalized and is treated as a dependency risk."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-004",
+      "description": "Page load performance requirements are stated differently across TR-032 and US-021-NF. TR-032 sets a 3-second load time for all customer-facing pages under normal operating conditions. US-021-NF also sets a 3-second home screen load time but scopes it specifically to mobile on a standard 4G connection. The conflict arises because 4G network conditions are not equivalent to the server-side 'normal operating conditions' baseline in TR-032, meaning the same metric may be measured differently for web vs. mobile, creating inconsistent acceptance criteria.",
+      "version_a": {
+        "req_id": "TR-032",
+        "text": "All customer-facing pages must load within 3 seconds under normal operating conditions. This applies to product listing, product detail, and checkout pages."
+      },
+      "version_b": {
+        "req_id": "US-021-NF",
+        "text": "The mobile application shall load the home screen within 3 seconds on a standard 4G connection so that customers experience fast access on mobile devices."
+      },
+      "impact": "low",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-005",
+      "description": "Vendor pricing control is prohibited by TR-016 (a business rule stating all pricing is controlled exclusively by RetailCorp central admin), yet TR-015 and US-016 grant vendors a self-service interface to manage their product listings. The scope of 'product listings' is not explicitly bounded to exclude pricing fields, creating a risk that vendor-facing UI could inadvertently expose pricing controls, or that the business rule is inconsistently enforced across the vendor portal.",
+      "version_a": {
+        "req_id": "TR-016",
+        "text": "All product pricing is controlled exclusively by RetailCorp central admin. Vendors are not permitted to set or modify pricing for any product on the platform."
+      },
+      "version_b": {
+        "req_id": "TR-015",
+        "text": "Vendor partners must have a dedicated login to manage their product listings and inventory. Vendors must not have access to pricing or promotional controls."
+      },
+      "impact": "low",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Stakeholder Register",
+      "coverage_level": "weak",
+      "message": "'Stakeholder Register' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Business Rules",
+      "coverage_level": "weak",
+      "message": "'Business Rules' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Risks",
+      "coverage_level": "weak",
+      "message": "'Risks' has limited coverage.",
+      "suggested_action": "Review and supplement with client confirmation"
+    },
+    {
+      "id": "GAP-010",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions to client"
+    },
+    {
+      "id": "GAP-011",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions to client"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "weak",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "weak",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "weak",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

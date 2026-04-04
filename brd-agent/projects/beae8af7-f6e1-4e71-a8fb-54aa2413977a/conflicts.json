@@ -1,0 +1,116 @@
+{
+  "conflicts": [],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Stakeholder Register",
+      "coverage_level": "weak",
+      "message": "'Stakeholder Register' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Non-Functional Requirements",
+      "coverage_level": "weak",
+      "message": "'Non-Functional Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Data Requirements",
+      "coverage_level": "none",
+      "message": "'Data Requirements' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Integration Requirements",
+      "coverage_level": "weak",
+      "message": "'Integration Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Constraints",
+      "coverage_level": "weak",
+      "message": "'Constraints' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-010",
+      "section": "Dependencies",
+      "coverage_level": "none",
+      "message": "'Dependencies' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-011",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-012",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-013",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "weak",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "weak",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "none",
+    "Integration Requirements": "weak",
+    "Assumptions": "strong",
+    "Constraints": "weak",
+    "Dependencies": "none",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

@@ -28,6 +28,8 @@ export default function LivingBRD() {
   const [openChange, setOpenChange] = useState(null);
   const [selected, setSelected] = useState({});
   const [file, setFile] = useState(null);
+  const [pasteText, setPasteText] = useState("");
+  const [inputMode, setInputMode] = useState("file"); // file | paste
   const [tab, setTab] = useState("changes"); // changes | history
   const [pollActive, setPollActive] = useState(false);
 
@@ -58,12 +60,21 @@ export default function LivingBRD() {
   }, 2500, pollActive);
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (inputMode === "file" && !file) return;
+    if (inputMode === "paste" && !pasteText.trim()) return;
     setUploading(true);
     try {
-      await uploadNewTranscript(projectId, file);
+      if (inputMode === "paste") {
+        // Create a file from pasted text
+        const blob = new Blob([pasteText], { type: "text/plain" });
+        const pasteFile = new File([blob], "transcript_paste.txt", { type: "text/plain" });
+        await uploadNewTranscript(projectId, pasteFile);
+      } else {
+        await uploadNewTranscript(projectId, file);
+      }
       setPollActive(true);
       setFile(null);
+      setPasteText("");
     } catch (e) {
       alert("Upload failed: " + e.message);
     } finally {
@@ -155,7 +166,7 @@ export default function LivingBRD() {
           <label style={{
             display: "flex", alignItems: "center", gap: 8,
             padding: "10px 16px", border: "1.5px dashed var(--grey-300)",
-            borderRadius: 8, cursor: "pointer", background: "var(--grey-50)",
+            borderRadius: 8, cursor: "pointer", background: "var(--bg-elevated)",
             flex: 1, transition: "all .15s",
           }}
             className={file ? "drag" : ""}
@@ -277,11 +288,11 @@ export default function LivingBRD() {
                       </button>
                     </div>
                     {isOpen && (
-                      <div style={{ padding: "12px 20px", background: "var(--grey-50)", borderTop: "1px solid var(--grey-200)" }}>
+                      <div style={{ padding: "12px 20px", background: "var(--bg-elevated)", borderTop: "1px solid var(--grey-200)" }}>
                         {c.old_text && (
                           <div style={{ marginBottom: 10 }}>
                             <div className="text-xs font-semibold text-muted mb-1">BEFORE</div>
-                            <div style={{ background: "#fef2f2", borderRadius: 6, padding: "8px 12px", fontSize: ".85rem", borderLeft: "3px solid #ef4444" }}>
+                            <div style={{ background: "rgba(239,68,68,.08)", borderRadius: 6, padding: "8px 12px", fontSize: ".85rem", borderLeft: "3px solid #ef4444" }}>
                               {c.old_text}
                             </div>
                           </div>
@@ -289,7 +300,7 @@ export default function LivingBRD() {
                         {c.new_text && (
                           <div>
                             <div className="text-xs font-semibold text-muted mb-1">AFTER</div>
-                            <div style={{ background: "#ecfdf5", borderRadius: 6, padding: "8px 12px", fontSize: ".85rem", borderLeft: "3px solid #10b981" }}>
+                            <div style={{ background: "rgba(16,185,129,.08)", borderRadius: 6, padding: "8px 12px", fontSize: ".85rem", borderLeft: "3px solid #10b981" }}>
                               {c.new_text}
                             </div>
                           </div>
@@ -317,7 +328,7 @@ export default function LivingBRD() {
                 <div className="flex items-center gap-3">
                   <div style={{
                     width: 32, height: 32, borderRadius: 8,
-                    background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center",
+                    background: "rgba(59,130,246,.08)", display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     <Clock size={15} color="#2563eb" />
                   </div>
