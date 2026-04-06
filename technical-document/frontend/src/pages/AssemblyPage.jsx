@@ -541,7 +541,7 @@ export default function AssemblyPage() {
             >
               python-docx
             </code>
-            . Download directly or send by email.
+            . Download the document directly.
           </p>
         </div>
 
@@ -813,19 +813,6 @@ export default function AssemblyPage() {
               )}
             </button>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3 my-5">
-              <div className="flex-1 h-px bg-gray-100" />
-              <span className="text-xs text-gray-300 font-medium">or</span>
-              <div className="flex-1 h-px bg-gray-100" />
-            </div>
-
-            {/* Email form */}
-            <EmailForm
-              projectId={projectId}
-              metadata={metadata}
-              onSent={() => setEmailSent(true)}
-            />
 
             {/* Divider */}
             <div className="h-px bg-gray-100 my-5" />
@@ -873,74 +860,6 @@ export default function AssemblyPage() {
       {/* ── Right: sidebar ── */}
       <div className="flex-[4] min-w-0 hidden md:block">
         <div className="h-[60px]" />
-
-        {/* Project info */}
-        {metadata && (
-          <>
-            <div className="flex items-center gap-2 mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                Project Info
-              </p>
-              <div className="flex-1 h-px bg-gray-100" />
-            </div>
-            <div
-              className="bg-white border border-gray-200 rounded-xl p-4 mb-5
-                    divide-y divide-gray-50"
-            >
-              <div className="pb-3">
-                <div
-                  className="text-[10px] font-bold uppercase tracking-widest
-                        text-gray-300 mb-0.5"
-                >
-                  Project
-                </div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {metadata.project_name ??
-                    metadata.projectName ??
-                    metadata.name ??
-                    "—"}
-                </div>
-              </div>
-              <div className="py-3">
-                <div
-                  className="text-[10px] font-bold uppercase tracking-widest
-                        text-gray-300 mb-0.5"
-                >
-                  Client
-                </div>
-                <div className="text-sm text-gray-700">
-                  {metadata.client_name ??
-                    metadata.clientName ??
-                    metadata.client ??
-                    "—"}
-                </div>
-              </div>
-              {(metadata.team_members ?? metadata.teamMembers)?.length > 0 && (
-                <div className="pt-3">
-                  <div
-                    className="text-[10px] font-bold uppercase tracking-widest
-                          text-gray-300 mb-2"
-                  >
-                    Team
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {(metadata.team_members ?? metadata.teamMembers).map(
-                      (m) => (
-                        <span
-                          key={m}
-                          className="bg-gray-100 border border-gray-200 text-xs
-                               text-gray-500 rounded-full px-2.5 py-0.5"
-                        >
-                          {m}
-                        </span>
-                      ),
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </>
-        )}
 
         {/* Document order */}
         <div className="flex items-center gap-2 mb-3">

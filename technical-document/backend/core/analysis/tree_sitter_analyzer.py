@@ -412,12 +412,16 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
             languages_found.add(lang)
 
         # LOC for source files
-        if ext_lower in SOURCE_EXTENSIONS:
-            content = _read_safe(filepath)
-            if content:
-                total_loc += content.count("\n") + 1
-        else:
-            content = _read_safe(filepath)
+        # AFTER
+        content = _read_safe(filepath)
+        if ext_lower in SOURCE_EXTENSIONS and content:
+            for line in content.splitlines():
+                stripped = line.strip()
+                if stripped and not stripped.startswith((
+                    "#", "//", "/*", "*", "*/", "--", "'''", '"""',
+                    "rem ", "REM ",
+                )):
+                    total_loc += 1
 
         if not content:
             continue
@@ -466,8 +470,24 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
             if any(sig.lower() in content_lower for sig in sigs):
                 test_frameworks_found.add(tf)
 
-        for pattern in API_PATTERNS:
-            api_count += content.count(pattern)
+        # AFTER
+
+        # Skip test files entirely for endpoint counting
+        _fp_lower = filepath.replace("\\", "/").lower()
+        _is_test = any(seg in _fp_lower for seg in (
+            "/test/", "/tests/", "/spec/", "/specs/",
+            "/__tests__/", "/test_", "_test.", ".test.", ".spec.",
+            "/conftest", "test_utils", "testclient",
+        ))
+
+        if not _is_test and ext_lower in SOURCE_EXTENSIONS:
+            for line in content.splitlines():
+                line_stripped = line.strip()
+                # One endpoint max per line — stops double-counting
+                for pattern in API_PATTERNS:
+                    if pattern in line_stripped:
+                        api_count += 1
+                        break  # ← this is the key fix: first match wins, move on
 
     # ── DevOps/infra detection ─────────────────────────────────────────────
     tech = detect_tech_stack(filtered_files)

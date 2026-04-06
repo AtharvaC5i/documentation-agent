@@ -733,28 +733,6 @@ export default function ReportPage() {
           ))}
         </div>
 
-        {/* Project info */}
-        {state.metadata && (
-          <>
-            <div className="flex items-center gap-2 mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                Project
-              </p>
-              <div className="flex-1 h-px bg-gray-100" />
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl p-4 mb-5 shadow-sm">
-              <div className="text-sm font-semibold text-gray-900 mb-0.5">
-                {state.metadata.project_name ??
-                  state.metadata.projectName ??
-                  "—"}
-              </div>
-              <div className="text-xs text-gray-400">
-                {state.metadata.client_name ?? state.metadata.clientName ?? "—"}
-              </div>
-            </div>
-          </>
-        )}
-
         {/* Start New Project */}
         <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <div

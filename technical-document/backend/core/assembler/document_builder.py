@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from datetime import date
 from typing import List, Dict, Any
@@ -25,10 +26,6 @@ PAGE_HEIGHT_CM = Cm(29.7)
 # DESIGN TOKENS
 # ─────────────────────────────────────────────────────────────
 
-# ─────────────────────────────────────────────────────────────
-# DESIGN TOKENS  (replace the existing class)
-# ─────────────────────────────────────────────────────────────
-
 class DesignTokens:
     COLOR_INK          = RGBColor(0x0F, 0x0F, 0x1A)
     COLOR_HEADING      = RGBColor(0x0D, 0x1B, 0x3E)
@@ -39,21 +36,21 @@ class DesignTokens:
     COLOR_TABLE_STRIPE = RGBColor(0xF8, 0xF9, 0xFF)
     COLOR_WHITE        = RGBColor(0xFF, 0xFF, 0xFF)
     COLOR_BLOCKQUOTE   = RGBColor(0x2D, 0x4A, 0x8A)
-    COLOR_ACCENT_LIGHT = RGBColor(0xEB, 0xF0, 0xFF)   # very light blue for meta bg
+    COLOR_ACCENT_LIGHT = RGBColor(0xEB, 0xF0, 0xFF)
 
     FONT_BODY    = "Calibri"
     FONT_HEADING = "Calibri"
     FONT_MONO    = "Consolas"
 
-    SIZE_DISPLAY   = Pt(42)    # was 32 — too small
-    SIZE_SUBTITLE  = Pt(11)
-    SIZE_H1        = Pt(16)
-    SIZE_H2        = Pt(13)
-    SIZE_H3        = Pt(11)
-    SIZE_H4        = Pt(10.5)
-    SIZE_BODY      = Pt(10.5)
-    SIZE_CAPTION   = Pt(9)
-    SIZE_CODE      = Pt(9)
+    SIZE_DISPLAY    = Pt(42)
+    SIZE_SUBTITLE   = Pt(11)
+    SIZE_H1         = Pt(16)
+    SIZE_H2         = Pt(13)
+    SIZE_H3         = Pt(11)
+    SIZE_H4         = Pt(10.5)
+    SIZE_BODY       = Pt(10.5)
+    SIZE_CAPTION    = Pt(9)
+    SIZE_CODE       = Pt(9)
     SIZE_META_LABEL = Pt(8)
     SIZE_META_VALUE = Pt(10.5)
 
@@ -174,23 +171,17 @@ def _make_table(container, rows: int, cols: int, total_width_emu: int):
     from docx.oxml.table import CT_Tbl
     from docx.table import Table
 
-    # Build a minimal table XML element
     tbl_xml = CT_Tbl.new_tbl(rows, cols, Inches(1))  # Inches(1) is a throwaway default
     tbl_obj = Table(tbl_xml, container)
 
-    # Now set the real width we want
     tbl_obj.autofit   = False
     tbl_obj.alignment = WD_TABLE_ALIGNMENT.LEFT
     _set_table_width(tbl_obj, total_width_emu)
 
-    # Insert the tbl element into the container's body
-    # Both Document._body and _HeaderFooter._body expose the same _body._body XML element
     try:
-        # Document has ._body._body (the actual XML body element)
         body_elem = container._body._body
     except AttributeError:
         try:
-            # Header/Footer exposes ._body directly as the XML element
             body_elem = container._body
         except AttributeError:
             body_elem = container._element
@@ -394,37 +385,31 @@ def _apply_base_styles(doc: Document):
 
 
 # ─────────────────────────────────────────────────────────────
-# HEADER & FOOTER  — fixed for Header/Footer containers
+# HEADER & FOOTER
 # ─────────────────────────────────────────────────────────────
 
 def _add_table_to_hf(hf_container, rows: int, cols: int, total_width_emu: int):
     """
     Add a table to a Header or Footer container.
-
-    python-docx Header/Footer objects inherit add_table() from
-    BlockItemContainer which requires a positional `width` argument
-    (unlike Document.add_table). We bypass this entirely by building
-    the tbl XML directly and appending it to the container's _element.
+    python-docx Header/Footer objects require a positional width argument
+    unlike Document.add_table. We bypass this by building the tbl XML
+    directly and appending it to the container's _element.
     """
     from docx.oxml.table import CT_Tbl
     from docx.table import Table
 
-    # Build a skeleton table element (Inches(1) width is thrown away below)
     tbl_xml = CT_Tbl.new_tbl(rows, cols, Inches(1))
     tbl_obj = Table(tbl_xml, hf_container)
     tbl_obj.autofit   = False
     tbl_obj.alignment = WD_TABLE_ALIGNMENT.LEFT
 
-    # Append to the header/footer XML body
     hf_container._element.append(tbl_xml)
 
-    # Now override the width properly
     _set_table_width(tbl_obj, total_width_emu)
     return tbl_obj
 
 
 def _configure_header_footer(doc: Document, project_name: str):
-    # Clear title-page header/footer
     title_section = doc.sections[0]
     title_section.different_first_page_header_footer = False
     title_section.header.is_linked_to_previous = False
@@ -443,11 +428,9 @@ def _configure_header_footer(doc: Document, project_name: str):
     header = body_section.header
     header.is_linked_to_previous = False
 
-    # Remove existing paragraphs
     for para in list(header.paragraphs):
         para._element.getparent().remove(para._element)
 
-    # Use _add_table_to_hf — NOT _make_table / doc.add_table
     header_table = _add_table_to_hf(header, rows=1, cols=2, total_width_emu=BODY_WIDTH)
     _remove_table_borders(header_table)
     _set_col_width(header_table, 0, BODY_WIDTH // 2)
@@ -468,7 +451,6 @@ def _configure_header_footer(doc: Document, project_name: str):
     rr.font.size      = T.SIZE_CAPTION
     rr.font.color.rgb = T.COLOR_MUTED
 
-    # Blue rule under header
     rule_para = header.add_paragraph()
     rule_para.paragraph_format.space_before = Pt(2)
     rule_para.paragraph_format.space_after  = Pt(0)
@@ -532,23 +514,22 @@ def _build_title_page(
     team_str: str,
     description: str,
 ):
-    # ── 1. Full-width top accent bar (thick blue stripe) ──────
-    #    Implemented as a table row with a tall blue-filled cell
-    top_bar = _make_table(doc, rows=1, cols=1, total_width_emu=BODY_WIDTH)
+    # ── 1. Full-width top accent bar ──────────────────────────
+    top_bar  = _make_table(doc, rows=1, cols=1, total_width_emu=BODY_WIDTH)
     _remove_table_borders(top_bar)
     bar_cell = top_bar.cell(0, 0)
     _set_cell_shading(bar_cell, "1A56DB")
-
     bar_p = bar_cell.paragraphs[0]
-    bar_p.paragraph_format.space_before = Pt(10)
-    bar_p.paragraph_format.space_after  = Pt(10)
-    bar_p.add_run("")   # empty — just for height
+    bar_p.paragraph_format.space_before = Pt(6)   # FIX: was Pt(10) — slimmer bar
+    bar_p.paragraph_format.space_after  = Pt(6)   # FIX: was Pt(10)
+    bar_p.add_run("")
 
-    # ── 2. Large vertical spacer ──────────────────────────────
-    for _ in range(6):
-        sp = doc.add_paragraph()
-        sp.paragraph_format.space_before = Pt(0)
-        sp.paragraph_format.space_after  = Pt(0)
+    # ── 2. Vertical spacer ───────────────────────────────────
+    # FIX: replaced 6 zero-height paragraphs with one properly-sized spacer
+    # Word collapses zero-height paragraphs, causing the title to clip at top
+    sp = doc.add_paragraph()
+    sp.paragraph_format.space_before = Pt(0)
+    sp.paragraph_format.space_after  = Pt(52)
 
     # ── 3. Project name (large display title) ─────────────────
     title_p = doc.add_paragraph()
@@ -570,10 +551,9 @@ def _build_title_page(
     sub_run.font.size      = T.SIZE_SUBTITLE
     sub_run.font.color.rgb = T.COLOR_ACCENT
     sub_run.font.bold      = True
-    # Letter spacing via XML
     rPr = sub_run._r.get_or_add_rPr()
     spacing_el = OxmlElement("w:spacing")
-    spacing_el.set(qn("w:val"), "80")   # 8pt letter spacing (in twentieths of a pt → 160; use 60–80 for subtle)
+    spacing_el.set(qn("w:val"), "80")
     rPr.append(spacing_el)
 
     # ── 5. Accent rule ────────────────────────────────────────
@@ -584,7 +564,7 @@ def _build_title_page(
     pBdr = OxmlElement("w:pBdr")
     btm  = OxmlElement("w:bottom")
     btm.set(qn("w:val"),   "single")
-    btm.set(qn("w:sz"),    "12")          # 1.5pt — noticeably heavier than before
+    btm.set(qn("w:sz"),    "12")
     btm.set(qn("w:space"), "1")
     btm.set(qn("w:color"), "1A56DB")
     pBdr.append(btm)
@@ -594,45 +574,38 @@ def _build_title_page(
     if description:
         desc_p = doc.add_paragraph()
         desc_p.paragraph_format.space_before = Pt(0)
-        desc_p.paragraph_format.space_after  = Pt(28)
+        desc_p.paragraph_format.space_after  = Pt(20)   # FIX: was Pt(28)
         desc_run = desc_p.add_run(description)
         desc_run.font.name      = T.FONT_BODY
-        desc_run.font.size      = Pt(11)
+        desc_run.font.size      = Pt(10.5)               # FIX: was Pt(11), matches body
         desc_run.font.color.rgb = T.COLOR_MUTED
         desc_run.font.italic    = True
     else:
         sp2 = doc.add_paragraph()
         sp2.paragraph_format.space_before = Pt(0)
-        sp2.paragraph_format.space_after  = Pt(28)
+        sp2.paragraph_format.space_after  = Pt(20)       # FIX: was Pt(28)
 
     # ── 7. Metadata card ──────────────────────────────────────
-    #    Two-column table: label | value
-    #    Light blue background, subtle left border on entire block
     meta_rows = []
     if client_name: meta_rows.append(("Client",         client_name))
     if team_str:    meta_rows.append(("Team",           team_str))
     meta_rows.append(("Date",           date.today().strftime("%B %d, %Y")))
     meta_rows.append(("Classification", "Confidential"))
 
-    # Outer wrapper table (single cell) for the left accent bar
     wrapper = _make_table(doc, rows=1, cols=2, total_width_emu=BODY_WIDTH)
     _remove_table_borders(wrapper)
-    _set_col_width(wrapper, 0, Inches(0.06))   # narrow blue strip
+    _set_col_width(wrapper, 0, Inches(0.06))
     _set_col_width(wrapper, 1, BODY_WIDTH - Inches(0.06))
     _set_cell_shading(wrapper.cell(0, 0), "1A56DB")
 
-    # The right cell contains nested table for label/value rows
     right_cell = wrapper.cell(0, 1)
     _set_cell_shading(right_cell, "F0F4FF")
 
-    # Build the inner meta table directly inside right_cell
-    # We need to add it as a nested table — use right_cell.add_table
     inner_meta = right_cell.add_table(rows=len(meta_rows), cols=2)
     inner_meta.autofit   = False
     inner_meta.alignment = WD_TABLE_ALIGNMENT.LEFT
     _remove_table_borders(inner_meta)
 
-    # Set inner column widths
     inner_width = BODY_WIDTH - Inches(0.06)
     label_w = Inches(1.5)
     value_w = inner_width - label_w
@@ -655,7 +628,6 @@ def _build_title_page(
         _set_cell_shading(lc, "F0F4FF")
         _set_cell_shading(vc, "F0F4FF")
 
-        # Separator line between rows
         if not is_last:
             for cell in (lc, vc):
                 tc   = cell._tc
@@ -689,10 +661,10 @@ def _build_title_page(
         vr.font.color.rgb = T.COLOR_HEADING
 
     # ── 8. Bottom spacer then page break ─────────────────────
-    for _ in range(3):
-        sp3 = doc.add_paragraph()
-        sp3.paragraph_format.space_before = Pt(0)
-        sp3.paragraph_format.space_after  = Pt(0)
+    # FIX: replaced 3 zero-height spacers with one real spacer
+    sp3 = doc.add_paragraph()
+    sp3.paragraph_format.space_before = Pt(0)
+    sp3.paragraph_format.space_after  = Pt(36)
 
     doc.add_section(WD_SECTION.NEW_PAGE)
 
@@ -1128,11 +1100,29 @@ def build_document(
     _configure_margins(doc)
     _apply_base_styles(doc)
 
-    project_name = metadata.get("project_name", "Untitled Project")
-    client_name  = metadata.get("client_name",  "")
-    team_members = metadata.get("team_members",  [])
-    team_str     = ", ".join(team_members) if isinstance(team_members, list) else team_members
-    description  = metadata.get("description",  "")
+    # ── FIX: defensive multi-key lookup covers all casing variants ──
+    # GitHub ingest sends project_name (underscore); ZIP may send projectName (camel)
+    project_name = (
+        metadata.get("project_name")
+        or metadata.get("projectName")
+        or metadata.get("projectname")
+        or "Untitled Project"
+    )
+    client_name = (
+        metadata.get("client_name")
+        or metadata.get("clientName")
+        or metadata.get("clientname")
+        or ""
+    )
+    team_members = (
+        metadata.get("team_members")
+        or metadata.get("teamMembers")
+        or metadata.get("teammembers")
+        or []
+    )
+    description = metadata.get("description") or ""
+
+    team_str = ", ".join(team_members) if isinstance(team_members, list) else team_members
 
     _build_title_page(doc, project_name, client_name, team_str, description)
     _build_toc_page(doc, sections)

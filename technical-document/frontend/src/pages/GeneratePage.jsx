@@ -58,7 +58,6 @@ function SectionStatusCard({ name, sectionData, isInProgress }) {
   const score = sectionData?.quality_score ?? sectionData?.qualityScore ?? null;
   const regen = sectionData?.regenerated ?? false;
 
-  // Visual config per state
   const cfg = {
     pending: {
       dot: "bg-gray-300",
@@ -106,27 +105,23 @@ function SectionStatusCard({ name, sectionData, isInProgress }) {
   return (
     <div
       className={`flex flex-col px-4 py-3 rounded-xl border transition-all
-                     duration-300 ${cfg.bg} ${cfg.border}`}
+                  duration-300 ${cfg.bg} ${cfg.border}`}
     >
       <div className="flex items-center justify-between gap-3">
-        {/* Left: dot + name */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <span
             className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}
-                            ${status === "inprogress" ? "animate-pulse" : ""}`}
+                        ${status === "inprogress" ? "animate-pulse" : ""}`}
           />
           <span className="text-sm font-medium text-gray-800 truncate">
             {name}
           </span>
         </div>
-
-        {/* Right: badges */}
         <div className="flex items-center gap-2 flex-shrink-0">
           {regen && (
             <span
               className="text-[10px] font-semibold text-gray-400
-                             bg-white border border-gray-200
-                             px-1.5 py-0.5 rounded-full"
+                             bg-white border border-gray-200 px-1.5 py-0.5 rounded-full"
             >
               retried
             </span>
@@ -153,13 +148,9 @@ function SectionStatusCard({ name, sectionData, isInProgress }) {
           )}
         </div>
       </div>
-
-      {/* Quality bar */}
       {(status === "success" || status === "lowquality") && score !== null && (
         <QualityBar score={score} />
       )}
-
-      {/* Contextual sub-text */}
       {status === "lowquality" && (
         <p className="text-[11px] text-amber-600 mt-1.5 leading-relaxed">
           Score below 0.7 after one retry — you can regenerate this in Review.
@@ -177,9 +168,8 @@ function SectionStatusCard({ name, sectionData, isInProgress }) {
 // ─── OverallProgress (YOUR logic, reskinned) ──────────────────────────────────
 function OverallProgress({ completed, total, finished }) {
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
+    <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {finished ? (
@@ -211,18 +201,15 @@ function OverallProgress({ completed, total, finished }) {
           {total}
         </span>
       </div>
-
-      {/* Segmented bar — YOUR original logic */}
       <div className="flex gap-0.5 h-2 rounded-full overflow-hidden mb-2">
         {Array.from({ length: total }).map((_, i) => (
           <div
             key={i}
             className={`flex-1 transition-all duration-500
-              ${i < completed ? "bg-primary" : "bg-gray-100"}`}
+            ${i < completed ? "bg-primary" : "bg-gray-100"}`}
           />
         ))}
       </div>
-
       <div className="flex justify-between items-center text-xs text-gray-400">
         <span className="tabular-nums">{pct}% complete</span>
         {!finished && (
@@ -239,8 +226,6 @@ function OverallProgress({ completed, total, finished }) {
 // ─── QualitySummary (YOUR logic, reskinned) ───────────────────────────────────
 function QualitySummary({ sections }) {
   if (!sections?.length) return null;
-
-  // YOUR original derived values, untouched
   const withScore = sections.filter((s) => s.quality_score != null);
   const avg = withScore.length
     ? withScore.reduce((a, s) => a + s.quality_score, 0) / withScore.length
@@ -250,7 +235,6 @@ function QualitySummary({ sections }) {
   const low = norm.filter((s) => s._s === "lowquality").length;
   const failed = norm.filter((s) => s._s === "failed").length;
   const regenerated = sections.filter((s) => s.regenerated).length;
-
   const metrics = [
     {
       label: "Avg Quality",
@@ -282,18 +266,15 @@ function QualitySummary({ sections }) {
       color: "text-gray-900",
     },
   ];
-
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-      {metrics.map((m, i) => (
+      {metrics.map((m) => (
         <div
           key={m.label}
-          className="bg-white border border-gray-200 rounded-xl
-                        py-4 px-4 text-center"
+          className="bg-white border border-gray-200 rounded-xl py-4 px-4 text-center shadow-sm"
         >
           <div
-            className={`text-xl font-bold tabular-nums leading-none
-                           tracking-tight ${m.color}`}
+            className={`text-xl font-bold tabular-nums leading-none tracking-tight ${m.color}`}
           >
             {m.value}
           </div>
@@ -307,101 +288,187 @@ function QualitySummary({ sections }) {
   );
 }
 
-// ─── ReadyState (YOUR logic, reskinned) ───────────────────────────────────────
+// ─── ReadyState — fully redesigned, YOUR logic untouched ─────────────────────
 function ReadyState({ total, onStart, loading }) {
+  const minMins = Math.ceil((total * 15) / 60);
+  const maxMins = Math.ceil((total * 30) / 60);
+
   return (
-    <div
-      className="bg-white border border-gray-200 rounded-xl p-8
-                    flex flex-col items-center text-center gap-5 mb-6"
-    >
-      {/* Icon */}
-      <div
-        className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center
-                      justify-center"
-      >
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          className="text-primary"
-          aria-hidden="true"
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-6 shadow-sm">
+      {/* Top strip */}
+      <div className="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-gray-900">
+            {total} section{total !== 1 ? "s" : ""} queued
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Ready to begin RAG-based generation
+          </p>
+        </div>
+
+        {/* Status pill */}
+        <span
+          className="inline-flex items-center gap-1.5 text-[10px] font-bold
+                         uppercase tracking-widest text-amber-700
+                         bg-amber-50 border border-amber-200
+                         px-3 py-1 rounded-full"
         >
-          <polygon
-            points="5 3 19 12 5 21 5 3"
-            fill="currentColor"
-            opacity="0.2"
-          />
-          <polygon points="5 3 19 12 5 21 5 3" />
-        </svg>
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+          Awaiting Start
+        </span>
       </div>
 
-      <div>
-        <p className="text-sm font-semibold text-gray-900 mb-1.5">
-          Ready to generate {total} section{total !== 1 ? "s" : ""}
-        </p>
-        <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
-          Each section is written via RAG using the most relevant code chunks.
-          Sections scoring below 0.7 are automatically regenerated once.
-        </p>
-      </div>
+      {/* Body */}
+      <div className="px-6 py-5">
+        {/* Process steps */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          {[
+            {
+              step: "01",
+              label: "Vector Retrieval",
+              desc: "Most relevant code chunks fetched from your store",
+            },
+            {
+              step: "02",
+              label: "RAG Generation",
+              desc: "Each section written using retrieved context",
+            },
+            {
+              step: "03",
+              label: "Quality Check",
+              desc: "Sections below 0.7 score are auto-retried once",
+            },
+          ].map((item) => (
+            <div
+              key={item.step}
+              className="bg-gray-50 border border-gray-100 rounded-lg px-3.5 py-3"
+            >
+              <span
+                className="text-[10px] font-bold text-primary/60 font-mono
+                               uppercase tracking-widest"
+              >
+                {item.step}
+              </span>
+              <p className="text-xs font-semibold text-gray-800 mt-1 mb-0.5">
+                {item.label}
+              </p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
 
-      {/* Estimate pill */}
-      <div
-        className="flex items-center gap-2 text-xs text-gray-400
-                      bg-gray-50 border border-gray-100 rounded-full
-                      px-3.5 py-1.5"
-      >
-        <svg
-          width="11"
-          height="11"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        ~{Math.ceil((total * 15) / 60)}–{Math.ceil((total * 30) / 60)} min
-        estimated
-      </div>
-
-      <button
-        onClick={onStart}
-        disabled={loading}
-        className="flex items-center gap-2 bg-primary hover:bg-primary-hover
-                   active:bg-primary-active text-white text-sm font-semibold
-                   px-8 py-2.5 rounded-lg transition-colors shadow-sm
-                   disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <>
-            <Spinner size="sm" className="text-white" /> Starting…
-          </>
-        ) : (
-          <>
+        {/* Meta row: estimate + section count */}
+        <div className="flex items-center gap-3 mb-5">
+          <div
+            className="flex items-center gap-1.5 text-xs text-gray-500
+                          bg-gray-50 border border-gray-100 rounded-lg px-3 py-2"
+          >
             <svg
-              width="13"
-              height="13"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
+              strokeWidth="2"
               strokeLinecap="round"
               aria-hidden="true"
             >
-              <polygon points="5 3 19 12 5 21 5 3" />
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
-            Start Generation
-          </>
-        )}
-      </button>
+            <span className="font-medium">
+              ~{minMins}–{maxMins} min estimated
+            </span>
+          </div>
+          <div
+            className="flex items-center gap-1.5 text-xs text-gray-500
+                          bg-gray-50 border border-gray-100 rounded-lg px-3 py-2"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12
+                       a2 2 0 0 0 2-2V8z"
+              />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span className="font-medium">
+              {total} section{total !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div
+            className="flex items-center gap-1.5 text-xs text-gray-500
+                          bg-gray-50 border border-gray-100 rounded-lg px-3 py-2"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+            <span className="font-medium">Auto-retry on low quality</span>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-100 mb-5" />
+
+        {/* CTA row */}
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
+            Generation runs server-side. You can monitor progress in real time
+            below once started.
+          </p>
+
+          <button
+            onClick={onStart}
+            disabled={loading}
+            className="flex items-center gap-2.5 bg-primary hover:bg-primary-hover
+                       active:bg-primary-active text-white text-sm font-semibold
+                       px-7 py-2.5 rounded-lg transition-colors shadow-sm
+                       disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 ml-6"
+          >
+            {loading ? (
+              <>
+                <Spinner size="sm" className="text-white" />
+                Starting…
+              </>
+            ) : (
+              <>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Begin Generation
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -513,7 +580,7 @@ export default function GeneratePage() {
     isInProgress: name === inProgressName,
   }));
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
   return (
     <div className="flex gap-10">
       {/* ── Left: main content ── */}
@@ -703,7 +770,7 @@ export default function GeneratePage() {
         </div>
         <div
           className="bg-white border border-gray-200 rounded-xl
-                        overflow-hidden divide-y divide-gray-50 mb-5"
+                        overflow-hidden divide-y divide-gray-50 mb-5 shadow-sm"
         >
           {[
             {
@@ -758,7 +825,7 @@ export default function GeneratePage() {
         </div>
         <div
           className="bg-white border border-gray-200 rounded-xl
-                        overflow-hidden divide-y divide-gray-50 mb-5"
+                        overflow-hidden divide-y divide-gray-50 mb-5 shadow-sm"
         >
           {[
             {
@@ -806,7 +873,7 @@ export default function GeneratePage() {
             <div className="grid grid-cols-2 gap-2 mb-4">
               <div
                 className="bg-white border border-gray-200 rounded-xl
-                              py-4 px-4 text-center"
+                              py-4 px-4 text-center shadow-sm"
               >
                 <div className="text-xl font-bold tabular-nums text-gray-900 leading-none">
                   {completedCount}
@@ -823,7 +890,7 @@ export default function GeneratePage() {
               </div>
               <div
                 className="bg-white border border-gray-200 rounded-xl
-                              py-4 px-4 text-center"
+                              py-4 px-4 text-center shadow-sm"
               >
                 <div className="text-xl font-bold tabular-nums text-gray-900 leading-none">
                   {inProgressName ? "1" : "0"}
@@ -842,7 +909,7 @@ export default function GeneratePage() {
 
         {/* Estimated time — YOUR original condition, untouched */}
         {!finished && isStarted && (
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
             <div
               className="text-[10px] font-bold uppercase tracking-widest
                             text-gray-400 mb-1"
