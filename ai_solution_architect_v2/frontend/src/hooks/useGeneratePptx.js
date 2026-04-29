@@ -21,7 +21,8 @@ export function useGeneratePptx() {
     const brd = inputMode === "paste" ? brdText : brdExtracted;
     const techDoc = inputMode === "paste" ? techDocText : techDocExtracted;
 
-    if (!brd.trim()) {
+    // Allow generation if EITHER BRD or Tech Doc is non-empty
+    if (!brd.trim() && !techDoc.trim()) {
       return;
     }
 
@@ -53,7 +54,7 @@ export function useGeneratePptx() {
         }
       } else if (err.request) {
         message =
-          "Could not reach the backend. Make sure the API server is running on port 8000.";
+          "Could not reach the backend. Make sure the API server is running on port 8002.";
       }
 
       setGenerateError(message);

@@ -3,16 +3,26 @@ import { useGeneratePptx } from "../../hooks/useGeneratePptx";
 import Spinner from "../ui/Spinner";
 
 export default function GenerateButton() {
-  const { inputMode, brdText, brdExtracted, isGenerating, selectedSlides } =
-    useAppStore();
+  const {
+    inputMode,
+    brdText,
+    brdExtracted,
+    techDocText,
+    techDocExtracted,
+    isGenerating,
+    selectedSlides,
+  } = useAppStore();
   const { run } = useGeneratePptx();
 
-  // Mirror Streamlit's validation: BRD must be non-empty
+  // Allow generation if EITHER BRD or Tech Doc is non-empty
   const effectiveBrd = inputMode === "paste" ? brdText : brdExtracted;
-  const canGenerate =
-    effectiveBrd.trim().length > 0 &&
-    selectedSlides.length > 0 &&
-    !isGenerating;
+  const effectiveTechDoc =
+    inputMode === "paste" ? techDocText : techDocExtracted;
+
+  const hasContent =
+    effectiveBrd.trim().length > 0 || effectiveTechDoc.trim().length > 0;
+
+  const canGenerate = hasContent && selectedSlides.length > 0 && !isGenerating;
 
   const handleClick = async () => {
     if (!canGenerate) return;
@@ -59,15 +69,15 @@ export default function GenerateButton() {
         </button>
 
         {/* Hint text below button */}
-        {!effectiveBrd.trim() && (
+        {!hasContent && (
           <p className="text-[0.78rem] text-brand-muted text-center">
             {inputMode === "paste"
-              ? "Paste your BRD above to enable generation"
-              : "Upload and extract your BRD file above to enable generation"}
+              ? "Paste your BRD and/or Technical Doc above to enable generation"
+              : "Upload and extract your BRD and/or Technical Doc file above to enable generation"}
           </p>
         )}
 
-        {selectedSlides.length === 0 && effectiveBrd.trim() && (
+        {selectedSlides.length === 0 && hasContent && (
           <p className="text-[0.78rem] text-[#92400E] text-center">
             Select at least one slide to include
           </p>

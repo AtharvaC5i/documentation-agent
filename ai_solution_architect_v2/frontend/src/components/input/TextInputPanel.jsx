@@ -38,11 +38,11 @@ export default function TextInputPanel() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <FieldLabel>Business Requirement Document</FieldLabel>
+        <FieldLabel optional>Business Requirement Document</FieldLabel>
         <StyledTextarea
           value={brdText}
           onChange={setBrdText}
-          placeholder="Describe the project goal, users, features, constraints…"
+          placeholder="Describe the project goal, users, features, constraints… (optional, or provide Technical Doc)"
         />
       </div>
 
@@ -51,7 +51,7 @@ export default function TextInputPanel() {
         <StyledTextarea
           value={techDocText}
           onChange={setTechDocText}
-          placeholder="Existing systems, APIs, data models, infrastructure constraints…"
+          placeholder="Existing systems, APIs, data models, infrastructure constraints… (optional, or provide BRD)"
         />
       </div>
     </div>

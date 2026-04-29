@@ -50,10 +50,10 @@ def _pptx_response(pptx_bytes: bytes) -> Response:
 @router.post(
     "/generate-pptx",
     response_class=Response,
-    summary="Full pipeline: BRD → architecture JSON → PowerPoint",
+    summary="Full pipeline: BRD and/or Tech Doc → architecture JSON → PowerPoint",
 )
 async def generate_pptx(
-    brd_text: str = Form(...),
+    brd_text: str = Form(default=""),
     tech_doc_text: str = Form(default=""),
     selected_slides: str = Form(default=""),
     custom_slides: str = Form(default=""),
@@ -61,8 +61,15 @@ async def generate_pptx(
     pptx_service: PptxService = Depends(get_pptx_service),
 ):
     try:
+        # Validate that at least one of BRD or tech doc is provided
+        if not brd_text.strip() and not tech_doc_text.strip():
+            raise HTTPException(
+                status_code=400,
+                detail="At least one of BRD text or Technical Documentation is required"
+            )
+
         print("[generate.py] ════════════════════════════════════════════════════════════")
-        print(f"[generate.py] Starting PPT generation (BRD: {len(brd_text)} chars)")
+        print(f"[generate.py] Starting PPT generation (BRD: {len(brd_text)} chars, TechDoc: {len(tech_doc_text)} chars)")
         
         payload = GenerateRequest(brd_text=brd_text, tech_doc_text=tech_doc_text)
         result  = await orchestrator.run(payload)
