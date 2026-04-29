@@ -1,0 +1,193 @@
+{
+  "sections": [
+    {
+      "id": "34278d8e-ff34-4532-a697-c7afa6fcf176",
+      "name": "Business Context and Background",
+      "content": "## Business Context and Background\n\n### Current State\n\nRetailCorp India, a mid-size retail chain operating approximately 200 physical stores across India, currently conducts its retail operations through its brick-and-mortar store network supported by a SAP ERP system that manages inventory, pricing, and product data. Today, customers can only purchase products by visiting a physical store, with no digital commerce channel available to serve them online. Store managers operate within regional boundaries, managing orders and returns through in-store processes rather than any centralised digital platform. Vendor partners have no self-service capability and must coordinate inventory and product listing updates through RetailCorp's Central Admin team, creating operational bottlenecks and delays.\n\n### Business Problem or Opportunity\n\nRetailCorp India currently has no e-commerce presence, meaning the business is entirely dependent on foot traffic to its 200 physical stores and is unable to serve customers who prefer to shop online — including a significant base of Non-Resident Indians (NRI) who wish to purchase from abroad. With an estimated average order value of 15,000 INR and an initial catalogue of 8,000 SKUs ready for digital launch, there is a clear and quantifiable revenue opportunity that is currently unrealised. The absence of a digital channel also means RetailCorp cannot offer modern payment flexibility such as No-Cost EMI through partners like Bajaj Finance, which is increasingly expected by Indian consumers making mid-to-high value purchases. Furthermore, the manual coordination between Central Admin and vendor partners for product and inventory management is not scalable as the business grows its supplier base.\n\n### Strategic Drivers\n\nRetailCorp India is investing in ShopEase — its dedicated e-commerce platform — to capture the accelerating shift of Indian retail consumers toward online purchasing, a trend that has permanently reshaped buying behaviour across urban and semi-urban markets. The business has existing commercial agreements in place with key partners including Bajaj Finance for EMI financing and logistics providers Delhivery and BlueDart, meaning the foundational partnerships required to operate a competitive e-commerce platform are already secured and ready to activate. A hard constraint of six months from project start to go-live (TR-009) signals that leadership, led by CEO Sunita Agarwal, views this as a time-critical strategic priority rather than a long-term exploratory initiative.\n\n### Cost of Inaction\n\nEvery month that RetailCorp India operates without a digital commerce channel represents direct lost revenue from online customers — both domestic shoppers and the NRI segment — who are actively purchasing from competing platforms that already offer the convenience, payment flexibility, and logistics transparency that ShopEase is designed to deliver. Beyond lost sales, continued inaction deepens RetailCorp's structural competitive disadvantage: without a Vendor Portal, Role-Based Access Control for its store network, or Cart Abandonment Analytics, the business lacks the operational infrastructure and customer insight needed to compete effectively in India's rapidly consolidating e-commerce market.",
+      "quality_score": 0.55,
+      "quality_pct": "55%",
+      "word_count": 463,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-017",
+        "TR-018",
+        "TR-029"
+      ],
+      "req_count": 21
+    },
+    {
+      "id": "a32087cf-6de3-4a58-a671-a13bceb099c8",
+      "name": "Business Rules",
+      "content": "## Business Rules\n\n### Introduction\n\nBusiness rules define the policies, constraints, and conditions that govern how ShopEase behaves across its core operational domains. For RetailCorp India, these rules are critical because the platform integrates multiple systems — SAP ERP, the Vendor Portal, Bajaj Finance, and Delhivery — where inconsistent or ambiguous logic could result in financial loss, compliance failures, or poor customer experience. All system behavior must align with these rules, and any exceptions require explicit approval from Central Admin.\n\n---\n\n### Business Rules by Domain\n\n#### Pricing & Discounting\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-001 | Only Central Admin may create, edit, or approve product prices on ShopEase; all Vendor Portal price fields are read-only. | Prevents unauthorized price manipulation by third-party vendors and ensures RetailCorp India retains full commercial control. |\n| BR-002 | A discount may not reduce a product's selling price below its defined cost floor as recorded in SAP ERP. | Protects RetailCorp India from margin erosion caused by misconfigured promotional rules. |\n| BR-003 | Promotional discounts must have a defined start date and end date; open-ended discounts are not permitted. | Ensures pricing campaigns are time-bound and prevents accidental indefinite discounting. |\n| BR-004 | No-Cost EMI pricing must reflect the full product price; the interest cost must be absorbed by RetailCorp India or Bajaj Finance per the agreed financing arrangement, never passed to the customer as a surcharge. | Maintains regulatory compliance and customer trust in the No-Cost EMI offering. |\n\n---\n\n#### Inventory Management\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-005 | A product SKU must not be displayed as available for purchase on ShopEase if its inventory quantity in SAP ERP is zero. | Prevents overselling and protects customer experience by ensuring stock accuracy. |\n| BR-006 | Inventory availability status on ShopEase must reflect SAP ERP updates within 60 seconds of any stock change. | Minimizes the window during which a customer could purchase an out-of-stock item. |\n| BR-007 | A SKU with inventory below a configurable low-stock threshold must trigger an automated alert to the assigned Store Manager and Central Admin. | Enables proactive restocking decisions before a product becomes unavailable. |\n\n---\n\n#### Payment & EMI\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-008 | No-Cost EMI options may only be offered on orders meeting a minimum eligible order value, as defined by Bajaj Finance's financing agreement. | Ensures EMI transactions remain commercially viable under the financing partnership terms. |\n| BR-009 | An order must not be confirmed until payment authorization is successfully received from the payment gateway or Bajaj Finance. | Prevents fulfillment of unpaid orders and protects RetailCorp India from revenue loss. |\n| BR-010 | Customers may not split a single order across more than one EMI plan or financing provider. | Reduces reconciliation complexity and prevents fraudulent payment structuring. |\n\n---\n\n#### Returns & Refunds\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-011 | A return request must be initiated within the product category's defined return window; requests outside this window must be automatically rejected by the system. | Standardizes the returns process and limits RetailCorp India's financial exposure. |\n| BR-012 | Refunds for No-Cost EMI orders must be processed back to the original financing source; cash refunds are not permitted for EMI transactions. | Complies with Bajaj Finance's refund policy and prevents financial reconciliation errors. |\n\n---\n\n#### Vendor Management\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-013 | A vendor account must be approved by Central Admin before the Vendor Portal grants access to product catalog or order data. | Ensures only verified, contracted vendors operate on the ShopEase platform. |\n| BR-014 | Vendors may only view and manage SKUs assigned to their account; cross-vendor product data must not be accessible. | Protects commercially sensitive product and pricing data between competing vendors. |\n\n---\n\n#### User Access & Permissions\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-015 | All platform roles — including Store Manager, Central Admin, and Vendor Portal users — must be governed by Role-Based Access Control; no user may access features outside their assigned role. | Enforces data security and operational accountability across all user types. |\n| BR-016 | Cart Abandonment Analytics data must be accessible only to Central Admin and authorized RetailCorp India management; vendor users are explicitly excluded. | Prevents vendors from gaining competitive intelligence derived from customer browsing behavior. |\n\n---\n\n#### Data & Compliance\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-017 | Customer personal and payment data collected through ShopEase must be stored and processed in compliance with applicable Indian data protection regulations. | Protects RetailCorp India from legal liability and maintains customer trust. |",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "word_count": 804,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-021",
+        "TR-051"
+      ],
+      "req_count": 2
+    },
+    {
+      "id": "475acd96-7cbe-404c-8e50-b7b3933eb68b",
+      "name": "Integration Requirements",
+      "content": "## Integration Requirements\n\n### Introduction\n\nShopEase operates within a multi-system ecosystem that requires seamless data exchange between the platform and several external and internal systems to deliver accurate inventory, reliable payments, and real-time logistics visibility. These integrations are foundational to core business operations — without them, RetailCorp India cannot prevent overselling, process financing, or fulfill and track customer orders. Each integration must be designed with appropriate fallback mechanisms to ensure platform resilience and a consistent customer experience.\n\n---\n\n### Integration Summary Table\n\n| System | Type | Direction | Data Exchanged | Frequency | Status |\n|---|---|---|---|---|---|\n| SAP ERP | Internal Enterprise System | Bidirectional | Product data, inventory levels, pricing | Real-time (inventory) + Daily batch (product data) | TBD |\n| Bajaj Finance | Third-Party Financial API | Bidirectional | EMI eligibility, financing approval, loan terms | Per transaction (on-demand) | TBD |\n| Delhivery | Third-Party Logistics API | Bidirectional | Shipping rates, order dispatch data, tracking status | Real-time (checkout + tracking) | TBD |\n| BlueDart | Third-Party Logistics API | Bidirectional | Shipping rates, order dispatch data, tracking status | Real-time (checkout + tracking) | TBD |\n| Payment Gateway | Third-Party Financial API | Bidirectional | Credit card, debit card, UPI, net banking, EMI transaction data | Per transaction (on-demand) | TBD |\n| Email / SMS Provider | Third-Party Communication API | Outbound | Promotional campaign content, customer segment lists, delivery confirmations | On-demand / Scheduled | TBD |\n| Vendor Portal | Internal Sub-System | Bidirectional | Product listings, inventory updates, vendor account data | Real-time (on user action) | TBD |\n\n---\n\n### Integration Details\n\n#### SAP ERP\n\nSAP ERP serves as RetailCorp India's system of record for product information and inventory, making this the most critical integration within the ShopEase ecosystem. Two distinct data flows are required: a real-time inventory synchronization that must reflect stock-level changes on the platform within 60 seconds of an update in SAP (TR-027), and a daily batch process that pulls full product data — including names, descriptions, specifications, and pricing — into ShopEase once every 24 hours (TR-028). The real-time sync is triggered by any inventory movement event in SAP, such as a sale, return, or stock adjustment, while the batch sync runs on a scheduled nightly job to refresh the full catalog of up to 25,000 SKUs (TR-025, TR-026). If the real-time inventory sync fails, the platform must surface a degraded-mode warning and temporarily disable add-to-cart functionality for affected SKUs to prevent overselling; batch sync failures must trigger an alert to Central Admin with a retry mechanism before the next scheduled window. This integration is currently TBD and will require API or middleware configuration with RetailCorp India's SAP environment.\n\n---\n\n#### Bajaj Finance\n\nThe Bajaj Finance integration enables customers to select a No-Cost EMI financing option at checkout, with eligibility checks and loan approvals processed in real time via the Bajaj Finance API (TR-015). Data flowing outbound includes customer identity details and purchase amount, while inbound data returns approval status, EMI tenure options, and loan reference identifiers that are stored against the order record. The integration is triggered when a customer selects the Bajaj Finance No-Cost EMI payment method during checkout and submits their financing request. If the Bajaj Finance API is unavailable or returns an error, the platform must gracefully suppress the No-Cost EMI option at checkout and display an appropriate customer-facing message, while still allowing the customer to complete the purchase via an alternative payment method (TR-009, TR-010). This integration is currently TBD and will require formal API onboarding with Bajaj Finance.\n\n---\n\n#### Delhivery\n\nThe Delhivery integration supports two distinct customer-facing functions: automatic shipping rate calculation at checkout and real-time order tracking post-purchase (TR-035, TR-037). Outbound data includes delivery address, package dimensions, and weight; inbound data returns available shipping rates, estimated delivery windows, and live tracking status updates that are displayed on the customer's order detail page. Shipping rate retrieval is triggered when a customer confirms their delivery address during checkout, while tracking updates are polled or pushed continuously after an order is dispatched.",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "word_count": 685,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015",
+        "TR-019",
+        "TR-020",
+        "TR-022",
+        "TR-023",
+        "TR-025",
+        "TR-026",
+        "TR-027",
+        "TR-028"
+      ],
+      "req_count": 52
+    },
+    {
+      "id": "96396e5e-9df4-4a21-a183-54e28fc1afec",
+      "name": "Dependencies",
+      "content": "## Dependencies\n\n### Introduction\n\nThe ShopEase platform for RetailCorp India carries a broad dependency landscape spanning third-party API integrations, regulatory compliance activities, and internal client readiness across data, infrastructure, and commercial agreements. Many of these dependencies are time-sensitive given the hard six-month go-live constraint established in TR-009, meaning delays in any critical external input could directly compress development and testing timelines.\n\n| Dep-ID | Dependency Description | Owner | Required By Date | Impact if Delayed |\n|--------|----------------------|-------|-----------------|-------------------|\n| DEP-001 | Confirmation that SAP ERP exposes stable APIs or data feeds suitable for product, inventory, and order integration, enabling migration of the initial 8,000 SKUs at launch | RetailCorp India (Central Admin) | End of Month 1 | Blocks product catalogue build, SKU migration, and inventory synchronisation; risks launch readiness |\n| DEP-002 | Bajaj Finance API credentials, sandbox access, and confirmation that the existing client agreement covers the ShopEase integration for No-Cost EMI services | Bajaj Finance / RetailCorp India | End of Month 1 | Blocks No-Cost EMI feature development and payment gateway configuration based on 15,000 INR average order value threshold |\n| DEP-003 | Finalisation of ZestMoney partnership agreement to determine whether this financing option is in scope for the initial launch | RetailCorp India (Commercial) | End of Month 2 | If unresolved, ZestMoney integration must be descoped or deferred to a post-launch release to protect the timeline |\n| DEP-004 | Delhivery API documentation, sandbox credentials, and confirmation of accessible integration endpoints for shipment tracking and fulfilment | Delhivery | End of Month 1 | Blocks logistics integration development; delays order fulfilment and shipment tracking features |\n| DEP-005 | BlueDart API documentation, sandbox credentials, and confirmation of accessible integration endpoints | BlueDart | End of Month 1 | Blocks secondary logistics integration; limits carrier options available at launch |\n| DEP-006 | Selection and onboarding of a third-party marketing tool or platform to handle email and SMS campaign delivery | RetailCorp India (Marketing) | End of Month 2 | Blocks development of campaign trigger workflows, Cart Abandonment Analytics notifications, and promotional communications |\n| DEP-007 | Confirmation of India-based hosting infrastructure provisioned and accessible, satisfying data residency requirements under TR-040 and TR-054 | RetailCorp India / Hosting Provider | End of Month 1 | Blocks environment setup and all development activity; non-compliance with data residency obligations creates regulatory risk |\n| DEP-008 | Completion of GDPR compliance review and sign-off on consent, data access, and deletion mechanisms to satisfy TR-038 | Legal / Compliance (RetailCorp India) | End of Month 4 | Delays compliance sign-off required before go-live; risks launch or post-launch regulatory exposure for NRI customer base |\n| DEP-009 | Confirmation of the regional grouping model mapping RetailCorp India's 200 physical stores to Store Manager access tiers within Role-Based Access Control | RetailCorp India (Operations / Central Admin) | End of Month 2 | Blocks design and configuration of Role-Based Access Control for store-level features and order management views |",
+      "quality_score": 0.7,
+      "quality_pct": "70%",
+      "word_count": 499,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-009",
+        "TR-017",
+        "TR-018",
+        "TR-029",
+        "TR-038",
+        "TR-039",
+        "TR-040",
+        "TR-047",
+        "TR-048",
+        "TR-049",
+        "TR-054",
+        "TR-055"
+      ],
+      "req_count": 13
+    },
+    {
+      "id": "fd894977-1f4d-499b-ad01-e8db8e0d6025",
+      "name": "Risks",
+      "content": "## Risks\n\n### Introduction\n\nShopEase carries a moderately high risk profile driven by aggressive delivery timelines (TR-009), multiple third-party API dependencies, and dual regulatory compliance obligations spanning both GDPR and the Indian IT Act. Several foundational assumptions — particularly around SAP ERP integration readiness (TR-029), payment partner agreements (TR-018), and logistics API availability (TR-055) — remain unvalidated at project initiation, creating compounding uncertainty across the delivery schedule. Proactive risk governance and early assumption validation will be critical to keeping the platform on track for its 6-month go-live target.\n\n---\n\n### Risk Register\n\n| Risk ID | Risk Description | Probability | Impact | Risk Level | Mitigation Strategy |\n|---------|-----------------|-------------|--------|------------|---------------------|\n| RSK-001 | SAP ERP does not expose suitable APIs or data feeds, blocking migration of 8,000 SKUs and live inventory sync (TR-029, TR-049) | High | High | **Critical** | Conduct SAP API discovery workshop in Sprint 1; define fallback flat-file/ETL migration path if APIs are unavailable |\n| RSK-002 | 6-month go-live deadline (TR-009) is breached due to scope creep, integration delays, or resource constraints | High | High | **Critical** | Enforce MoSCoW prioritisation; establish weekly milestone tracking; defer non-MUST_HAVE features to Phase 2 |\n| RSK-003 | ZestMoney partnership agreement not finalised before development begins, leaving a payment option incomplete at launch (TR-018) | High | Medium | **High** | Design payment module with a pluggable adapter pattern; proceed with Bajaj Finance (TR-017) as primary EMI provider; treat ZestMoney as Phase 2 |\n| RSK-004 | GDPR and Indian IT Act dual compliance requirements (TR-038, TR-039, TR-040) are underestimated, causing rework or launch delays | Medium | High | **High** | Engage a compliance consultant by Month 1; build consent, data-access, and deletion workflows into core architecture from the outset |\n| RSK-005 | Delhivery or BlueDart APIs are inaccessible, undocumented, or subject to breaking changes (TR-055) | Medium | High | **High** | Obtain API sandbox credentials and complete integration spike in Sprint 2; design logistics layer with an abstraction interface to swap providers |\n| RSK-006 | Customer data inadvertently stored or replicated outside India, violating data residency constraints (TR-040, TR-054) | Low | High | **High** | Mandate India-region-only cloud configuration; include data residency checks in CI/CD pipeline and pre-launch infrastructure audit |\n| RSK-007 | Bajaj Finance API integration fails or is delayed despite existing client agreement (TR-017), removing No-Cost EMI at launch | Medium | High | **High** | Begin Bajaj Finance API onboarding in Month 1; include EMI integration in critical path; define a graceful degradation UX if EMI is unavailable |\n| RSK-008 | Mapping 200 physical stores to regional groupings for Store Manager Role-Based Access Control proves more complex than assumed (TR-048) | Medium | Medium | **Medium** | Validate store hierarchy and regional grouping logic with RetailCorp Central Admin in requirements phase; document RBAC matrix before development |\n| RSK-009 | Third-party marketing tool for email/SMS campaigns (TR-047) is not selected or integrated in time, blocking launch communications | Medium | Medium | **Medium** | Identify and contract the marketing tool by Month 2; treat integration as a MUST_HAVE dependency for go-live readiness |\n| RSK-010 | Average order value assumption of 15,000 INR (TR-056) is inaccurate, causing misconfigured EMI thresholds and payment gateway limits | Low | Medium | **Medium** | Validate AOV figure against RetailCorp's historical transaction data before configuring payment gateway; build threshold as a configurable parameter |\n| RSK-011 | Initial SKU data quality from SAP is poor (duplicate, incomplete, or non-standard records), delaying the 8,000 SKU migration (TR-049) | Medium | Medium | **Medium** | Run a data quality audit on SAP SKU export in Month 1; define data cleansing rules and assign a RetailCorp data owner accountable for remediation |\n| RSK-012 | Vendor Portal access and onboarding complexity is underestimated, delaying third-party vendor readiness at launch | Low | Medium | **Low** | Include Vendor Portal UAT in the launch plan; provide onboarding documentation and a sandbox environment for vendors 4 weeks before go-live |",
+      "quality_score": 0.7,
+      "quality_pct": "70%",
+      "word_count": 675,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-009",
+        "TR-017",
+        "TR-018",
+        "TR-029",
+        "TR-038",
+        "TR-039",
+        "TR-040",
+        "TR-047",
+        "TR-048",
+        "TR-049",
+        "TR-054",
+        "TR-055"
+      ],
+      "req_count": 13
+    },
+    {
+      "id": "49a54b4a-1ae4-49fb-8860-362ef1c1895e",
+      "name": "Glossary",
+      "content": "## Glossary\n\n### Introduction\nThis glossary defines key terms, acronyms, role names, and third-party system references used throughout the ShopEase project documentation to ensure consistent understanding among all stakeholders, team members, and reviewers.\n\n---\n\n### Terms and Definitions\n\n| Term | Definition | Context |\n|---|---|---|\n| Bajaj Finance | A financing partner whose API is integrated into ShopEase to provide no-cost EMI options to customers at checkout. | Payment & Financing |\n| Batch Sync | A scheduled data synchronization process that runs at fixed intervals; used to transfer product information from SAP ERP to ShopEase once every 24 hours. | SAP Integration |\n| BlueDart | A third-party logistics provider whose API is integrated for shipping rate calculation and order tracking alongside Delhivery. | Logistics & Shipping |\n| Cart Abandonment Analytics | A reporting feature that tracks products viewed or added to a cart but not purchased, displayed on the admin dashboard with abandonment counts. | Reporting & Analytics |\n| Central Admin | The RetailCorp team responsible for managing products, pricing, promotions, vendor approvals, and platform-wide reporting. | User Roles |\n| Concurrent Users | The number of users actively accessing the platform simultaneously; ShopEase must support a minimum of 50,000 during peak sale events. | Non-Functional Requirements |\n| Data Residency | The requirement that all customer data must be physically stored on servers located within India, in compliance with regulatory obligations. | Compliance & Infrastructure |\n| Delhivery | A third-party logistics provider whose API is integrated into ShopEase for real-time shipping rate calculation and order tracking. | Logistics & Shipping |\n| Diwali Sale Event | A high-traffic seasonal sale period used as the benchmark scenario for platform load, uptime, and performance testing. | Non-Functional Requirements |\n| EMI | Equated Monthly Installment; a payment method allowing customers to split a purchase amount into fixed monthly payments. | Payment & Financing |\n| GDPR | General Data Protection Regulation; a European data privacy law applicable to ShopEase due to its NRI customer base. | Compliance |\n| Indian IT Act | The Information Technology Act governing digital commerce and data handling requirements applicable to platforms operating in India. | Compliance |\n| KPI | Key Performance Indicator; measurable business metrics such as revenue, orders, and conversion rate displayed on the executive mobile dashboard. | Reporting & Analytics |\n| No-Cost EMI | An equated monthly installment payment option where the interest component is absorbed by the retailer or financing partner, resulting in zero additional cost to the customer. | Payment & Financing |\n| NRI | Non-Resident Indian; a segment of ShopEase's customer base residing outside India, triggering GDPR compliance obligations. | Compliance |\n| OTP | One-Time Password; a time-sensitive authentication code sent to a customer's registered mobile number or email for login verification. | Authentication |\n| Product Detail Page | A customer-facing page displaying full product information including name, description, images, price, specifications, and availability. | Customer Experience |\n| RetailCorp India | The client organization, a mid-size retail chain with approximately 200 physical stores, for whom ShopEase is being developed. | Project Context |\n| Role-Based Access Control | A security mechanism restricting platform features and data access based on a user's assigned role, applied across customers, store managers, central admins, and vendors. | Security & Access |\n| SAP ERP | The client's existing enterprise resource planning system used to manage product data and inventory, integrated with ShopEase via real-time and batch sync processes. | System Integration |\n| ShopEase | The e-commerce platform being built for RetailCorp India, supporting web and mobile channels for retail product browsing, purchasing, and management. | Project Context |",
+      "quality_score": 0.79,
+      "quality_pct": "79%",
+      "word_count": 617,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 74
+    },
+    {
+      "id": "51282dff-84b7-4da5-9aef-6bece34c6c6e",
+      "name": "Appendices",
+      "content": "## Appendices\n\n---\n\n### Appendix A: Reference Documents\n\nThe following documents were referenced during requirements gathering and analysis for the ShopEase platform developed for RetailCorp India.\n\n| Document | Author | Date | Purpose |\n|---|---|---|---|\n| ShopEase Project Charter | Sunita Agarwal (Client CEO) | Project Initiation | Defines project vision, business objectives, and executive mandate for platform development |\n| SAP ERP Integration Specification | Rajesh Mehta (Client PM) | Discovery Phase | Details SAP ERP data structures, available APIs/data feeds, and sync capabilities referenced in TR-026, TR-027, TR-028 |\n| Bajaj Finance API Documentation | Bajaj Finance (Third Party) | Discovery Phase | Defines No-Cost EMI integration endpoints and approval workflow referenced in TR-015 |\n| Delhivery API Documentation | Delhivery (Third Party) | Discovery Phase | Defines shipping rate calculation and real-time order tracking endpoints referenced in TR-035, US-024 |\n| BlueDart API Documentation | BlueDart (Third Party) | Discovery Phase | Defines shipping and tracking API capabilities referenced in US-024 |\n| RetailCorp India Store Mapping Document | Rajesh Mehta (Client PM) | Discovery Phase | Maps 200 physical retail stores to regional groupings for Store Manager access control referenced in TR-048 |\n| GDPR Compliance Policy | RetailCorp India Legal | Discovery Phase | Defines consent, data access, and deletion obligations applicable to NRI customer base per TR-038 |\n| Indian IT Act Compliance Guidelines | RetailCorp India Legal | Discovery Phase | Defines applicable Indian IT Act obligations referenced in TR-039 |\n| Data Residency Policy | RetailCorp India IT | Discovery Phase | Mandates India-based server hosting for all customer data per TR-040 and TR-054 |\n| Initial SKU Migration List | Rajesh Mehta (Client PM) | Discovery Phase | Identifies the initial 8,000 SKUs to be migrated from SAP at platform launch per TR-049 |\n| Role-Based Access Control Matrix | Arjun Shah (BA) | Requirements Phase | Defines access permissions for all four user roles — customers, Store Managers, Central Admin, and vendors — per TR-052 |\n\n---\n\n### Appendix B: Meeting Log\n\nThe following discovery and requirements sessions directly contributed to the requirements documented in this BRD.\n\n| Meeting Date | Participants | Key Decisions |\n|---|---|---|\n| Discovery Session 1 | Sunita Agarwal, Arjun Shah, Priya Nair | Confirmed 6-month go-live constraint (TR-009); established four primary user roles: customers, Store Managers, Central Admin, and vendors (TR-005 through TR-008) |\n| Discovery Session 2 | Rajesh Mehta, Arjun Shah, Priya Nair | Confirmed SAP ERP integration approach: real-time inventory sync within 60 seconds (TR-027) and daily batch product sync (TR-028); confirmed initial 8,000 SKU migration scope (TR-049) |\n| Discovery Session 3 | Rajesh Mehta, Arjun Shah | Defined payment methods: credit card, debit card, UPI, net banking, credit card EMI (TR-010, TR-014, US-009); confirmed Bajaj Finance No-Cost EMI integration (TR-015); noted ZestMoney partnership uncertainty (TR-018) |\n| Discovery Session 4 | Rajesh Mehta, Arjun Shah | Confirmed Vendor Portal requirements: vendors manage own listings and inventory (TR-019, TR-020); confirmed business rule that vendors cannot edit pricing — Central Admin controls all pricing (TR-021) |",
+      "quality_score": 0.7,
+      "quality_pct": "70%",
+      "word_count": 516,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 74
+    }
+  ]
+}

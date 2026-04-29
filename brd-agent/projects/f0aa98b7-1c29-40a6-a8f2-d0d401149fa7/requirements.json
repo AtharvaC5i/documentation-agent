@@ -1,0 +1,1303 @@
+{
+  "requirements": [
+    {
+      "req_id": "TR-001",
+      "type": "stakeholder",
+      "description": "Sunita Agarwal is Client CEO responsible for vision, business decisions, and final approvals.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:00:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-002",
+      "type": "stakeholder",
+      "description": "Rajesh Mehta is Client PM responsible for operational requirements, integrations, and technical decisions.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:00:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-003",
+      "type": "stakeholder",
+      "description": "Arjun Shah is BA responsible for requirements elicitation and documentation.",
+      "source": "transcript",
+      "speaker": "Arjun Shah",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:00:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-004",
+      "type": "stakeholder",
+      "description": "Priya Nair is PM responsible for project delivery, integration planning, and timeline management.",
+      "source": "transcript",
+      "speaker": "Priya Nair",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:00:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-005",
+      "type": "stakeholder",
+      "description": "End customers browse, search, and purchase products on the platform.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-006",
+      "type": "stakeholder",
+      "description": "Store managers view regional orders and manage returns via the platform.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-007",
+      "type": "stakeholder",
+      "description": "Central admin team manages products, pricing, and promotions across the platform.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-008",
+      "type": "stakeholder",
+      "description": "Vendor partners manage their own inventory and product listings via dedicated login.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": null,
+      "module_tag": "vendor",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-009",
+      "type": "constraint",
+      "description": "Platform must go live within 6 months maximum from project start.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Platform is deployed and accessible to customers within 6 months."
+      ],
+      "source_location": "00:00:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-010",
+      "type": "functional",
+      "description": "System must support credit card payments for customer purchases.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Customer can successfully complete purchase using a credit card."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-014",
+      "type": "functional",
+      "description": "System must support credit card EMI payment option at checkout.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Customer can select credit card EMI and complete order successfully."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-015",
+      "type": "functional",
+      "description": "System must integrate with Bajaj Finance API for no-cost EMI financing.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Customer can select Bajaj Finance no-cost EMI and receive financing approval."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-017",
+      "type": "assumption",
+      "description": "Bajaj Finance API integration is feasible given existing client agreement.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 0.9,
+      "priority": null,
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-018",
+      "type": "assumption",
+      "description": "ZestMoney partnership agreement will be finalized before platform go-live.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 0.7,
+      "priority": null,
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-019",
+      "type": "functional",
+      "description": "System must provide separate login portal for vendor partners to manage listings.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "vendor",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Vendor can log in and access only their own product and inventory data."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-020",
+      "type": "functional",
+      "description": "Vendors must be able to manage their product information and inventory via portal.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "vendor",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Vendor can update product details and stock levels successfully."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-021",
+      "type": "business_rule",
+      "description": "Vendors cannot set product prices; only central admin controls all pricing.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "vendor",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Vendor portal has no price editing capability."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-022",
+      "type": "functional",
+      "description": "Store managers must view orders filtered by their geographic region.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Store manager sees only orders associated with their assigned region."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-023",
+      "type": "functional",
+      "description": "Store managers must be able to manage customer returns from their region.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Store manager can initiate and process a return for a regional order."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-025",
+      "type": "functional",
+      "description": "System must support a product catalog of up to 25,000 SKUs.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Platform successfully loads and displays 25,000 SKUs without degradation."
+      ],
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-026",
+      "type": "functional",
+      "description": "System must integrate with SAP ERP to migrate and sync product data.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Product data from SAP is successfully imported into the platform."
+      ],
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-027",
+      "type": "functional",
+      "description": "Inventory levels must sync with SAP ERP in real time.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Stock update in SAP reflects on platform within 60 seconds."
+      ],
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-028",
+      "type": "functional",
+      "description": "Product information must sync from SAP via daily batch process.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Product information batch sync completes successfully once per day."
+      ],
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-029",
+      "type": "business_rule",
+      "description": "Products sold out in physical stores must not display as available online.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Out-of-stock product shows unavailable status within real-time sync window."
+      ],
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-030",
+      "type": "functional",
+      "description": "System must provide product search by product name, category, and brand.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "search",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Search returns relevant results for name, category, and brand queries."
+      ],
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-031",
+      "type": "functional",
+      "description": "System must support product filtering by price range, brand, ratings, and delivery time.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "search",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Applying each filter type returns correctly filtered product results."
+      ],
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-032",
+      "type": "functional",
+      "description": "Customers must be able to submit product reviews and ratings.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Customer can submit a review and rating for a purchased product."
+      ],
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-033",
+      "type": "functional",
+      "description": "Admin must moderate and approve customer reviews before they are published.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Review is not visible to customers until admin approves it."
+      ],
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-034",
+      "type": "functional",
+      "description": "Customers must be able to add products to a wishlist for later purchase.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "search",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Customer can add a product to wishlist and retrieve it in a later session."
+      ],
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-035",
+      "type": "functional",
+      "description": "System must integrate with Delhivery API for shipping rates and order tracking.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "delivery",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Shipping rate from Delhivery is displayed at checkout and tracking is available post-order."
+      ],
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-037",
+      "type": "functional",
+      "description": "Customers must be able to track their orders in real time within the platform.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "delivery",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Customer can view live shipment status on their order detail page."
+      ],
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-038",
+      "type": "constraint",
+      "description": "Platform must comply with GDPR regulations for NRI customer data handling.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "compliance",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Platform passes GDPR compliance audit for data collection and consent."
+      ],
+      "source_location": "00:30:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-039",
+      "type": "constraint",
+      "description": "Platform must comply with Indian IT Act regulations.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "compliance",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Platform meets all applicable Indian IT Act requirements."
+      ],
+      "source_location": "00:30:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-040",
+      "type": "constraint",
+      "description": "All customer data must be stored on servers physically located within India.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "compliance",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Infrastructure audit confirms no customer data stored outside India."
+      ],
+      "source_location": "00:30:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-041",
+      "type": "non_functional",
+      "description": "Platform must handle a minimum of 50,000 concurrent users during peak sale events.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Load test confirms platform stable at 50,000 concurrent users."
+      ],
+      "source_location": "00:30:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-042",
+      "type": "non_functional",
+      "description": "All platform pages must load within 3 seconds under normal and peak conditions.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Performance test shows 95th percentile page load time under 3 seconds."
+      ],
+      "source_location": "00:30:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-043",
+      "type": "functional",
+      "description": "System must generate sales reports on daily, weekly, and monthly intervals.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "analytics",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Admin can generate and export sales reports for each time period."
+      ],
+      "source_location": "00:38:00",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-044",
+      "type": "functional",
+      "description": "Sales reports must be filterable by region, product category, and vendor.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "analytics",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Report filtered by region, category, or vendor returns accurate segmented data."
+      ],
+      "source_location": "00:38:00",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-045",
+      "type": "functional",
+      "description": "System must provide cart abandonment analytics showing viewed-but-not-purchased products.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "analytics",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Analytics dashboard displays cart abandonment rate and associated products."
+      ],
+      "source_location": "00:38:00",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-046",
+      "type": "functional",
+      "description": "System must support sending promotional emails and SMS to customers.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 0.9,
+      "priority": "should_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Admin can trigger a promotional email and SMS campaign to a customer segment."
+      ],
+      "source_location": "00:38:00",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-047",
+      "type": "assumption",
+      "description": "Existing 8,000 SAP SKU data is clean and suitable for direct migration.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 0.75,
+      "priority": null,
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-048",
+      "type": "assumption",
+      "description": "RetailCorp will provide SAP API credentials and access for integration development.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 0.85,
+      "priority": null,
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-049",
+      "type": "assumption",
+      "description": "Delhivery and BlueDart APIs are publicly available and accessible for integration.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 0.85,
+      "priority": null,
+      "module_tag": "delivery",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:22:10",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-050",
+      "type": "assumption",
+      "description": "50,000 peak users is based on physical store footfall and may underestimate online traffic.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 0.75,
+      "priority": null,
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:30:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-051",
+      "type": "non_functional",
+      "description": "Platform must be scalable to accommodate catalog growth from 8,000 to 25,000 SKUs.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "System performance remains within SLA after catalog expansion to 25,000 SKUs."
+      ],
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-052",
+      "type": "non_functional",
+      "description": "Platform must support high availability during peak sale events such as Diwali.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "admin",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Platform maintains uptime during simulated Diwali-scale load test."
+      ],
+      "source_location": "00:30:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-053",
+      "type": "constraint",
+      "description": "Client has existing SAP ERP system that must be integrated rather than replaced.",
+      "source": "transcript",
+      "speaker": "Rajesh Mehta",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "inventory",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:15:20",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-054",
+      "type": "business_rule",
+      "description": "Average order value is approximately INR 15,000; EMI options are critical for high-value items.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "payments",
+      "user_story_id": null,
+      "acceptance_criteria": null,
+      "source_location": "00:00:45",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "TR-055",
+      "type": "functional",
+      "description": "System must support an auth module with role-based access for customers, store managers, admins, and vendors.",
+      "source": "transcript",
+      "speaker": "Sunita Agarwal",
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "auth",
+      "user_story_id": null,
+      "acceptance_criteria": [
+        "Each user role can only access features and data permitted for their role."
+      ],
+      "source_location": "00:08:30",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-001",
+      "type": "functional",
+      "description": "The system shall allow new customers to register using email or mobile number.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Authentication",
+      "user_story_id": "US-001",
+      "acceptance_criteria": [
+        "Customer can successfully register with a valid email or mobile number and receive confirmation."
+      ],
+      "source_location": "US-001",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-002",
+      "type": "functional",
+      "description": "The system shall allow registered customers to log in via email/password or OTP.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Authentication",
+      "user_story_id": "US-002",
+      "acceptance_criteria": [
+        "Customer can log in successfully using either email/password or a valid OTP."
+      ],
+      "source_location": "US-002",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-003",
+      "type": "functional",
+      "description": "The system shall allow customers to search products by name, brand, or category.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Search",
+      "user_story_id": "US-003",
+      "acceptance_criteria": [
+        "Search returns relevant results when queried by product name, brand, or category."
+      ],
+      "source_location": "US-003",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-004",
+      "type": "functional",
+      "description": "The system shall allow customers to filter search results by price, brand, rating, and delivery time.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Search",
+      "user_story_id": "US-004",
+      "acceptance_criteria": [
+        "Applying any filter updates search results to show only matching products."
+      ],
+      "source_location": "US-004",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-005",
+      "type": "functional",
+      "description": "The system shall display detailed product information including images, specs, price, and reviews.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Catalog",
+      "user_story_id": "US-005",
+      "acceptance_criteria": [
+        "Product detail page shows images, description, specifications, price, and customer reviews."
+      ],
+      "source_location": "US-005",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-006",
+      "type": "functional",
+      "description": "The system shall allow customers to add one or more products to a shopping cart.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Cart",
+      "user_story_id": "US-006",
+      "acceptance_criteria": [
+        "Selected products appear in the cart with correct quantities and prices."
+      ],
+      "source_location": "US-006",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-007",
+      "type": "functional",
+      "description": "The system shall allow customers to save products to a personal wishlist for later purchase.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Wishlist",
+      "user_story_id": "US-007",
+      "acceptance_criteria": [
+        "Customer can add a product to wishlist and retrieve it in a subsequent session."
+      ],
+      "source_location": "US-007",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-008",
+      "type": "functional",
+      "description": "The system shall allow customers to add and select a delivery address during checkout.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Checkout",
+      "user_story_id": "US-008",
+      "acceptance_criteria": [
+        "Customer can save a new address and select it as the delivery address before placing an order."
+      ],
+      "source_location": "US-008",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-009",
+      "type": "functional",
+      "description": "The system shall support payment via credit card, debit card, UPI, net banking, and EMI.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Payments",
+      "user_story_id": "US-009",
+      "acceptance_criteria": [
+        "Customer can complete a purchase using each of the five supported payment methods."
+      ],
+      "source_location": "US-009",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-010",
+      "type": "functional",
+      "description": "The system shall provide customers with real-time order tracking after purchase.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "OrderTracking",
+      "user_story_id": "US-010",
+      "acceptance_criteria": [
+        "Customer can view live shipment status and estimated delivery time for a placed order."
+      ],
+      "source_location": "US-010",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-011",
+      "type": "functional",
+      "description": "The system shall allow customers who purchased a product to submit a review and rating.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Reviews",
+      "user_story_id": "US-011",
+      "acceptance_criteria": [
+        "Only verified purchasers can submit a rating and text review for a product."
+      ],
+      "source_location": "US-011",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-012",
+      "type": "functional",
+      "description": "The system shall allow central admins to approve or reject customer reviews before publication.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Reviews",
+      "user_story_id": "US-012",
+      "acceptance_criteria": [
+        "A review is only visible to customers after an admin explicitly approves it."
+      ],
+      "source_location": "US-012",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-013",
+      "type": "functional",
+      "description": "The system shall allow central admins to add, edit, and deactivate products in the catalog.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Catalog",
+      "user_story_id": "US-013",
+      "acceptance_criteria": [
+        "Admin can create a new product, update its details, and deactivate it so it no longer appears to customers."
+      ],
+      "source_location": "US-013",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-014",
+      "type": "functional",
+      "description": "The system shall allow central admins to set and update product prices and discounts.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Pricing",
+      "user_story_id": "US-014",
+      "acceptance_criteria": [
+        "Updated price or discount is reflected on the product page immediately after admin saves changes."
+      ],
+      "source_location": "US-014",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-015",
+      "type": "functional",
+      "description": "The system shall sync inventory levels with SAP in real time to reflect accurate stock availability.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Inventory",
+      "user_story_id": "US-015",
+      "acceptance_criteria": [
+        "Out-of-stock products are marked unavailable on the platform within 60 seconds of SAP inventory update."
+      ],
+      "source_location": "US-015",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-016",
+      "type": "functional",
+      "description": "The system shall allow vendors to manage their own product listings on the platform.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "VendorPortal",
+      "user_story_id": "US-016",
+      "acceptance_criteria": [
+        "Vendor can create, update, and remove their product listings via the vendor portal."
+      ],
+      "source_location": "US-016",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-017",
+      "type": "functional",
+      "description": "The system shall allow store managers to view all orders placed within their region.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "OrderManagement",
+      "user_story_id": "US-017",
+      "acceptance_criteria": [
+        "Store manager dashboard displays all regional orders with status, customer, and delivery details."
+      ],
+      "source_location": "US-017",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-018",
+      "type": "functional",
+      "description": "The system shall provide central admins with sales reports filterable by day, week, month, category, region, and vendor.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Reporting",
+      "user_story_id": "US-018",
+      "acceptance_criteria": [
+        "Admin can generate and export a sales report for any supported time period, category, region, or vendor combination."
+      ],
+      "source_location": "US-018",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-019",
+      "type": "functional",
+      "description": "The system shall report products added to cart but not purchased to central admins.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Analytics",
+      "user_story_id": "US-019",
+      "acceptance_criteria": [
+        "Admin dashboard shows an abandoned-cart report listing products and abandonment counts for a selected period."
+      ],
+      "source_location": "US-019",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-020",
+      "type": "functional",
+      "description": "The system shall allow central admins to send promotional campaigns to customers via email and SMS.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Marketing",
+      "user_story_id": "US-020",
+      "acceptance_criteria": [
+        "Admin can create a campaign, select target audience, and successfully dispatch it via email and SMS channels."
+      ],
+      "source_location": "US-020",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-021",
+      "type": "functional",
+      "description": "The system shall provide a fully functional mobile application for Android and iOS devices.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "MobileApp",
+      "user_story_id": "US-021",
+      "acceptance_criteria": [
+        "Customer can browse, search, and complete a purchase end-to-end on both Android and iOS mobile apps."
+      ],
+      "source_location": "US-021",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-022",
+      "type": "functional",
+      "description": "The system shall display key business metrics to executives via a mobile dashboard.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "should_have",
+      "module_tag": "Analytics",
+      "user_story_id": "US-022",
+      "acceptance_criteria": [
+        "Executive mobile dashboard shows real-time KPIs including revenue, orders, and top-performing products."
+      ],
+      "source_location": "US-022",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-023",
+      "type": "functional",
+      "description": "The system shall allow customers to initiate a return request for a delivered product.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Returns",
+      "user_story_id": "US-023",
+      "acceptance_criteria": [
+        "Customer can submit a return request with reason for a delivered order and receive a confirmation with next steps."
+      ],
+      "source_location": "US-023",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    },
+    {
+      "req_id": "US-024",
+      "type": "functional",
+      "description": "The system shall integrate with Delhivery and BlueDart APIs for automated shipping rate calculation and order tracking.",
+      "source": "user_story",
+      "speaker": null,
+      "confidence": 1.0,
+      "priority": "must_have",
+      "module_tag": "Logistics",
+      "user_story_id": "US-024",
+      "acceptance_criteria": [
+        "Shipping cost is auto-calculated at checkout and live tracking data is retrieved from Delhivery and BlueDart APIs."
+      ],
+      "source_location": "US-024",
+      "added_in_version": 1,
+      "ambiguity_flag": false,
+      "ambiguity_suggestion": null
+    }
+  ],
+  "glossary": {
+    "ShopEase": "The e-commerce platform being built for RetailCorp India Pvt. Ltd. to enable online retail operations",
+    "RetailCorp": "The client organization, a mid-size Indian retail chain with approximately 200 physical stores selling home appliances, electronics, and furniture",
+    "SKU": "Stock Keeping Unit; a unique identifier for each distinct product in the catalog, with current SAP inventory at 8,000 and target platform capacity of 25,000",
+    "EMI": "Equated Monthly Installment; a payment option allowing customers to split high-value purchases into monthly payments, offered via credit card EMI and no-cost EMI through financing partners",
+    "No-Cost EMI": "An EMI arrangement where the interest cost is absorbed by the retailer or financing partner, making it free to the customer; provided via Bajaj Finance and ZestMoney",
+    "Bajaj Finance": "A third-party financing partner whose API will be integrated to provide no-cost EMI options at checkout",
+    "ZestMoney": "A third-party buy-now-pay-later financing partner whose partnership agreement is pending finalization before go-live",
+    "SAP ERP": "RetailCorp's existing enterprise resource planning system used for product data and inventory management, which must be integrated rather than replaced",
+    "Delhivery": "A logistics partner whose API will be integrated for shipping rate calculation and real-time order tracking",
+    "Vendor Portal": "A dedicated login interface allowing vendor partners to manage their own product listings and inventory, with pricing controlled exclusively by central admin",
+    "Role-Based Access Control": "An authentication and authorization model restricting platform features by user role, covering customers, store managers, central admins, and vendor partners",
+    "Cart Abandonment Analytics": "A reporting feature tracking products that customers viewed or added to cart but did not purchase, used for marketing optimization",
+    "Peak Sale Event": "High-traffic promotional periods such as Diwali during which the platform must sustain 50,000 concurrent users and maintain sub-3-second page load times",
+    "NRI": "Non-Resident Indian; customers outside India whose data handling must comply with GDPR regulations in addition to the Indian IT Act"
+  },
+  "stakeholders": []
+}

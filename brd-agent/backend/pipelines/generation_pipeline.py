@@ -140,7 +140,7 @@ class GenerationPipeline:
         )
 
         llm_call("GENERATE", f"Section: {section_name}", len(req_context))
-        content = await call_databricks_llm(system_prompt, user_prompt, max_tokens=3000, temperature=0.2)
+        content = await call_databricks_llm(system_prompt, user_prompt, max_tokens=5000, temperature=0.2)
         llm_response("GENERATE", len(content))
 
         # Enforce word limit — Python truncation regardless of model compliance
@@ -154,7 +154,7 @@ class GenerationPipeline:
             warn("GENERATE", f"Quality {round(quality*100)}% — auto-regenerating {section_name}")
             improved = user_prompt + f"\n\nIMPORTANT: Previous attempt was low quality. Be specific, use tables where appropriate, reference actual requirements."
             llm_call("GENERATE", f"Re-generate: {section_name}")
-            content  = await call_databricks_llm(system_prompt, improved, max_tokens=3000, temperature=0.3)
+            content  = await call_databricks_llm(system_prompt, improved, max_tokens=5000, temperature=0.3)
             llm_response("GENERATE", len(content))
             content  = _truncate_section_content(content, word_limit)
             quality  = _meaningful_quality_score(content, section_name, len(relevant_reqs))

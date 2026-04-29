@@ -1,0 +1,185 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "Real-time vs batch sync for product information with SAP ERP. TR-024 requires real-time sync for inventory, but TR-025 specifies daily batch process for product information. TR-023 broadly states real-time sync for the catalog without distinguishing inventory from product info, creating ambiguity about whether product data is real-time or batch.",
+      "version_a": {
+        "req_id": "TR-024",
+        "text": "System must sync inventory levels with SAP ERP in real time."
+      },
+      "version_b": {
+        "req_id": "TR-025",
+        "text": "System must sync product information from SAP ERP via daily batch process."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-002",
+      "description": "Vendor pricing control contradiction. TR-019 and TR-008 state only RetailCorp central admin can set prices and vendors cannot modify pricing, but TR-021 and US-016 allow vendors to manage product information and descriptions for their listings, which may include pricing fields depending on implementation scope.",
+      "version_a": {
+        "req_id": "TR-019",
+        "text": "Only RetailCorp central admin can set product prices; vendors cannot modify pricing."
+      },
+      "version_b": {
+        "req_id": "TR-021",
+        "text": "Vendors must be able to manage product information and descriptions for their listings."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-003",
+      "description": "GDPR compliance requires data subject rights including potential data deletion and cross-border transfer controls, while TR-038 mandates all customer data must be stored on servers physically within India. GDPR is an EU regulation with specific requirements that may conflict with India-only data residency, particularly for NRI customers whose data rights under GDPR may require processing outside India.",
+      "version_a": {
+        "req_id": "TR-036",
+        "text": "Platform must comply with GDPR regulations to support NRI customer data privacy."
+      },
+      "version_b": {
+        "req_id": "TR-038",
+        "text": "All customer data must be stored on servers physically located within India."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-004",
+      "description": "Real-time SAP sync for inventory conflicts with stock availability display rule. TR-024 and US-015 require real-time inventory sync, but TR-025 specifies product information syncs only via daily batch. TR-026 requires the platform not to display a product as available if out of stock in SAP, which depends on real-time accuracy. If product data (including stock status) is only batch-synced daily, the real-time availability rule cannot be reliably enforced.",
+      "version_a": {
+        "req_id": "TR-026",
+        "text": "Platform must not display a product as available if it is out of stock in SAP."
+      },
+      "version_b": {
+        "req_id": "TR-025",
+        "text": "System must sync product information from SAP ERP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-005",
+      "description": "Central admin controls pricing per TR-019 and US-014, but TR-008 and TR-016 grant vendors a dedicated portal to manage their own inventory and product listings. US-016 allows vendors to create and update their own product listings. If vendor product listings include pricing as part of listing data, this directly contradicts the exclusive admin pricing control rule.",
+      "version_a": {
+        "req_id": "TR-019",
+        "text": "Only RetailCorp central admin can set product prices; vendors cannot modify pricing."
+      },
+      "version_b": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to create, update, and manage their own product listings."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-006",
+      "description": "ZestMoney integration is listed as pending with uncertain timeline (TR-015), yet no corresponding functional requirement excludes it from scope. TR-011 requires EMI support at checkout and TR-012 covers Bajaj Finance, but the uncertain ZestMoney status creates a scope conflict if it is implicitly expected as part of EMI offerings within the 6-month go-live constraint (TR-009).",
+      "version_a": {
+        "req_id": "TR-015",
+        "text": "ZestMoney integration is pending partnership agreement; timeline is uncertain."
+      },
+      "version_b": {
+        "req_id": "TR-009",
+        "text": "Platform must go live within 6 months maximum from project start."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

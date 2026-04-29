@@ -1,0 +1,201 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "SAP inventory sync is required to be real-time AND batch (once daily) simultaneously — two incompatible synchronization strategies for the same data source.",
+      "version_a": {
+        "req_id": "TR-027",
+        "text": "Inventory levels must sync with SAP in real time to prevent overselling."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync from SAP via batch process once daily."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-002",
+      "description": "Vendors are stated to manage their own product listings, but a separate business rule explicitly prohibits vendors from setting prices — creating ambiguity about the scope of vendor listing management and conflicting with the implied capability of full listing control.",
+      "version_a": {
+        "req_id": "TR-020",
+        "text": "Vendors must be able to manage their product listings and inventory via portal."
+      },
+      "version_b": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only RetailCorp central admin controls pricing."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-003",
+      "description": "Vendors are described as managing their own product listings, but the central admin is also assigned the ability to add, edit, and deactivate products — creating overlapping and potentially conflicting ownership of product catalog management.",
+      "version_a": {
+        "req_id": "TR-008",
+        "text": "Vendor partners manage their own inventory and product listings via dedicated login."
+      },
+      "version_b": {
+        "req_id": "US-013",
+        "text": "The system shall allow central admin to add, edit, and deactivate products in the catalog."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-004",
+      "description": "GDPR compliance is required due to NRI customer base, but GDPR is a European regulation that conflicts with the Indian IT Act compliance requirement — the two regulatory frameworks have differing and sometimes incompatible obligations (e.g., data subject rights, breach notification timelines, consent mechanisms).",
+      "version_a": {
+        "req_id": "TR-038",
+        "text": "Platform must comply with GDPR regulations due to NRI customer base."
+      },
+      "version_b": {
+        "req_id": "TR-039",
+        "text": "Platform must comply with Indian IT Act regulations."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-005",
+      "description": "Real-time inventory sync with SAP is required to prevent overselling, but product information syncs only once daily via batch — if inventory is part of product information, these two requirements directly contradict each other on sync frequency.",
+      "version_a": {
+        "req_id": "TR-027",
+        "text": "Inventory levels must sync with SAP in real time to prevent overselling."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync from SAP via batch process once daily."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-006",
+      "description": "US-015 requires real-time inventory sync with SAP, while TR-028 mandates a once-daily batch sync for product data from SAP — these are incompatible synchronization models for overlapping SAP data.",
+      "version_a": {
+        "req_id": "US-015",
+        "text": "The system shall sync inventory levels with SAP in real time to reflect accurate stock status."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync from SAP via batch process once daily."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-007",
+      "description": "Central admin controls pricing per TR-021 and US-014, but TR-008 and TR-020 grant vendors management of their own product listings — if listings include pricing fields, vendor portal access conflicts with the admin-only pricing rule.",
+      "version_a": {
+        "req_id": "US-014",
+        "text": "The system shall allow central admin to set and update product prices and discounts."
+      },
+      "version_b": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to manage their own product listings on the platform."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-008",
+      "description": "ZestMoney partnership may not be finalized before development begins, yet no corresponding functional requirement excludes ZestMoney — if development proceeds assuming ZestMoney integration, the assumption of an unfinalized agreement conflicts with building dependent functionality within the 6-month constraint.",
+      "version_a": {
+        "req_id": "TR-018",
+        "text": "ZestMoney partnership agreement may not be finalized before development begins."
+      },
+      "version_b": {
+        "req_id": "TR-009",
+        "text": "Platform must go live within 6 months maximum from project start."
+      },
+      "impact": "low",
+      "resolved": false
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

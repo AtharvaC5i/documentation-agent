@@ -1,0 +1,57 @@
+{
+  "sections": [
+    {
+      "id": "ff0263d0-ee23-4bf5-8c3b-e901f4d0183d",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\nRetailCorp India Pvt. Ltd. is embarking on a significant digital transformation initiative to establish a direct-to-consumer e-commerce presence that matches the scale and reputation of its physical retail operations. As consumer purchasing behavior continues to shift online — accelerated by the growing expectations of both domestic and NRI customers — RetailCorp requires a robust, scalable digital platform to capture this opportunity before it cedes further ground to established online competitors. This project, ShopEase, represents RetailCorp's strategic entry into the e-commerce market and is a foundational investment in the company's long-term growth.\n\n### Business Problem\n\nRetailCorp currently has no direct online sales channel, meaning that customers who prefer to shop digitally have no option but to turn to third-party marketplaces, where RetailCorp has limited control over pricing, customer experience, and brand presentation. The company's existing product and inventory data lives within its SAP ERP system but is entirely disconnected from any customer-facing commerce capability. This gap is resulting in lost revenue, reduced customer loyalty, and an inability to leverage RetailCorp's existing vendor network and 8,000-product catalog in the digital marketplace.\n\n### Proposed Solution\n\nShopEase will be a fully owned e-commerce platform — available on web and mobile — that allows customers to browse, purchase, and track orders directly from RetailCorp, supported by flexible payment options including No-Cost EMI through Bajaj Finance and buy-now-pay-later through ZestMoney. The platform will connect directly to RetailCorp's SAP ERP system to ensure inventory is always accurate, and will give vendors, store managers, and the Central Admin team their own dedicated tools to manage their respective responsibilities. By owning the end-to-end customer journey, RetailCorp will gain full visibility into purchasing behavior, regional performance, and promotional effectiveness.\n\n### Key Objectives\n\n- Launch the ShopEase platform to live customers within 6 months of project commencement.\n- Successfully migrate all 8,000 existing SKUs from SAP ERP with zero data loss, and scale the catalog to support up to 25,000 SKUs at launch capacity.\n- Ensure the platform can sustain a minimum of 50,000 concurrent users during peak sale events such as Diwali, with all pages loading in under 3 seconds.\n- Achieve full compliance with both GDPR regulations and the Indian IT Act, with all customer data stored exclusively within India-based data centers.\n- Enable the Central Admin team to generate sales reports across regions, categories, and vendors within the first week of go-live, providing immediate business intelligence capability.\n\n### Expected Outcomes\n\nSix months after launch, ShopEase is expected to be generating measurable direct online revenue, with the Central Admin team actively using regional and vendor-level sales reports to inform pricing and promotional decisions. Cart abandonment analytics and promotional campaign tools will enable RetailCorp's marketing team to recover lost sales and drive repeat purchases, with executive leadership monitoring performance daily through the mobile dashboard. Ultimately, ShopEase will transform RetailCorp from a purely physical retailer into a competitive omnichannel business with full ownership of its customer relationships and data.",
+      "quality_score": 0.8,
+      "quality_pct": "80%",
+      "word_count": 491,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 73
+    },
+    {
+      "id": "f85a9909-69ab-4bee-a943-49a8d0caa8ec",
+      "name": "Stakeholder Register",
+      "content": "## Stakeholder Register\n\n### Introduction\n\nThe ShopEase platform for RetailCorp India Pvt. engages a diverse set of stakeholders spanning executive leadership, project delivery teams, internal operational roles, and external platform users. Effective stakeholder management is critical to aligning business vision, technical delivery, and day-to-day platform operations across all groups.\n\n---\n\n### Stakeholder Table\n\n| Name / Role | Role | Organisation | Key Responsibilities | Involvement Level |\n|---|---|---|---|---|\n| Sunita Agarwal | Client CEO | RetailCorp India Pvt. | Owns overall business vision; makes final business decisions and provides formal project approvals | High |\n| Rajesh Mehta | Client Project Manager | RetailCorp India Pvt. | Defines operational requirements; oversees integration decisions and technical direction from the client side | High |\n| Arjun Shah | Business Analyst | Delivery Team | Leads requirements elicitation, documentation, and maintenance of project artefacts including this register | High |\n| Priya Nair | Project Manager | Delivery Team | Accountable for end-to-end project delivery, integration planning with partners such as Delhivery, BlueDart, Bajaj Finance, and ZestMoney, and overall timeline management | High |\n| Central Admin Team | Internal Operations | RetailCorp India Pvt. | Manages products, SKU listings, pricing, and promotions across the ShopEase platform via the Central Admin function | High |\n| Store Managers | Regional Operations | RetailCorp India Pvt. | Views regional order data and manages product returns through the ShopEase platform | Medium |\n| Vendor Partners | External Partners | Third-Party Vendors | Manages own inventory and product listings through the dedicated Vendor Portal using RBAC-controlled access | Medium |\n| End Customers | Platform Users | General Public | Browses, searches, and purchases products on ShopEase; may utilise EMI and No-Cost EMI payment options | Low |\n\n---\n\n### Communication Plan\n\nSunita Agarwal and Rajesh Mehta will be engaged through bi-weekly steering committee meetings to review project progress, resolve escalations, and provide formal approvals at key milestones. Priya Nair and Arjun Shah will conduct weekly working sessions with the Central Admin Team and Store Managers to validate operational requirements, review UAT feedback, and confirm integration readiness with partners including SAP ERP, Bajaj Finance, and Delhivery. All formal documentation, requirement sign-offs, and change requests will follow a structured approval workflow, with Sunita Agarwal holding final authority. Primary communication channels will include email for formal correspondence, a shared project management tool for task tracking, and Microsoft Teams or equivalent for day-to-day collaboration across all stakeholder groups.",
+      "quality_score": 0.79,
+      "quality_pct": "79%",
+      "word_count": 412,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008"
+      ],
+      "req_count": 8
+    }
+  ]
+}

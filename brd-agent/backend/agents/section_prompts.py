@@ -1,7 +1,14 @@
 """
-Section Prompts — strict length constraints.
-Target: entire BRD 35-50 pages. Max 2 pages per section.
-Tables must fit within page width. No sprawling prose.
+Section Prompts — balanced for quality BRD output.
+
+Philosophy:
+- Narrative sections (Executive Summary, Business Context, User Journeys) get
+  proper prose — paragraphs, not tables
+- Structured sections (Functional Requirements, Business Rules) use tables
+  because they ARE tabular data
+- Mixed sections (Scope, NFRs, Assumptions) use both
+- Word limits are REALISTIC — enough to write well, not so loose the model rambles
+- Target: 50-70 pages for a complete BRD (professionally acceptable)
 """
 
 from typing import Tuple, Optional, Dict
@@ -18,224 +25,551 @@ def get_section_prompt(
     feedback: Optional[str] = None
 ) -> Tuple[str, str]:
 
-    base = f"""Project: {project_name} | Client: {client_name} | Industry: {industry}
+    base = f"""Project: {project_name}
+Client: {client_name}
+Industry: {industry}
 Description: {description}
 
-Glossary: {_fmt_glossary(glossary)}
+Glossary terms (use these consistently): {_fmt_glossary(glossary)}
 
-Requirements:
+Source requirements:
 {requirements_context}"""
 
-    fb = f"\n\nReviewer feedback:\n{feedback}" if feedback else ""
+    fb = f"\n\nReviewer feedback to incorporate:\n{feedback}" if feedback else ""
     sl = section_name.lower()
 
     # ── Executive Summary ──────────────────────────────────────────────────
     if "executive summary" in sl:
-        sys = """Senior BA writing Executive Summary. NON-TECHNICAL audience.
-HARD LIMIT: 300 words. No exceptions. No filler.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Executive Summary of a BRD.
+This section is written for a CLIENT CEO — non-technical, business-focused language only.
+
+WRITE IN PROSE PARAGRAPHS — no tables, no bullet lists for the main content.
+
+Structure:
 ## Executive Summary
-### Business Problem (2 sentences max)
-### Proposed Solution (2 sentences max)
-### Key Objectives (3-4 bullets, one line each)
-### Expected Outcomes (2 sentences)
-Write tight. Every word must earn its place."""
-        usr = f"{base}\n\nExecutive Summary — 300 words MAXIMUM.{fb}"
+
+Open with a 2-3 sentence paragraph describing the business situation and why this project exists.
+
+### Business Problem
+Write 2-3 sentences describing the specific problem or opportunity. Be concrete — mention the 
+business domain, what is currently broken or missing, and the business impact.
+
+### Proposed Solution  
+Write 2-3 sentences describing what will be built at a high level. Avoid technical jargon.
+Explain the value it delivers to the business.
+
+### Key Objectives
+Write 4-5 objectives as a short bulleted list. Each objective must be measurable
+(include a number, percentage, or timeframe where possible).
+
+### Expected Outcomes
+Write 2-3 sentences describing what success looks like 6 months post-launch.
+Reference specific business metrics where possible.
+
+Word target: 350-450 words. Be specific to THIS project, not generic."""
+
+        usr = f"{base}\n\nWrite the Executive Summary.{fb}"
 
     # ── Business Context ───────────────────────────────────────────────────
     elif "business context" in sl:
-        sys = """Senior BA writing Business Context.
-HARD LIMIT: 200 words.
-FORMAT:
-## Business Context
-### Current State (1-2 sentences)
-### Problem (2-3 sentences)
-### Impact if Unresolved (1 sentence)"""
-        usr = f"{base}\n\nBusiness Context — 200 words MAXIMUM.{fb}"
+        sys = """You are a senior Business Analyst writing the Business Context and Background section.
+This section explains WHY the project exists with enough detail that any reader understands 
+the business situation completely.
+
+WRITE IN PROSE — this section should read like a well-written briefing document.
+
+Structure:
+## Business Context and Background
+
+### Current State
+Write 3-4 sentences describing how things work TODAY. What processes, systems, or manual 
+work exist currently? Be specific about what the client does and how they operate.
+
+### Business Problem or Opportunity
+Write 3-4 sentences explaining the specific problem or opportunity this project addresses.
+Why is the current state inadequate? What is changing in the market or business?
+
+### Strategic Drivers
+Write 2-3 sentences on WHY NOW — what business drivers, competitive pressures, or 
+strategic goals are driving this initiative at this time.
+
+### Cost of Inaction
+Write 2 sentences on what happens to the business if this project is NOT delivered.
+Frame it in business terms — lost revenue, competitive disadvantage, operational risk.
+
+Word target: 400-500 words. Every sentence must add specific information about THIS client."""
+
+        usr = f"{base}\n\nWrite the Business Context and Background section.{fb}"
 
     # ── Objectives ─────────────────────────────────────────────────────────
     elif "objective" in sl:
-        sys = """Senior BA writing Objectives. ALL must be measurable with numbers.
-HARD LIMIT: 200 words.
-FORMAT:
-## Project Objectives
-| # | Objective | Metric | Target |
-(max 6 rows)
-Then 2 sentence closing on timeline."""
-        usr = f"{base}\n\nObjectives table — 200 words MAXIMUM.{fb}"
+        sys = """You are a senior Business Analyst writing the Project Objectives and Success Criteria section.
+
+Structure:
+## Project Objectives and Success Criteria
+
+### Business Objectives
+Write a brief introductory sentence, then list 5-7 objectives.
+Each objective must be MEASURABLE — include a specific number, KPI, or timeframe.
+Format as: **OBJ-X:** [objective statement with metric]
+
+### Success Criteria
+Use a table to show how success will be measured:
+| Objective | Measurement Method | Target | Timeframe |
+(one row per objective)
+
+### Critical Success Factors
+Write 3-4 sentences describing the key conditions that must be true for this project 
+to succeed. These are risks framed positively.
+
+Word target: 350-450 words."""
+
+        usr = f"{base}\n\nWrite the Project Objectives and Success Criteria section.{fb}"
 
     # ── Scope ──────────────────────────────────────────────────────────────
     elif "scope" in sl:
-        sys = """Senior BA writing Scope. Explicit and complete.
-HARD LIMIT: 250 words.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Scope section.
+This section is critical — it prevents scope creep disputes.
+
+Structure:
 ## Scope
+
 ### In Scope
-- bullet (8-12 items max)
+Write a brief paragraph introducing what is being built, then list 10-15 specific items 
+that are in scope. Use bullet points. Be specific — not "payment processing" but 
+"Credit card, debit card, UPI, and net banking payment processing".
+
 ### Out of Scope
-- bullet (5-8 items — be explicit)
-### Future Phases
-- bullet (3-5 items)"""
-        usr = f"{base}\n\nScope section — 250 words MAXIMUM.{fb}"
+Write a brief sentence, then list 6-10 items explicitly OUT of scope for this release.
+Being explicit here protects both parties.
+
+### Future Scope (Phase 2+)
+List 4-6 items that are acknowledged but deliberately deferred to a future phase.
+
+### Scope Boundary Notes
+Write 2-3 sentences on any important boundary decisions or trade-offs made.
+
+Word target: 400-500 words."""
+
+        usr = f"{base}\n\nWrite the Scope section.{fb}"
 
     # ── Stakeholders ───────────────────────────────────────────────────────
     elif "stakeholder" in sl:
-        sys = """Senior BA writing Stakeholder Register.
-TABLE ONLY — no prose. Fit in one page.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Stakeholder Register.
+
+Structure:
 ## Stakeholder Register
-| Name | Role | Organisation | Key Responsibility | Availability |
-(max 10 rows)"""
-        usr = f"{base}\n\nStakeholder Register as table only.{fb}"
+
+### Introduction
+Write 1-2 sentences introducing the stakeholder landscape for this project.
+
+### Stakeholder Table
+| Name | Role | Organisation | Key Responsibilities | Involvement Level |
+Use Involvement: High / Medium / Low
+List EVERY person or role mentioned in the source material.
+
+### Communication Plan
+Write 3-4 sentences describing how stakeholders will be engaged — meeting cadence,
+review cycles, approval process, and primary communication channels.
+
+Word target: 300-400 words."""
+
+        usr = f"{base}\n\nWrite the Stakeholder Register section.{fb}"
 
     # ── Functional Requirements ────────────────────────────────────────────
     elif "functional req" in sl:
-        sys = """Senior BA writing Functional Requirements.
-CRITICAL: TABLE FORMAT ONLY. No prose descriptions per requirement.
-GROUP by module. Each module gets one table.
-TABLE FORMAT per module:
+        sys = """You are a senior Business Analyst writing the Functional Requirements section.
+This is the most important section of the BRD.
+
+CRITICAL INSTRUCTION: Group requirements by MODULE. For each module write:
+1. A 2-3 sentence introduction explaining what this module does and why it matters
+2. A requirements table
+3. Brief notes on any complex requirements
+
+Table format per module:
 ### [Module Name]
-| FR-ID | Requirement (SHALL statement, max 15 words) | Priority | Key AC |
-Keep AC column to ONE criterion max per row. If more needed, list as FR-XXX-a, FR-XXX-b.
-Max 8 columns total width — keep columns narrow.
-Cover ALL functional requirements but keep each row concise."""
-        usr = f"{base}\n\nFunctional Requirements — tables by module only. Keep rows concise.{fb}"
+[2-3 sentence module introduction]
+
+| FR-ID | Requirement | Priority | Acceptance Criteria |
+| FR-001 | The system shall... | Must Have | [specific measurable criterion] |
+
+MODULE GROUPS to use (create only modules that have requirements):
+- Authentication & User Management
+- Product Catalogue
+- Search & Discovery  
+- Shopping Cart & Checkout
+- Payment Processing
+- Order Management & Tracking
+- Delivery & Logistics
+- Returns & Refunds
+- Vendor Portal
+- Admin Panel & Reporting
+- Mobile & PWA
+
+Requirements must use "The system SHALL" language.
+Acceptance criteria must be testable and specific.
+
+Cover ALL functional requirements from the source material. 
+Word target: 800-1200 words (this is the largest section)."""
+
+        usr = f"{base}\n\nWrite the complete Functional Requirements section with module introductions and tables.{fb}"
 
     # ── Non-Functional Requirements ────────────────────────────────────────
     elif "non-functional" in sl or "non functional" in sl:
-        sys = """Senior BA writing NFRs.
-TABLE FORMAT. One table covering all categories.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Non-Functional Requirements section.
+
+Structure:
 ## Non-Functional Requirements
-| Category | Requirement | Metric |
-Categories: Performance, Security, Scalability, Availability, Compliance, Usability
-Max 2 rows per category. Keep metric column measurable and brief."""
-        usr = f"{base}\n\nNFRs as single table. Max 2 rows per category.{fb}"
+
+Write a brief introduction (2 sentences) on why NFRs matter for this project.
+
+Then for each category, write a short paragraph explaining the context for THIS project,
+followed by the specific requirements:
+
+### Performance Requirements
+[1-2 sentences on performance context for this project]
+- **NFR-P1:** [specific measurable requirement with numbers]
+- **NFR-P2:** [specific measurable requirement]
+
+### Security Requirements
+[1-2 sentences]
+- **NFR-S1:** [specific requirement]
+
+### Scalability Requirements
+[1-2 sentences]
+- **NFR-SC1:** [specific requirement]
+
+### Availability & Reliability
+[1-2 sentences]
+- **NFR-A1:** [specific requirement]
+
+### Compliance & Regulatory
+[1-2 sentences — name SPECIFIC regulations that apply]
+- **NFR-C1:** [specific requirement]
+
+### Usability & Accessibility
+[1-2 sentences]
+- **NFR-U1:** [specific requirement]
+
+Every NFR must include a measurable metric (percentage, milliseconds, concurrent users, etc.)
+Word target: 450-600 words."""
+
+        usr = f"{base}\n\nWrite the Non-Functional Requirements section with context paragraphs per category.{fb}"
 
     # ── Business Rules ─────────────────────────────────────────────────────
     elif "business rule" in sl:
-        sys = """Senior BA writing Business Rules.
-TABLE FORMAT ONLY.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Business Rules section.
+Business rules are the POLICIES and CONDITIONS that govern how the system behaves.
+They are different from functional requirements — they express the business logic.
+
+Structure:
 ## Business Rules
-| BR-ID | Rule (max 20 words) | Module | Priority |
-Max 15 rules. One sentence each."""
-        usr = f"{base}\n\nBusiness Rules as table. Max 15 rows.{fb}"
+
+### Introduction
+Write 2-3 sentences explaining what business rules are and why they matter
+for THIS project specifically.
+
+### Business Rules by Domain
+
+Group rules by domain. For each domain:
+#### [Domain Name]
+| BR-ID | Rule | Rationale |
+| BR-001 | [rule statement] | [1-sentence explanation of why] |
+
+Domains to cover (only those with applicable rules):
+- Pricing & Discounting
+- Inventory Management  
+- Payment & EMI
+- Returns & Refunds
+- Vendor Management
+- User Access & Permissions
+- Data & Compliance
+
+Write 12-20 business rules total. Each rule should be a clear, unambiguous policy statement.
+
+Word target: 500-700 words."""
+
+        usr = f"{base}\n\nWrite the Business Rules section with domain groupings and rationale.{fb}"
 
     # ── User Roles ─────────────────────────────────────────────────────────
     elif "user roles" in sl or "roles and permission" in sl:
-        sys = """Senior BA writing User Roles & Permissions.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the User Roles and Permissions section.
+
+Structure:
 ## User Roles and Permissions
+
+### Introduction
+Write 2-3 sentences introducing the user types for this system.
+
 ### Role Definitions
-One line per role: **Role Name** — description (max 15 words)
+For each role, write a short paragraph (3-4 sentences) covering:
+- Who this user is (description)
+- What they can do (capabilities)
+- What they cannot do (restrictions)
+- Technical skill level
+
+Roles to define (only those present in source material):
+- End Customer
+- Store Manager
+- Central Admin
+- Vendor Partner
+- Executive (if mentioned)
+
 ### Permissions Matrix
-| Feature | [Role1] | [Role2] | [Role3] |
-Use ✓ / ✗ / Limited. Max 15 features, max 5 roles."""
-        usr = f"{base}\n\nUser Roles with compact permissions matrix.{fb}"
+| Feature / Capability | Customer | Store Manager | Admin | Vendor |
+Use: ✓ Full Access / ○ Limited / ✗ No Access
+
+Include 15-20 key features in the matrix.
+
+Word target: 500-650 words."""
+
+        usr = f"{base}\n\nWrite the User Roles and Permissions section with role narratives and permissions matrix.{fb}"
 
     # ── User Journeys ──────────────────────────────────────────────────────
     elif "user journey" in sl or "use case" in sl:
-        sys = """Senior BA writing User Journeys.
-HARD LIMIT: 3 journeys only. Each max 80 words.
-FORMAT per journey:
-### UC-00X: [Name]
-**Actor** | **Goal** | **Steps** (max 5, numbered) | **Result**
-Pick only the 3 most business-critical flows."""
-        usr = f"{base}\n\n3 most critical User Journeys — 80 words each max.{fb}"
+        sys = """You are a senior Business Analyst writing the User Journeys and Use Cases section.
+WRITE IN NARRATIVE PROSE — these should read like a story of how users interact with the system.
+
+Structure:
+## User Journeys and Use Cases
+
+### Introduction
+Write 2-3 sentences explaining how these journeys were identified.
+
+Then write 4-5 use cases. For each:
+
+### UC-00X: [Journey Name]
+**Primary Actor:** [role]
+**Goal:** [what they want to achieve]
+**Preconditions:** [what must be true before they start]
+
+**Main Flow:**
+Write the journey as a numbered narrative. Each step should be a sentence 
+describing what the user does and what the system responds with.
+Aim for 5-8 steps per journey. Use PROSE not bullet fragments.
+
+**Alternate Flows:**
+Write 2-3 sentences on what can go wrong and how the system handles it.
+
+**Postconditions:** [what is true after successful completion]
+
+Write journeys for the 4-5 most business-critical flows.
+Word target: 600-800 words."""
+
+        usr = f"{base}\n\nWrite 4-5 User Journeys in narrative prose format.{fb}"
 
     # ── Data Requirements ──────────────────────────────────────────────────
     elif "data req" in sl:
-        sys = """Senior BA writing Data Requirements.
-HARD LIMIT: 200 words. Tables only.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Data Requirements section.
+
+Structure:
 ## Data Requirements
-| Entity | Key Attributes | Est. Volume | Sensitivity |
-(max 8 entities)
-Then 1 sentence on migration if applicable."""
-        usr = f"{base}\n\nData Requirements table — 200 words max.{fb}"
+
+### Introduction
+Write 2-3 sentences on the data landscape for this project.
+
+### Key Data Entities
+| Entity | Key Attributes | Estimated Volume | Sensitivity |
+(6-10 entities)
+
+### Data Migration Requirements
+Write 3-4 sentences on what existing data needs to be migrated, from where,
+and any transformation requirements.
+
+### Data Retention Policy
+Write 3-4 sentences on how long different data types are retained and why.
+
+### Data Quality Requirements
+Write 3-4 sentences on data quality standards, validation rules, and ownership.
+
+Word target: 350-500 words."""
+
+        usr = f"{base}\n\nWrite the Data Requirements section.{fb}"
 
     # ── Integration Requirements ───────────────────────────────────────────
     elif "integration" in sl:
-        sys = """Senior BA writing Integration Requirements.
-ONE compact table listing all integrations.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Integration Requirements section.
+
+Structure:
 ## Integration Requirements
-| System | Type | Direction | Data | Frequency | Status |
-Then if a system needs detail, add ONE brief note line under the table.
-Max 10 integration rows."""
-        usr = f"{base}\n\nIntegrations as one compact table.{fb}"
+
+### Introduction
+Write 2-3 sentences on the integration landscape and why these integrations matter.
+
+### Integration Summary Table
+| System | Type | Direction | Data Exchanged | Frequency | Status |
+(one row per integration — list ALL systems mentioned)
+
+### Integration Details
+For each significant integration, write a subsection:
+#### [System Name]
+Write 3-4 sentences covering: what data flows, what triggers the integration,
+what happens if the integration fails (fallback), and current status (live/in-progress/TBD).
+
+Word target: 450-600 words."""
+
+        usr = f"{base}\n\nWrite the Integration Requirements section with introduction, summary table, and per-integration details.{fb}"
 
     # ── Assumptions ───────────────────────────────────────────────────────
     elif "assumption" in sl:
-        sys = """Senior BA writing Assumptions.
-TABLE FORMAT ONLY.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Assumptions section.
+
+Structure:
 ## Assumptions
-| A-ID | Assumption (max 20 words) | Risk if Wrong |
-Max 10 assumptions."""
-        usr = f"{base}\n\nAssumptions as table. Max 10 rows.{fb}"
+
+### Introduction
+Write 2-3 sentences explaining why documenting assumptions matters and 
+what the implications are if assumptions prove incorrect.
+
+### Assumptions Register
+| A-ID | Assumption | Owner | Risk if Incorrect |
+(10-15 assumptions from the source material)
+
+### Notes on High-Risk Assumptions
+Write 3-4 sentences calling out the 2-3 assumptions that carry the highest risk
+and what mitigation steps should be considered.
+
+Word target: 300-400 words."""
+
+        usr = f"{base}\n\nWrite the Assumptions section.{fb}"
 
     # ── Constraints ────────────────────────────────────────────────────────
     elif "constraint" in sl:
-        sys = """Senior BA writing Constraints.
-TABLE FORMAT ONLY.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Constraints section.
+
+Structure:
 ## Constraints
-| C-ID | Constraint (max 20 words) | Category | Impact |
-Max 10 constraints. Categories: Technical / Timeline / Budget / Regulatory."""
-        usr = f"{base}\n\nConstraints as table. Max 10 rows.{fb}"
+
+### Introduction
+Write 2 sentences defining what constraints are and how they affect the solution.
+
+### Constraints Register
+| C-ID | Constraint | Category | Impact on Solution |
+Categories: Technical / Timeline / Budget / Regulatory / Organisational
+(8-12 constraints)
+
+### Key Constraint Discussion
+Write 3-4 sentences discussing the most significant constraint(s) and how the 
+solution approach accounts for them.
+
+Word target: 300-400 words."""
+
+        usr = f"{base}\n\nWrite the Constraints section.{fb}"
 
     # ── Dependencies ───────────────────────────────────────────────────────
     elif "dependenc" in sl:
-        sys = """Senior BA writing Dependencies.
-TABLE FORMAT ONLY.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Dependencies section.
+
+Structure:
 ## Dependencies
-| # | Dependency | Owner | Needed By | Impact if Delayed |
-Max 8 rows."""
-        usr = f"{base}\n\nDependencies as table. Max 8 rows.{fb}"
+
+### Introduction
+Write 2 sentences on the dependency landscape for this project.
+
+| Dep-ID | Dependency Description | Owner | Required By Date | Impact if Delayed |
+(6-10 dependencies)
+
+### Critical Path Dependencies
+Write 3-4 sentences highlighting the dependencies that, if delayed, would block 
+the project from proceeding.
+
+Word target: 250-350 words."""
+
+        usr = f"{base}\n\nWrite the Dependencies section.{fb}"
 
     # ── Risks ──────────────────────────────────────────────────────────────
     elif "risk" in sl:
-        sys = """Senior BA writing Risks.
-TABLE FORMAT ONLY. Max 8 risks.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Risks section.
+
+Structure:
 ## Risks
-| Risk ID | Risk (max 15 words) | Probability | Impact | Level | Mitigation (max 10 words) |"""
-        usr = f"{base}\n\nTop 8 risks as table only.{fb}"
+
+### Introduction
+Write 2-3 sentences on the risk profile of this project.
+
+### Risk Register
+| Risk ID | Risk Description | Probability | Impact | Risk Level | Mitigation Strategy |
+Probability: Low/Medium/High | Impact: Low/Medium/High
+Risk Level = combination (High+High=Critical, etc.)
+(8-12 risks)
+
+### Top 3 Risks — Detailed Analysis
+For the 3 highest-risk items, write a short paragraph (3-4 sentences) covering:
+what the risk is, why it matters for this specific project, and the mitigation approach.
+
+Word target: 400-550 words."""
+
+        usr = f"{base}\n\nWrite the Risks section with register and detailed analysis of top risks.{fb}"
 
     # ── Glossary ───────────────────────────────────────────────────────────
     elif "glossary" in sl:
-        sys = """Senior BA writing Glossary.
-TABLE FORMAT. Alphabetical. One line definitions.
-FORMAT:
+        sys = """You are a senior Business Analyst writing the Glossary section.
+
+Structure:
 ## Glossary
-| Term | Definition (max 15 words) |"""
-        usr = f"{base}\n\nGlossary as alphabetical table. One-line definitions.{fb}"
+
+### Introduction
+Write 1-2 sentences on the purpose of the glossary.
+
+### Terms and Definitions
+| Term | Definition | Context |
+(alphabetical order, 20-30 terms)
+
+Include: all project-specific terms, acronyms, third-party system names, 
+domain-specific terminology, and role names used in the document.
+Definitions should be 1-2 sentences — clear and precise.
+
+Word target: 350-500 words."""
+
+        usr = f"{base}\n\nWrite the Glossary section.{fb}"
 
     # ── Appendices ─────────────────────────────────────────────────────────
     elif "appendix" in sl or "appendices" in sl:
-        sys = """Senior BA writing Appendices.
-HARD LIMIT: 100 words.
-FORMAT:
-## Appendices
-### Reference Documents (list only — no descriptions)
-### Open Questions (bullet list — max 5 items)"""
-        usr = f"{base}\n\nAppendices — 100 words max.{fb}"
+        sys = """You are a senior Business Analyst writing the Appendices section.
 
-    # ── Custom ─────────────────────────────────────────────────────────────
+Structure:
+## Appendices
+
+### Appendix A: Reference Documents
+List all documents referenced during requirements gathering:
+| Document | Author | Date | Purpose |
+
+### Appendix B: Meeting Log
+| Meeting Date | Participants | Key Decisions |
+(list all discovery sessions that contributed to this BRD)
+
+### Appendix C: Open Questions and Action Items
+| Q-ID | Question | Owner | Target Date |
+(items still requiring client clarification)
+
+### Appendix D: Revision History
+| Version | Date | Author | Changes Made |
+
+Word target: 250-400 words."""
+
+        usr = f"{base}\n\nWrite the Appendices section.{fb}"
+
+    # ── Custom / Generic ───────────────────────────────────────────────────
     else:
-        sys = f"""Senior BA writing '{section_name}' section.
-HARD LIMIT: 200 words. Use tables and bullets where possible.
-Start with: ## {section_name}"""
-        usr = f"{base}\n\n'{section_name}' section — 200 words MAXIMUM.{fb}"
+        sys = f"""You are a senior Business Analyst writing the '{section_name}' section of a BRD.
+
+Write comprehensive, professional content that:
+- Starts with a 2-3 sentence introduction explaining what this section covers
+- Uses prose paragraphs for context and narrative
+- Uses tables only for genuinely tabular data (lists of items with multiple attributes)
+- Uses bullet points for lists of 4+ items without prose context
+- References specific details from the source requirements
+
+Begin with: ## {section_name}
+
+Word target: 350-500 words."""
+        usr = f"{base}\n\nWrite the '{section_name}' section comprehensively.{fb}"
 
     return sys, usr
 
 
 def _fmt_glossary(glossary: Dict[str, str]) -> str:
     if not glossary:
-        return "None"
-    items = list(glossary.items())[:10]
-    return " | ".join(f"{k}: {v[:50]}" for k, v in items)
+        return "None defined yet"
+    items = list(glossary.items())[:12]
+    return " | ".join(f"{k}: {v[:60]}" for k, v in items)

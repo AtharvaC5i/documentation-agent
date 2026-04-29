@@ -1,0 +1,201 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "SAP inventory sync is specified as both real-time and daily batch process",
+      "version_a": {
+        "req_id": "TR-027",
+        "text": "System must integrate with SAP ERP for real-time inventory synchronization."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "System must sync product information from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-002",
+      "description": "Business rule mandates real-time SAP inventory sync, directly contradicting the daily batch sync requirement",
+      "version_a": {
+        "req_id": "TR-029",
+        "text": "Inventory sync with SAP must be real-time to prevent overselling out-of-stock items."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "System must sync product information from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-003",
+      "description": "Vendor pricing control contradicts central admin-only pricing control",
+      "version_a": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only central admin controls all pricing."
+      },
+      "version_b": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to create, update, and manage their own product listings."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-004",
+      "description": "Vendor product listing management conflicts with central admin exclusive control over products",
+      "version_a": {
+        "req_id": "TR-020",
+        "text": "Vendors must be able to manage their product information and inventory via portal."
+      },
+      "version_b": {
+        "req_id": "US-013",
+        "text": "The system shall allow central admins to add, edit, and deactivate products in the catalog."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-005",
+      "description": "GDPR compliance requirement may conflict with mandatory India-only data storage, as GDPR is an EU regulation with specific data subject rights that may require data transfers or processing outside India",
+      "version_a": {
+        "req_id": "TR-038",
+        "text": "Platform must comply with GDPR regulations to support NRI customer data privacy."
+      },
+      "version_b": {
+        "req_id": "TR-040",
+        "text": "All customer data must be stored on servers physically located within India."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-006",
+      "description": "Real-time SAP inventory sync requirement conflicts with US-015 which also mandates real-time sync but TR-028 specifies batch — the trio creates an unresolved three-way conflict; additionally US-015 aligns with TR-027/TR-029 against TR-028",
+      "version_a": {
+        "req_id": "US-015",
+        "text": "The system shall sync inventory levels with SAP in real time to reflect accurate stock availability."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "System must sync product information from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-007",
+      "description": "Vendor stakeholder role allows managing inventory and listings, but central admin stakeholder is described as managing products and pricing across the platform, creating overlapping and potentially conflicting ownership",
+      "version_a": {
+        "req_id": "TR-008",
+        "text": "Vendor partners manage their own inventory and product listings via dedicated login."
+      },
+      "version_b": {
+        "req_id": "TR-007",
+        "text": "Central admin team manages products, pricing, and promotions across the platform."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-008",
+      "description": "ZestMoney partnership is assumed to be finalized before go-live, but no functional requirement includes ZestMoney integration, creating a gap where the assumption implies a requirement that does not exist and may conflict with the 6-month go-live constraint if added late",
+      "version_a": {
+        "req_id": "TR-018",
+        "text": "ZestMoney partnership agreement will be finalized before platform go-live."
+      },
+      "version_b": {
+        "req_id": "TR-009",
+        "text": "Platform must go live within 6 months maximum from project start."
+      },
+      "impact": "medium",
+      "resolved": false
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "SAP inventory sync is specified as both real-time and daily batch process",
+      "version_a": {
+        "req_id": "TR-027",
+        "text": "System must integrate with SAP ERP for real-time inventory synchronization."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "System must sync product information from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-002",
+      "description": "Business rule mandates real-time SAP inventory sync, directly contradicting the daily batch sync requirement",
+      "version_a": {
+        "req_id": "TR-029",
+        "text": "Inventory sync with SAP must be real-time to prevent overselling out-of-stock items."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "System must sync product information from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-003",
+      "description": "Vendor portal allows vendors to manage product listings, but business rule prohibits vendors from setting prices — US-016 implies full listing management including price, conflicting with TR-021",
+      "version_a": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only RetailCorp central admin controls pricing."
+      },
+      "version_b": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to create, update, and manage their own product listings."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-004",
+      "description": "Vendor portal allows vendors to manage product listings, but business rule prohibits vendors from setting prices — TR-020 implies full listing management including price, conflicting with TR-021",
+      "version_a": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only RetailCorp central admin controls pricing."
+      },
+      "version_b": {
+        "req_id": "TR-020",
+        "text": "Vendors must be able to manage their product listings and inventory via portal."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-005",
+      "description": "Real-time inventory sync with SAP conflicts with the daily batch sync functional requirement, also contradicted by US-015 reaffirming real-time",
+      "version_a": {
+        "req_id": "US-015",
+        "text": "The system shall sync inventory levels with SAP in real time to reflect accurate stock availability."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "System must sync product information from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-006",
+      "description": "GDPR compliance is required for NRI customer data privacy, but all data must be stored on servers physically within India — GDPR may require data portability and deletion rights that conflict with strict India-only data residency enforcement, and GDPR is an EU regulation not directly applicable to India-stored data",
+      "version_a": {
+        "req_id": "TR-038",
+        "text": "Platform must comply with GDPR regulations to support NRI customer data privacy."
+      },
+      "version_b": {
+        "req_id": "TR-040",
+        "text": "All customer data must be stored on servers physically located within India."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-007",
+      "description": "ZestMoney partnership may not be finalized before development, yet no corresponding functional requirement excludes it — assumption implies a dependency that may block a payment feature if included in scope",
+      "version_a": {
+        "req_id": "TR-018",
+        "text": "ZestMoney partnership agreement may not be finalized before development begins."
+      },
+      "version_b": {
+        "req_id": "US-009",
+        "text": "The system shall support payment via credit card, debit card, UPI, net banking, and EMI."
+      },
+      "impact": "low",
+      "resolved": false
+    },
+    {
+      "id": "CONF-008",
+      "description": "Peak concurrent user assumption may underestimate actual online traffic, conflicting with the fixed 50,000 concurrent user non-functional requirement used for capacity planning",
+      "version_a": {
+        "req_id": "TR-041",
+        "text": "Platform must handle at least 50,000 concurrent users during peak sale events."
+      },
+      "version_b": {
+        "req_id": "TR-050",
+        "text": "50,000 peak users is based on physical store footfall and may underestimate online traffic."
+      },
+      "impact": "high",
+      "resolved": false
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "User Journeys and Use Cases",
+      "coverage_level": "weak",
+      "message": "'User Journeys and Use Cases' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-010",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "weak",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

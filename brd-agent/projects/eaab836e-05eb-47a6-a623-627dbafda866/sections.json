@@ -1,0 +1,62 @@
+{
+  "sections": [
+    {
+      "id": "d1743eea-4bb6-4aef-a22c-d89370029b4d",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\nRetailCorp India Pvt. Ltd. is undertaking a significant strategic initiative to establish a direct-to-consumer digital commerce presence through the development of ShopEase, a purpose-built e-commerce platform. As a mid-size Indian retail chain operating across home appliances, electronics, and furniture, RetailCorp currently lacks the digital infrastructure needed to compete effectively in an increasingly online marketplace. This project represents a foundational investment in RetailCorp's long-term growth and customer reach.\n\n### Business Problem\n\nRetailCorp today relies entirely on physical store operations, leaving the business without a channel to serve the growing segment of customers who prefer to shop online — including NRI customers abroad. The absence of a digital storefront means RetailCorp cannot capture online revenue, has no visibility into customer shopping behavior such as abandoned purchases, and cannot offer vendor partners a self-service channel to manage their own product listings. This gap directly limits revenue growth and competitive positioning in the Indian retail market.\n\n### Proposed Solution\n\nShopEase will be a fully integrated online retail platform — accessible via web browser and native mobile applications on Android and iOS — enabling customers across India and internationally to browse, purchase, and track orders across RetailCorp's catalog of up to 25,000 products. The platform will connect seamlessly with RetailCorp's existing SAP ERP system to ensure inventory accuracy, support flexible payment options including no-cost EMI financing through Bajaj Finance, and provide store managers, vendor partners, and the central administration team with dedicated tools tailored to their specific roles. All customer data will be stored within India, satisfying both Indian regulatory requirements and international data privacy obligations.\n\n### Key Objectives\n\n- Launch the ShopEase platform and make it accessible to customers within 6 months of project commencement.\n- Successfully migrate all 8,000 existing product SKUs from SAP ERP with zero data loss at go-live.\n- Ensure the platform can support a minimum of 50,000 concurrent users during peak sale events such as Diwali.\n- Deliver all platform pages with a load time of under 3 seconds under both normal and peak traffic conditions.\n- Achieve full compliance with Indian IT Act regulations and GDPR requirements prior to launch.\n\n### Expected Outcomes\n\nSix months after launch, RetailCorp expects ShopEase to be generating measurable online revenue, with the platform processing high-value transactions averaging approximately INR 15,000 per order across a growing customer base. The central administration team will have clear visibility into sales performance, cart abandonment trends, and vendor activity through real-time reporting dashboards, enabling faster and more informed business decisions. Ultimately, ShopEase will position RetailCorp as a credible omnichannel retailer capable of competing for the digital consumer across India and beyond.",
+      "quality_score": 0.8,
+      "quality_pct": "80%",
+      "word_count": 437,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 72
+    },
+    {
+      "id": "dc7ac2df-fa1e-4d48-907f-e8a2a6b13c58",
+      "name": "Project Objectives and Success Criteria",
+      "content": "## Project Objectives and Success Criteria\n\n### Business Objectives\n\nThe ShopEase platform will deliver a fully integrated e-commerce capability for RetailCorp, transforming its physical retail presence into a scalable digital commerce operation. The following measurable objectives define what this project must achieve.\n\n**OBJ-1:** Launch a production-ready ShopEase platform supporting a catalog of up to 25,000 SKUs, with all 8,000 existing SKUs migrated from SAP ERP with zero data loss, within the agreed project delivery date. *(Ref: TR-025, TR-026)*\n\n**OBJ-2:** Achieve platform performance benchmarks of sub-3-second page load times and stable operation under a minimum of 50,000 concurrent users during peak sale events such as Diwali, validated by load testing prior to go-live. *(Ref: TR-041, TR-042, TR-053)*\n\n**OBJ-3:** Enable end-to-end customer purchasing across five payment methods — credit card, debit card, UPI, net banking, and EMI (including Bajaj Finance no-cost EMI) — with successful transaction processing up to INR 100,000 within 90 days of launch. *(Ref: US-009, TR-015, TR-056)*\n\n**OBJ-4:** Deliver a fully operational Vendor Portal enabling 100% of onboarded vendor partners to independently manage their product listings and inventory without Central Admin intervention, within 30 days of go-live. *(Ref: TR-019, TR-020, US-016)*\n\n**OBJ-5:** Establish real-time SAP ERP inventory synchronisation with stock availability reflected on the ShopEase platform within 60 seconds of an SAP update, and daily batch product data sync completing within a 24-hour cycle, from day one of launch. *(Ref: TR-027, TR-028, US-015)*\n\n**OBJ-6:** Provide Central Admin with actionable sales intelligence through filterable reports (by region, product category, and vendor) and cart abandonment analytics, enabling data-driven decisions within the first monthly reporting cycle post-launch. *(Ref: TR-043, TR-044, TR-045, US-018, US-019)*\n\n**OBJ-7:** Deliver a fully functional native mobile application for Android and iOS, enabling customers to complete end-to-end purchases and real-time order tracking on mobile devices, achieving a minimum 4.0-star app store rating within 60 days of launch. *(Ref: US-021, US-010)*\n\n---\n\n### Success Criteria\n\n| Objective | Measurement Method | Target | Timeframe |\n|---|---|---|---|\n| **OBJ-1:** SKU catalog and data migration | SAP migration audit report; QA catalog count verification | 25,000 SKU capacity live; 8,000 SKUs migrated with 0 data loss | At go-live |\n| **OBJ-2:** Platform performance and scalability | Automated load testing (50,000 concurrent users); performance test suite for page load | Page load ≤ 3 seconds at peak; zero critical failures under peak load | Pre-launch UAT sign-off |\n| **OBJ-3:** Payment method coverage and transaction limits | End-to-end payment QA test cases across all five methods; test transaction up to INR 100,000 | 100% payment method pass rate; transactions up to INR 100,000 processed successfully | Within 90 days of launch |\n| **OBJ-4:** Vendor Portal adoption | Vendor onboarding completion rate; support ticket volume for listing management tasks | 100% of onboarded vendors self-managing listings; <5 admin-assisted listing tickets per week | Within 30 days of go-live |\n| **OBJ-5:** SAP ERP synchronisation accuracy | Automated sync monitoring logs; spot-check inventory comparison between SAP and ShopEase | Inventory updates reflected within 60 seconds; daily batch sync completing within 24-hour window | Continuously from go-live |",
+      "quality_score": 0.7,
+      "quality_pct": "70%",
+      "word_count": 514,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-010",
+        "TR-014",
+        "TR-015",
+        "TR-017",
+        "TR-018",
+        "TR-019",
+        "TR-020",
+        "TR-022",
+        "TR-023",
+        "TR-025",
+        "TR-026",
+        "TR-027"
+      ],
+      "req_count": 55
+    }
+  ]
+}

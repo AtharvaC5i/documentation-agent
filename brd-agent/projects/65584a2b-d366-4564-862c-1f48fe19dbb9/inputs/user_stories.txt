@@ -1,0 +1,359 @@
+# User Stories — ShopEase E-Commerce Platform
+# Project: ShopEase | Client: RetailCorp India Pvt. Ltd.
+# Exported from: Jira | Sprint: Discovery Phase
+
+---
+
+US-001
+Title: Customer Registration
+As a new customer
+I want to register on the platform using my email or mobile number
+So that I can save my details and track my orders
+Priority: Must Have
+Acceptance Criteria:
+- Customer can register with email + password
+- Customer can register with mobile number + OTP
+- Email verification required before first purchase
+- Duplicate email/mobile check enforced
+
+---
+
+US-002
+Title: Customer Login
+As a registered customer
+I want to log in using email/password or OTP
+So that I can access my account and purchase history
+Priority: Must Have
+Acceptance Criteria:
+- Login via email + password
+- Login via mobile OTP
+- Forgot password flow via email reset link
+- Session timeout after 30 minutes of inactivity
+
+---
+
+US-003
+Title: Product Search
+As a customer
+I want to search for products by name, brand, or category
+So that I can quickly find what I am looking for
+Priority: Must Have
+Acceptance Criteria:
+- Search bar visible on all pages
+- Results appear within 2 seconds
+- Search suggestions shown after 3 characters typed
+- Spelling correction supported
+
+---
+
+US-004
+Title: Product Filtering
+As a customer
+I want to filter search results by price, brand, rating, and delivery time
+So that I can narrow down choices to products that suit my needs
+Priority: Must Have
+Acceptance Criteria:
+- Filters available: price range, brand, average rating, delivery time, availability
+- Multiple filters can be applied simultaneously
+- Filter results update without page reload
+- Applied filters shown as removable tags
+
+---
+
+US-005
+Title: Product Detail Page
+As a customer
+I want to view detailed information about a product
+So that I can make an informed purchase decision
+Priority: Must Have
+Acceptance Criteria:
+- Product images (multiple, zoomable)
+- Full description, specifications, dimensions
+- Price with applicable discounts shown
+- EMI options displayed
+- Stock availability status
+- Delivery date estimate based on pincode
+
+---
+
+US-006
+Title: Add to Cart
+As a customer
+I want to add products to my cart
+So that I can purchase multiple items together
+Priority: Must Have
+Acceptance Criteria:
+- Add to cart from product listing and detail page
+- Cart persists across sessions for logged-in users
+- Guest cart supported, merged on login
+- Cart shows item count in header
+
+---
+
+US-007
+Title: Wishlist
+As a customer
+I want to save products to a wishlist
+So that I can come back and purchase them later
+Priority: Should Have
+Acceptance Criteria:
+- Add/remove products from wishlist
+- Wishlist accessible from customer profile
+- Notify customer if wishlisted item goes on sale
+- Move from wishlist to cart in one click
+
+---
+
+US-008
+Title: Checkout — Address
+As a customer
+I want to add and select a delivery address during checkout
+So that my order is delivered to the correct location
+Priority: Must Have
+Acceptance Criteria:
+- Save multiple addresses per account
+- Google Maps address autocomplete
+- Pincode serviceability check before proceeding
+- Default address selection
+
+---
+
+US-009
+Title: Checkout — Payment
+As a customer
+I want to pay using credit card, debit card, UPI, net banking, or EMI
+So that I can choose the payment method that suits me
+Priority: Must Have
+Acceptance Criteria:
+- All payment methods supported
+- EMI options shown for orders above Rs. 3000
+- No-cost EMI via Bajaj Finance integration
+- Payment failure handled gracefully with retry option
+- Order confirmed only after payment success
+
+---
+
+US-010
+Title: Order Tracking
+As a customer
+I want to track my order in real time
+So that I know when my delivery will arrive
+Priority: Must Have
+Acceptance Criteria:
+- Order status updated at each stage: confirmed, packed, dispatched, out for delivery, delivered
+- Real-time tracking via Delhivery/BlueDart integration
+- SMS and email notifications at each stage
+- Tracking accessible without login via order ID + mobile
+
+---
+
+US-011
+Title: Product Reviews
+As a customer who has purchased a product
+I want to write a review and rating
+So that I can share my experience with other customers
+Priority: Should Have
+Acceptance Criteria:
+- Review only allowed after confirmed delivery
+- 1-5 star rating + text review
+- Photo upload optional
+- Review goes to moderation queue before publishing
+
+---
+
+US-012
+Title: Review Moderation
+As a central admin
+I want to review and approve or reject customer reviews
+So that only appropriate content is published on the platform
+Priority: Should Have
+Acceptance Criteria:
+- Moderation queue shows pending reviews
+- Admin can approve, reject, or flag for further review
+- Rejected reviews notify customer with reason
+- Auto-flag reviews with profanity
+
+---
+
+US-013
+Title: Product Catalog Management
+As a central admin
+I want to add, edit, and deactivate products in the catalog
+So that the platform always shows accurate and current product information
+Priority: Must Have
+Acceptance Criteria:
+- Add product with all attributes: name, description, images, specs, category, brand
+- Edit any product attribute
+- Deactivate product (hides from customers, does not delete)
+- Bulk upload via CSV
+- SAP sync overwrites catalog fields except manually overridden ones
+
+---
+
+US-014
+Title: Pricing Management
+As a central admin
+I want to set and update product prices and discounts
+So that customers see correct pricing at all times
+Priority: Must Have
+Acceptance Criteria:
+- Set base price per SKU
+- Set promotional price with validity dates
+- Discount shown as percentage and amount saved
+- Pricing changes reflect immediately on platform
+- Vendors cannot modify prices
+
+---
+
+US-015
+Title: Inventory Sync with SAP
+As a system
+I want to sync inventory levels with SAP in real time
+So that customers never see out-of-stock products listed as available
+Priority: Must Have
+Acceptance Criteria:
+- Real-time inventory updates from SAP via API
+- If SAP sync fails, platform shows last known inventory with a warning flag to admin
+- Low stock threshold alert to admin (configurable per product)
+- Out-of-stock products show "Notify me" button to customers
+
+---
+
+US-016
+Title: Vendor Portal — Product Management
+As a vendor
+I want to manage my product listings on the platform
+So that my products are accurately represented
+Priority: Must Have
+Acceptance Criteria:
+- Vendor can add products with description, images, specifications
+- Vendor can update stock levels
+- Vendor cannot modify prices (controlled by admin)
+- Product listings require admin approval before going live
+
+---
+
+US-017
+Title: Store Manager — Regional Orders View
+As a store manager
+I want to view all orders placed by customers in my region
+So that I can coordinate local deliveries and returns
+Priority: Should Have
+Acceptance Criteria:
+- Orders filtered by region/store mapping
+- Cannot view orders outside own region
+- Can initiate return/exchange process
+- Export orders to Excel
+
+---
+
+US-018
+Title: Sales Analytics Dashboard
+As a central admin
+I want to view sales reports by day, week, month, category, region, and vendor
+So that I can make informed business decisions
+Priority: Must Have
+Acceptance Criteria:
+- Dashboard with key metrics: revenue, orders, AOV, returns rate
+- Drill-down by category, region, vendor
+- Date range selector
+- Export to PDF and Excel
+- Mobile accessible for executive view
+
+---
+
+US-019
+Title: Cart Abandonment Analytics
+As a central admin
+I want to see which products customers add to cart but do not purchase
+So that I can identify conversion issues and take action
+Priority: Should Have
+Acceptance Criteria:
+- Report showing cart abandonment rate per product and category
+- Abandonment funnel showing drop-off at each checkout step
+- Trigger automated recovery email after 1 hour of abandonment
+
+---
+
+US-020
+Title: Promotional Email and SMS
+As a central admin
+I want to send promotional campaigns to customers via email and SMS
+So that I can drive traffic and sales during promotional events
+Priority: Should Have
+Acceptance Criteria:
+- Create email/SMS campaign with target segment (all customers, by category interest, by region)
+- Schedule campaigns for future date/time
+- Track open rate, click rate, conversion
+- Unsubscribe option mandatory in every email
+
+---
+
+US-021
+Title: Mobile App — Customer
+As a customer
+I want to use the ShopEase platform on my Android or iOS phone
+So that I can browse and purchase conveniently from my mobile device
+Priority: Must Have
+Acceptance Criteria:
+- Feature parity with web for core purchase flow
+- Push notifications for order updates and promotions
+- Biometric login supported
+- App available on Google Play Store and Apple App Store
+
+---
+
+US-022
+Title: Executive Mobile Dashboard
+As a CEO/executive
+I want to view key business metrics from my mobile phone
+So that I can stay informed without being at my desk
+Priority: Should Have
+Acceptance Criteria:
+- Revenue today, this week, this month
+- Top selling products and categories
+- Order volume and return rate
+- Accessible on both Android and iOS
+
+---
+
+US-023
+Title: Return and Refund
+As a customer
+I want to initiate a return for a delivered product
+So that I can get a refund if the product is defective or not as described
+Priority: Must Have
+Acceptance Criteria:
+- Return window: 7 days from delivery for electronics, 30 days for furniture
+- Customer selects reason for return
+- Pickup scheduled within 48 hours
+- Refund initiated within 5 business days of pickup
+- Refund to original payment method
+
+---
+
+US-024
+Title: Delivery Partner Integration
+As a system
+I want to integrate with Delhivery and BlueDart APIs
+So that shipping rates are calculated automatically and tracking is available
+Priority: Must Have
+Acceptance Criteria:
+- Shipping rate calculated at checkout based on pincode and product weight/dimensions
+- Preferred carrier selected automatically based on serviceability and rate
+- Tracking number generated and shared with customer post-dispatch
+- Webhook integration for real-time status updates
+
+---
+
+US-025
+Title: Data Residency Compliance
+As a system
+I want all customer data to be stored on servers located in India
+So that we comply with Indian data localization requirements
+Priority: Must Have
+Acceptance Criteria:
+- All databases hosted in India region (AWS ap-south-1 or equivalent)
+- No customer PII transmitted to servers outside India
+- Compliance documented and auditable
+- Annual compliance review process defined

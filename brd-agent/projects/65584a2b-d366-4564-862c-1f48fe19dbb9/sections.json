@@ -1,0 +1,135 @@
+{
+  "sections": [
+    {
+      "id": "aafd7c0b-0946-412f-8320-601ba130d43a",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\nRetailCorp India Pvt. is at a pivotal growth stage, operating as a mid-size retail chain that currently lacks a dedicated digital commerce presence. To capture the rapidly expanding Indian e-commerce market and serve both domestic and NRI customers, RetailCorp has commissioned the development of ShopEase — a purpose-built e-commerce platform designed to bring the full RetailCorp retail experience online. This project represents a strategic investment in RetailCorp's digital future and long-term competitive positioning.\n\n### Business Problem\n\nRetailCorp currently has no direct online sales channel, leaving significant revenue on the table as consumer purchasing behavior continues to shift toward digital platforms. With an existing catalog of 8,000 SKUs managed through SAP ERP and an average order value of approximately ₹15,000, the business requires a platform capable of handling high-value transactions, multi-vendor inventory, and a geographically distributed customer base — none of which are supported today. The absence of a digital storefront also means RetailCorp has no visibility into customer behavior, cart abandonment patterns, or regional sales performance, limiting the organization's ability to make informed commercial decisions.\n\n### Proposed Solution\n\nShopEase will be a fully integrated e-commerce platform — available on web, Android, and iOS — that connects customers, vendor partners, store managers, and RetailCorp's central administration team within a single, unified system. The platform will connect directly to RetailCorp's existing SAP ERP to ensure accurate, real-time product availability, while offering customers flexible payment options including UPI, net banking, credit and debit cards, and no-cost EMI financing through Bajaj Finance. ShopEase will give RetailCorp complete control over pricing and promotions while empowering vendor partners to manage their own product listings, ultimately scaling the catalog from 8,000 to approximately 25,000 SKUs.\n\n### Key Objectives\n\n- Launch the ShopEase platform to live customers within 6 months of project kickoff.\n- Scale the active product catalog from 8,000 to 25,000 SKUs by onboarding vendor partners through the dedicated Vendor Portal.\n- Support a minimum of 50,000 concurrent users during peak sale events with all pages loading within 3 seconds.\n- Achieve full compliance with GDPR and the Indian Information Technology Act within the initial launch, with all customer data stored on India-based servers.\n- Enable central admin to generate sales reports across regions, categories, and vendors within the first 30 days post-launch, providing actionable business intelligence from day one.\n\n### Expected Outcomes\n\nSix months after launch, RetailCorp will have a fully operational digital sales channel generating measurable online revenue, with real-time inventory accuracy driven by SAP integration eliminating the risk of overselling. Executive leadership will have access to live business performance dashboards — including sales trends, regional performance, and cart abandonment analytics — enabling data-driven decisions that were previously impossible. With a scalable foundation in place, RetailCorp will be positioned to grow its vendor network, expand its SKU catalog, and compete directly in the Indian e-commerce market with confidence.",
+      "quality_score": 0.8,
+      "quality_pct": "80%",
+      "word_count": 477,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-011",
+        "TR-012"
+      ],
+      "req_count": 70
+    },
+    {
+      "id": "dcec9ef8-71d2-47aa-bf81-ce66c3ce8091",
+      "name": "Business Context and Background",
+      "content": "## Business Context and Background\n\n### Current State\n\nRetailCorp India Pvt. Ltd. is a mid-size Indian retail chain currently operating without a dedicated e-commerce platform, managing its product catalog, inventory, and sales operations primarily through its existing SAP ERP system. The business carries approximately 8,000 active SKUs across its physical store network, with store managers handling regional orders and returns through manual or fragmented processes rather than a unified digital interface. Vendor partners currently lack a self-service mechanism to manage their own inventory and product listings, requiring RetailCorp's internal teams to act as intermediaries for catalog updates and stock management. Customer-facing sales are conducted through physical retail channels, with no structured digital pathway for browsing, purchasing, or accessing financing options such as No-Cost EMI.\n\n### Business Problem or Opportunity\n\nRetailCorp has identified a significant and time-sensitive opportunity to extend its retail presence into e-commerce through ShopEase, a purpose-built platform designed to serve both domestic Indian customers and the NRI diaspora. The absence of a digital sales channel means RetailCorp is currently unable to capture online demand, offer flexible payment options such as Bajaj Finance-powered No-Cost EMI arrangements, or scale its product offering beyond its current 8,000 SKUs — a catalog expected to grow to approximately 25,000 SKUs once vendor partners are onboarded. With an average order value of approximately ₹15,000 INR, the inability to offer structured EMI payment options represents a direct barrier to purchase conversion, particularly for higher-value transactions. Additionally, RetailCorp has no current capability to track Cart Abandonment Analytics or run targeted email and SMS marketing campaigns, limiting its ability to recover lost sales or engage customers post-visit.\n\n### Strategic Drivers\n\nRetailCorp's leadership, under the direction of CEO Sunita Agarwal, has committed to launching ShopEase within a firm six-month window from project commencement, reflecting the urgency of establishing a competitive digital presence in India's rapidly growing e-commerce market. The platform must simultaneously satisfy dual regulatory obligations — compliance with the Indian Information Technology Act for domestic operations and GDPR compliance to protect the data privacy rights of NRI customers — making this a strategically complex initiative that requires disciplined execution from the outset. The planned onboarding of vendor partners through a dedicated Vendor Portal represents a further strategic lever, enabling RetailCorp to multiply its addressable product range more than threefold without proportional increases in internal inventory investment.\n\n### Cost of Inaction\n\nIf ShopEase is not delivered, RetailCorp will continue to forfeit online revenue to competitors who already offer digital purchasing, EMI financing, and vendor-driven catalog depth — a disadvantage that compounds with each month the platform remains unbuilt. Beyond lost revenue, RetailCorp faces increasing regulatory exposure as NRI customer data handling without a compliant digital infrastructure creates material risk under both the Indian IT Act and GDPR, with potential penalties and reputational damage that could undermine the broader retail business.",
+      "quality_score": 0.5,
+      "quality_pct": "50%",
+      "word_count": 472,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-014",
+        "TR-015",
+        "TR-022"
+      ],
+      "req_count": 18
+    },
+    {
+      "id": "37da983d-66ee-4b99-8ca2-3a69e7362f66",
+      "name": "Functional Requirements",
+      "content": "# 4. Functional Requirements\n\nThis section defines all functional requirements for the ShopEase platform, grouped by module. Each requirement uses \"The system SHALL\" language and is accompanied by specific, testable acceptance criteria. These requirements represent the complete functional scope agreed upon between RetailCorp and the development team.\n\n---\n\n## 4.1 Authentication & User Management\n\nThis module governs how customers, vendors, store managers, and Central Admin users register, authenticate, and access the ShopEase platform. Secure and flexible authentication is foundational to all other platform functions, ensuring the right users access the right capabilities.\n\n| FR-ID | Requirement | Priority | Acceptance Criteria |\n|-------|-------------|----------|---------------------|\n| FR-001 | The system SHALL allow new customers to register using a valid email address or mobile number. | Must Have | Customer successfully registers with either a valid email or mobile number and receives a confirmation message via the chosen channel. |\n| FR-002 | The system SHALL allow registered customers to log in via email/password combination or OTP sent to their registered mobile number. | Must Have | Customer can log in successfully using either method; invalid credentials or expired OTP are rejected with an appropriate error message. |\n\n---\n\n## 4.2 Product Catalogue\n\nThe Product Catalogue module manages the creation, synchronisation, and presentation of all product data on ShopEase. It integrates directly with RetailCorp's SAP ERP system to ensure product information and inventory levels remain accurate and up to date across the platform.\n\n| FR-ID | Requirement | Priority | Acceptance Criteria |\n|-------|-------------|----------|---------------------|\n| FR-003 | The system SHALL allow Central Admin to add, edit, and deactivate products in the catalogue. | Must Have | Admin can create a new product, update its details, and deactivate it so it no longer appears to customers on the storefront. |\n| FR-004 | The system SHALL allow Central Admin to set and update product prices and discount values. | Must Have | Updated price or discount is reflected on the product detail page immediately after the admin saves changes. |\n| FR-005 | The system SHALL display detailed product information on each product page, including images, specifications, price, and customer reviews. | Must Have | Product detail page renders all four content types — images, description/specifications, price, and reviews — without error. |\n| FR-006 | The system SHALL integrate with SAP ERP to migrate and synchronise product catalogue data into the platform. | Must Have | Product data from SAP is successfully imported and visible in the ShopEase catalogue following initial migration. |\n| FR-007 | The system SHALL sync inventory levels with SAP ERP in real time. | Must Have | Out-of-stock status is reflected on the platform within 60 seconds of an inventory update occurring in SAP. |\n| FR-008 | The system SHALL sync product information from SAP ERP via a daily batch process. | Must Have | The product information batch sync from SAP completes successfully once every 24 hours with no data loss or duplication. |\n\n> **Note on FR-006 / FR-007 / FR-008:** Two distinct integration patterns are in use — real-time inventory sync (≤60 seconds) and daily batch product information sync. These must be treated as separate integration pipelines in the technical design to avoid conflicts.\n\n---\n\n## 4.3 Search & Discovery\n\nThe Search & Discovery module enables customers to efficiently locate products on ShopEase through keyword search, category browsing, and result filtering. This module directly impacts conversion rates and is a critical component of the customer shopping experience.\n\n| FR-ID | Requirement | Priority | Acceptance Criteria |\n|-------|-------------|----------|---------------------|\n| FR-009 | The system SHALL allow customers to search for products by product name, brand, or category. | Must Have | Search returns relevant, non-empty results when queried by each of the three supported dimensions independently. |\n| FR-010 | The system SHALL allow customers to filter search results by price range, brand, ratings, and estimated delivery time. | Must Have | Applying any single filter or combination of filters updates the displayed results to show only matching products. |\n| FR-011 | The system SHALL allow customers to save products to a personal wishlist for later purchase. | Must Have | Customer can add a product to their wishlist and retrieve all saved items in a subsequent login session. |\n\n---\n\n## 4.4 Shopping Cart & Checkout\n\nThis module covers the end-to-end process of adding products to a cart, managing the cart, and completing the checkout flow including address selection. A seamless cart and checkout experience is essential to minimising drop-off and maximising completed orders on ShopEase.\n\n| FR-ID | Requirement | Priority | Acceptance Criteria |\n|-------|-------------|----------|---------------------|\n| FR-012 | The system SHALL allow customers to add one or more products to a shopping cart. | Must Have | Selected products appear in the cart with correct SKU, quantities, and prices reflected accurately. |\n| FR-013 | The system SHALL allow customers to add a new delivery address and select it as the active delivery address during checkout. | Must Have | Customer can save a new address and successfully designate it as the delivery address before placing an order. |\n\n---\n\n## 4.5 Payment Processing\n\nThe Payment Processing module handles all transaction types supported at ShopEase checkout, including standard payment methods and EMI financing options. Supporting a broad range of payment methods — including No-Cost EMI via Bajaj Finance API — is critical to serving RetailCorp's diverse Indian customer base.\n\n| FR-ID | Requirement | Priority | Acceptance Criteria |\n|-------|-------------|----------|---------------------|\n| FR-014 | The system SHALL support payment via credit card, debit card, UPI, and net banking at checkout. | Must Have | All four payment methods are available at checkout and successfully process a test transaction end to end. |\n| FR-015 | The system SHALL support a credit card EMI payment option at checkout. | Must Have | Credit card EMI option is presented to the customer at checkout and a transaction using this method completes successfully. |\n| FR-016 | The system SHALL integrate with the Bajaj Finance API to offer a No-Cost EMI financing option at checkout. | Must Have | The Bajaj Finance No-Cost EMI option is displayed at checkout and a transaction using this method completes successfully via the API. |\n\n> **Note on FR-016:** ZestMoney has been identified as a pending financing partner for No-Cost EMI. ZestMoney integration is out of scope for the initial release and will be addressed in a future phase once the partnership is confirmed.\n\n---\n\n## 4.6 Order Management & Tracking\n\nThis module manages the full lifecycle of a customer order from placement through to fulfilment visibility. Real-time tracking powered by the Delhivery API ensures customers remain informed at every stage of their delivery without leaving the ShopEase platform.\n\n| FR-ID | Requirement | Priority | Acceptance Criteria |\n|-------|-------------|----------|---------------------|\n| FR-017 | The system SHALL integrate with the Delhivery API to calculate shipping rates at checkout and provide post-order tracking data. | Must Have | Delhivery-calculated shipping rates are displayed before order confirmation, and tracking data is accessible on the order detail page after dispatch. |\n| FR-018 | The system SHALL provide customers with real-time order tracking on their order detail page within the platform. | Must Have | Customer can view live shipment status and estimated delivery time for a placed order without being redirected to an external site. |\n\n---\n\n## 4.7 Returns & Refunds\n\nThe Returns & Refunds module enables customers to initiate return requests for delivered products and allows store managers to process those returns within their region. Efficient returns handling is essential to customer trust and satisfaction for RetailCorp.\n\n| FR-ID | Requirement | Priority | Acceptance Criteria |\n|-------|-------------|----------|---------------------|\n| FR-019 | The system SHALL allow customers to initiate a return request for a delivered product, including a reason for return. | Must Have | Customer can submit a return request with a stated reason, and the system responds with a unique return reference number as acknowledgement. |\n| FR-020 | The system SHALL allow store managers to initiate and process return requests from their management portal. | Must Have | Store manager can view, initiate, and update the status of return requests associated with their assigned region.",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "word_count": 1377,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-010",
+        "TR-011",
+        "TR-012",
+        "TR-016",
+        "TR-017",
+        "TR-018",
+        "TR-020",
+        "TR-021",
+        "TR-023",
+        "TR-024",
+        "TR-025",
+        "TR-027"
+      ],
+      "req_count": 45
+    },
+    {
+      "id": "dd402372-03c5-4f92-a9be-769fc31a11fa",
+      "name": "Business Rules",
+      "content": "## Business Rules\n\n### Introduction\n\nBusiness rules define the policies, constraints, and conditions that govern how ShopEase behaves across its core operational domains. For RetailCorp India Pvt, these rules are critical because the platform integrates multiple third-party systems — including SAP ERP, Bajaj Finance API, and Delhivery API — where inconsistent or ambiguous logic could result in pricing errors, inventory mismatches, or compliance violations. Adherence to these rules ensures that ShopEase operates as a controlled, trustworthy retail environment for both customers and vendor partners.\n\n---\n\n### Business Rules by Domain\n\n#### Pricing & Discounting\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-001 | Only RetailCorp Central Admin may create, modify, or approve product prices on ShopEase; vendors have read-only access to pricing fields in the Vendor Portal. | Prevents unauthorized price manipulation and ensures RetailCorp maintains full commercial control over its margins. |\n| BR-002 | A discount may not reduce a product's selling price below its defined cost floor as recorded in SAP ERP. | Protects RetailCorp from inadvertently selling products at a loss due to misconfigured promotions. |\n| BR-003 | Promotional discounts must have a defined start date and end date; open-ended discounts are not permitted. | Ensures pricing campaigns are time-bound and prevents stale discounts from persisting unintentionally on the platform. |\n| BR-004 | No-Cost EMI pricing must reflect the full product price; the interest component must be absorbed by RetailCorp or the financing partner and must never be passed to the customer. | Upholds the definition of No-Cost EMI and ensures regulatory and partner-agreement compliance. |\n\n---\n\n#### Inventory Management\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-005 | A product SKU must not be displayed as available for purchase on ShopEase if its stock quantity in SAP ERP is zero or below. | Prevents customer orders being placed for items that cannot be fulfilled, protecting customer experience and operational integrity. |\n| BR-006 | Inventory availability displayed on ShopEase must reflect the SAP ERP stock position within the agreed real-time synchronisation window; stale data beyond this window must trigger a system alert. | Ensures customers are never misled by outdated stock information. |\n| BR-007 | A SKU may only be listed on ShopEase after it has been assigned a valid product record in SAP ERP. | Maintains data integrity between the platform and RetailCorp's master inventory system. |\n\n---\n\n#### Payment & EMI\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-008 | No-Cost EMI options must only be presented to customers for products and tenures explicitly approved and active under the Bajaj Finance API integration. | Prevents offering financing terms that are not contractually supported, reducing financial and legal risk. |\n| BR-009 | ZestMoney must not be offered as a payment option until its integration has been formally tested, approved, and activated by Central Admin. | Ensures customers are not exposed to an unverified payment channel that could result in failed transactions. |\n| BR-010 | A customer order must not be confirmed until a successful payment authorisation response has been received from the relevant payment gateway or financing partner. | Prevents order fulfilment being initiated without confirmed payment, protecting RetailCorp's revenue. |\n\n---\n\n#### Returns & Refunds\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-011 | A return request may only be initiated within the return eligibility window defined per product category by Central Admin. | Standardises return policy enforcement and prevents fraudulent late-return claims. |\n| BR-012 | Refunds must be processed to the original payment instrument used at the time of purchase, unless an exception is explicitly approved by Central Admin. | Ensures financial traceability and reduces the risk of refund fraud. |\n\n---\n\n#### Vendor Management\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-013 | A vendor account must be approved and activated by Central Admin before the vendor may access the Vendor Portal or submit product data. | Ensures only vetted, authorised partners operate within the ShopEase ecosystem. |\n| BR-014 | Vendors may update product descriptions, images, and specifications via the Vendor Portal, but all such updates must be reviewed and approved by Central Admin before going live. | Maintains content quality and brand consistency while allowing vendors to contribute product information. |\n\n---\n\n#### User Access & Permissions\n\n| BR-ID | Rule | Rationale |\n|-------|------|-----------|\n| BR-015 | Central Admin is the only role with authority to activate, deactivate, or modify user roles across the ShopEase platform. | Prevents unauthorised privilege escalation and maintains a clear chain of access governance. |\n| BR-016 | Vendor Portal users must only have visibility into data pertaining to their own product catalogue and orders; cross-vendor data access is strictly prohibited. | Protects commercially sensitive information and ensures vendor data confidentiality. |",
+      "quality_score": 0.9,
+      "quality_pct": "90%",
+      "word_count": 805,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-019",
+        "TR-026",
+        "TR-031"
+      ],
+      "req_count": 3
+    },
+    {
+      "id": "a791c88c-386c-4ea3-9098-f0e505ccb7f1",
+      "name": "Risks",
+      "content": "## Risks\n\n### Introduction\n\nShopEase carries a moderately high risk profile driven by an aggressive 6-month go-live constraint (TR-009), multiple third-party API dependencies with unconfirmed partnership statuses, and dual regulatory compliance obligations spanning both GDPR and the Indian IT Act. The project's reliance on several unvalidated assumptions — including SAP ERP data quality, ZestMoney partnership finalisation, and SKU catalog scalability — introduces compounding uncertainty that could affect both timeline and platform integrity. Proactive risk management and early validation of these assumptions are essential to keeping the project on track.",
+      "quality_score": 0.4,
+      "quality_pct": "40%",
+      "word_count": 89,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-009",
+        "TR-014",
+        "TR-015",
+        "TR-022",
+        "TR-036",
+        "TR-037",
+        "TR-038",
+        "TR-046",
+        "TR-047",
+        "TR-048"
+      ],
+      "req_count": 10
+    }
+  ]
+}

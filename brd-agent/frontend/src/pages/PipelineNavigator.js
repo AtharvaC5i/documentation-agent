@@ -193,7 +193,7 @@ export default function PipelineNavigator() {
     return (
       <div>
         {/* Stats row */}
-        <div className="grid-3 mb-6">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
           <div className="card" style={{ textAlign: "center" }}>
             <div style={{ fontSize: "2rem", fontWeight: 700, color: "#2563eb" }}>{requirements.length}</div>
             <div className="text-sm text-muted mt-1">Total Requirements</div>
@@ -205,10 +205,14 @@ export default function PipelineNavigator() {
           <div className="card" style={{ textAlign: "center" }}>
             <div style={{ fontSize: "2rem", fontWeight: 700, color: "#10b981" }}>
               {new Set(requirements.filter(r => r.source === "transcript").map(r => r.req_id)).size}
-              {" / "}
+            </div>
+            <div className="text-sm text-muted mt-1">From Transcript</div>
+          </div>
+          <div className="card" style={{ textAlign: "center" }}>
+            <div style={{ fontSize: "2rem", fontWeight: 700, color: "#8b5cf6" }}>
               {new Set(requirements.filter(r => r.source === "user_story").map(r => r.req_id)).size}
             </div>
-            <div className="text-sm text-muted mt-1">Transcript Reqs / Story Reqs</div>
+            <div className="text-sm text-muted mt-1">From User Stories</div>
           </div>
         </div>
 
@@ -354,7 +358,7 @@ export default function PipelineNavigator() {
           {suggestedSections.map((s) => (
             <div key={s.id} className="flex items-center gap-3" style={{ padding: "10px 0", borderBottom: "1px solid var(--grey-100)" }}>
               <div style={{ width: 18, height: 18, borderRadius: 4, background: s.suggested ? "#2563eb" : "var(--grey-200)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                {s.suggested && <CheckCircle size={12} color="#fff" />}
+                {s.suggested && <CheckCircle size={12} color="var(--bg-surface)" />}
               </div>
               <div style={{ flex: 1 }}>
                 <div className="text-sm font-semibold">{s.name}</div>
@@ -445,10 +449,10 @@ export default function PipelineNavigator() {
         {active === "complete" && (
           <div className="card mt-4" style={{ background: "var(--navy)", border: "none", padding: "20px 24px" }}>
             <div className="flex items-center justify-between">
-              <div className="font-semibold" style={{ color: "#fff" }}>Download your BRD</div>
+              <div className="font-semibold" style={{ color: "var(--bg-surface)" }}>Download your BRD</div>
               <button
                 className="btn"
-                style={{ background: "#06b6d4", color: "#fff" }}
+                style={{ background: "#06b6d4", color: "var(--bg-surface)" }}
                 onClick={handleDownload}
                 disabled={downloading}
               >

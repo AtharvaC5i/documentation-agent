@@ -121,69 +121,77 @@ def _deduplicate_requirements(requirements: List[Requirement]) -> List[Requireme
     return unique
 
 
-# ── Post-generation word count limiter ───────────────────────────────────────
+# ── Post-generation word count limiter (FIXED MARKDOWN TRUNCATION) ───────────
 
 def _truncate_section_content(content: str, max_words: int = 350) -> str:
     """
-    Truncate generated section content to max_words.
-    Cuts at the last complete sentence before the limit.
-    Applied AFTER LLM generation to enforce length regardless of model compliance.
+    Truncate generated section content to max_words without destroying formatting.
+    Preserves original newlines, Markdown tables, and headings.
     """
-    words = content.split()
-    if len(words) <= max_words:
+    # Quick check: if already under limit, return as is
+    if len(content.split()) <= max_words:
         return content
 
-    # Find the last sentence boundary before max_words
-    partial = ' '.join(words[:max_words])
-    # Find last sentence-ending punctuation
-    last_period = max(partial.rfind('.'), partial.rfind('!'), partial.rfind('?'))
-    # Also preserve tables — never truncate inside a table row
-    last_table_row = partial.rfind('\n|')
+    # Find the exact character index where the word count hits max_words
+    # Using regex preserves all the original \n and spaces!
+    matches = list(re.finditer(r'\S+', content))
+    if len(matches) <= max_words:
+        return content
+        
+    cutoff_index = matches[max_words - 1].end()
+    partial = content[:cutoff_index]
 
-    if last_table_row > last_period:
-        # We're inside a table — find the end of the last complete row
-        end = content.find('\n', last_table_row + 2)
-        if end == -1:
-            end = len(content)
-        # Find the next row after that to see if table continues
-        next_row = content.find('\n|', end)
-        if next_row == -1:
-            # Table ended — truncate here
-            return content[:end].strip()
-        # Table continues — include one more complete row
-        next_end = content.find('\n', next_row + 2)
-        return content[:next_end if next_end != -1 else len(content)].strip()
+    # 1. TABLE PROTECTION: Check if we are currently inside a Markdown table
+    last_newline = partial.rfind('\n')
+    current_line = partial[last_newline:] if last_newline != -1 else partial
 
-    if last_period > 0:
-        return partial[:last_period + 1]
+    if '|' in current_line:
+        # We are inside a table row! 
+        # Extend to the end of the current table row from the original content
+        row_end = content.find('\n', cutoff_index)
+        if row_end == -1:
+            row_end = len(content)
+        return content[:row_end].strip()
 
-    return partial + '...'
+    # 2. PROSE PROTECTION: Clean sentence break
+    # Find the last period, exclamation, or question mark in the partial string
+    last_period = max(
+        partial.rfind('. '), partial.rfind('.\n'),
+        partial.rfind('! '), partial.rfind('!\n'),
+        partial.rfind('? '), partial.rfind('?\n')
+    )
+
+    if last_period != -1:
+        return partial[:last_period + 1].strip()
+
+    # Fallback if no sentence boundaries found
+    return partial.strip() + '...'
 
 
 # ── Section word limits (matches section_prompts.py) ─────────────────────────
 
 SECTION_WORD_LIMITS = {
-    "executive summary": 300,
-    "business context": 200,
-    "objective": 200,
-    "scope": 250,
-    "stakeholder": 200,
-    "functional req": 500,  # tables can be longer
-    "non-functional": 200,
-    "non functional": 200,
-    "business rule": 250,
-    "user roles": 250,
-    "user journey": 300,
-    "use case": 300,
-    "data req": 200,
-    "integration": 250,
-    "assumption": 200,
-    "constraint": 200,
-    "dependenc": 150,
-    "risk": 200,
-    "glossary": 300,
-    "appendix": 100,
-    "appendices": 100,
+    "executive summary":    500,
+    "business context":     600,
+    "objective":            500,
+    "scope":                600,
+    "stakeholder":          500,
+    "functional req":       1400,  # largest section — tables + prose per module
+    "non-functional":       700,
+    "non functional":       700,
+    "business rule":        800,
+    "user roles":           750,
+    "user journey":         900,
+    "use case":             900,
+    "data req":             600,
+    "integration":          700,
+    "assumption":           500,
+    "constraint":           500,
+    "dependenc":            450,
+    "risk":                 650,
+    "glossary":             600,
+    "appendix":             500,
+    "appendices":           500,
 }
 
 

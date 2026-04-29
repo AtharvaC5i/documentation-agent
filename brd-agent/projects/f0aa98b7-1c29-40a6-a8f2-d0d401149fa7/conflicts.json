@@ -1,0 +1,187 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "Inventory sync with SAP is specified as both real-time and daily batch process",
+      "version_a": {
+        "req_id": "TR-027",
+        "text": "Inventory levels must sync with SAP ERP in real time."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-002",
+      "description": "TR-027 and US-015 mandate real-time inventory sync, but TR-028 mandates daily batch sync — the sync mechanism is contradictory for the same SAP integration",
+      "version_a": {
+        "req_id": "US-015",
+        "text": "The system shall sync inventory levels with SAP in real time to reflect accurate stock availability."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync from SAP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-003",
+      "description": "Vendor pricing control contradicts central admin pricing control — vendors managing their own product listings implies pricing capability, but business rule explicitly prohibits it",
+      "version_a": {
+        "req_id": "TR-020",
+        "text": "Vendors must be able to manage their product information and inventory via portal."
+      },
+      "version_b": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only central admin controls all pricing."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-004",
+      "description": "US-016 allows vendors to manage their own product listings, which may imply pricing, conflicting with the business rule that only central admin controls all pricing",
+      "version_a": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to manage their own product listings on the platform."
+      },
+      "version_b": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only central admin controls all pricing."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-005",
+      "description": "GDPR compliance requires data handling rights (e.g., right to erasure, data portability across borders) that may conflict with the requirement to store all customer data exclusively on servers physically located within India",
+      "version_a": {
+        "req_id": "TR-038",
+        "text": "Platform must comply with GDPR regulations for NRI customer data handling."
+      },
+      "version_b": {
+        "req_id": "TR-040",
+        "text": "All customer data must be stored on servers physically located within India."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-006",
+      "description": "ZestMoney partnership is assumed to be finalized before go-live, but there is no confirmed functional requirement for ZestMoney integration, creating ambiguity about whether it is in scope within the 6-month constraint",
+      "version_a": {
+        "req_id": "TR-018",
+        "text": "ZestMoney partnership agreement will be finalized before platform go-live."
+      },
+      "version_b": {
+        "req_id": "TR-009",
+        "text": "Platform must go live within 6 months maximum from project start."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-007",
+      "description": "TR-050 flags that the 50,000 concurrent user assumption may underestimate actual online traffic, contradicting TR-041 which sets 50,000 as the minimum performance requirement — the NFR baseline may be insufficient",
+      "version_a": {
+        "req_id": "TR-041",
+        "text": "Platform must handle a minimum of 50,000 concurrent users during peak sale events."
+      },
+      "version_b": {
+        "req_id": "TR-050",
+        "text": "50,000 peak users is based on physical store footfall and may underestimate online traffic."
+      },
+      "impact": "high",
+      "resolved": false
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

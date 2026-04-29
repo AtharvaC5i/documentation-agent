@@ -1,0 +1,62 @@
+{
+  "sections": [
+    {
+      "id": "4f5f6dfd-8c6d-48ba-aa5e-e74571de47f1",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\nRetailCorp India Pvt. Ltd. is a growing mid-size Indian retail chain seeking to establish a strong and competitive presence in the digital commerce space. As consumer purchasing behaviour continues to shift online — accelerated by the widespread adoption of mobile devices and digital payments across India — RetailCorp faces a clear and time-sensitive opportunity to capture this demand before market share is ceded to larger, more digitally mature competitors. This project exists to build ShopEase, RetailCorp's dedicated e-commerce platform, and bring that opportunity to life within a defined and ambitious timeline.\n\n### Business Problem\n\nRetailCorp currently operates without a direct-to-consumer digital sales channel, meaning the business has no way to serve customers outside of its physical store network. With an average order value of approximately INR 15,000, the absence of flexible payment options such as No-Cost EMI and buy-now-pay-later financing is actively limiting purchasing decisions for high-value items. The combined effect is a measurable and growing gap in revenue potential, customer reach, and competitive positioning that this project is designed to close.\n\n### Proposed Solution\n\nShopEase will be a fully integrated e-commerce platform — available on web, Android, and iOS — that allows RetailCorp's customers to browse, purchase, and track orders from anywhere in India. The platform will connect seamlessly with RetailCorp's existing SAP ERP system to ensure accurate, real-time inventory and product data, and will offer customers a wide range of payment options including credit card EMI, No-Cost EMI through Bajaj Finance, UPI, and net banking. Vendor partners will manage their own product listings through a dedicated Vendor Portal, while store managers and central administrators will have purpose-built tools to oversee regional operations, pricing, promotions, and performance reporting.\n\n### Key Objectives\n\n- Launch ShopEase and make it fully accessible to customers within 6 months of project commencement.\n- Support a product catalog of up to 25,000 SKUs, scaling from the existing 8,000 SAP-managed products at go-live.\n- Ensure the platform can handle a minimum of 50,000 concurrent users during peak sale events such as Diwali, with all pages loading within 3 seconds.\n- Achieve full compliance with Indian IT Act regulations and GDPR requirements for NRI customer data, with all data stored on India-based servers.\n- Enable EMI and No-Cost EMI payment options at launch to reduce purchase friction on high-value transactions and improve conversion rates.\n\n### Expected Outcomes\n\nSix months after launch, ShopEase is expected to be RetailCorp's primary growth engine for new customer acquisition and incremental revenue beyond the physical store network. With Cart Abandonment Analytics, targeted promotional campaigns via email and SMS, and an executive mobile dashboard providing real-time visibility into revenue and order performance, RetailCorp's leadership team will have the data and tools needed to make faster, more informed commercial decisions. Ultimately, ShopEase will position RetailCorp as a credible, modern omnichannel retailer capable of competing effectively in India's rapidly expanding digital commerce market.",
+      "quality_score": 0.8,
+      "quality_pct": "80%",
+      "word_count": 481,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 73
+    },
+    {
+      "id": "a71c3ba6-9d13-4f39-b03c-23228b4fd235",
+      "name": "Scope",
+      "content": "## Scope\n\n### In Scope\n\nThis section defines the boundaries of the ShopEase e-commerce platform being built for RetailCorp India Pvt. The following capabilities are included in this release:\n\n- **Customer registration and authentication** via email, mobile number, email/password login, and OTP-based login\n- **Product catalog management** supporting up to 25,000 SKUs, including admin-controlled product creation, editing, pricing, discounts, and deactivation\n- **Product search and filtering** by product name, brand, and category, with filters for price range, brand, ratings, and estimated delivery time\n- **Shopping cart and wishlist functionality**, allowing customers to add products, manage quantities, and save items for future sessions\n- **Checkout and multi-mode payment processing** supporting credit card, debit card, UPI, net banking, credit card EMI, Bajaj Finance No-Cost EMI, and ZestMoney buy-now-pay-later financing\n- **SAP ERP integration** for one-time migration of existing 8,000 SKUs, real-time inventory sync (within 60 seconds), and daily batch sync of product information\n- **Delhivery and BlueDart API integration** for automated shipping rate calculation at checkout and real-time post-order tracking\n- **Vendor Portal with Role-Based Access Control**, enabling vendors to independently manage their own product listings and inventory\n- **Customer reviews and ratings** with admin moderation workflow requiring approval before publication\n- **Returns management** allowing customers to initiate return requests and store managers to process regional returns\n- **Sales reporting** with daily, weekly, and monthly intervals, filterable by region, product category, and vendor\n- **Cart Abandonment Analytics** dashboard displaying viewed-but-not-purchased products and abandonment rates\n- **Promotional campaign tools** enabling admins to send targeted email and SMS campaigns to customer segments\n- **Native mobile applications** for Android and iOS supporting full browse-to-purchase customer journeys\n- **Regulatory compliance** with GDPR for NRI customer data, the Indian IT Act, and data residency requirements mandating all customer data be stored on India-based servers\n\n---\n\n### Out of Scope\n\nThe following items are explicitly excluded from this release to prevent scope creep:\n\n- Integration with any logistics provider other than Delhivery and BlueDart\n- Replacement or modification of RetailCorp's existing SAP ERP system\n- Support for international currencies, cross-border shipping, or non-Indian payment gateways\n- In-store point-of-sale (POS) system integration or offline retail operations\n- Customer loyalty or rewards points programme\n- Third-party marketplace seller onboarding beyond RetailCorp's existing vendor partners\n- AI-driven personalised product recommendations engine\n\n---\n\n### Future Scope (Phase 2+)\n\nThe following capabilities are acknowledged as desirable but deliberately deferred:\n\n- Executive mobile dashboard displaying real-time KPIs including revenue, orders, and top-performing products\n- Advanced AI/ML-based product recommendation and personalisation engine\n- Expansion to additional third-party financing partners beyond Bajaj Finance and ZestMoney\n- Integration with additional logistics providers to expand delivery coverage\n- Customer loyalty programme with points accumulation and redemption\n\n---\n\n### Scope Boundary Notes\n\nThe SAP ERP integration is scoped as a read/sync integration only — ShopEase will consume SAP data but will not write back to or alter SAP records, preserving RetailCorp's existing ERP workflows. The executive mobile dashboard (US-022) has been deferred to Phase 2 as it carries dependency on stable reporting data that will only mature post-launch. BlueDart API integration is included in scope contingent on API accessibility confirmed under assumption TR-049.",
+      "quality_score": 0.79,
+      "quality_pct": "79%",
+      "word_count": 524,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015",
+        "TR-017",
+        "TR-018",
+        "TR-019",
+        "TR-020",
+        "TR-022",
+        "TR-023",
+        "TR-025",
+        "TR-026"
+      ],
+      "req_count": 58
+    }
+  ]
+}

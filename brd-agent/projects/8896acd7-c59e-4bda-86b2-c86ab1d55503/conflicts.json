@@ -1,0 +1,166 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "Vendor pricing control contradiction: TR-008 and TR-022/US-016 imply vendors manage product information (which could include pricing), but TR-020 explicitly prohibits vendors from setting prices, while TR-007/TR-059/US-014 assign pricing exclusively to central admin.",
+      "version_a": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to create, update, and manage their product listings."
+      },
+      "version_b": {
+        "req_id": "TR-020",
+        "text": "Vendors cannot set product prices; only RetailCorp central admin controls pricing."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-002",
+      "description": "SAP sync frequency contradiction: TR-026 requires inventory levels to sync with SAP ERP in real time, but TR-027 requires product information to sync from SAP via batch process once daily. US-015 further reinforces real-time sync. If product information includes stock/inventory data, these requirements directly conflict.",
+      "version_a": {
+        "req_id": "TR-026",
+        "text": "Inventory levels must sync with SAP ERP in real time."
+      },
+      "version_b": {
+        "req_id": "TR-027",
+        "text": "Product information must sync from SAP via batch process once daily."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-003",
+      "description": "GDPR compliance vs. India-only data storage contradiction: TR-043 requires GDPR compliance for NRI customer data handling, which may require data portability, right to erasure, and potentially data residency in the EU or accessible cross-border, while TR-045 mandates all customer data must be stored on servers physically located within India, which may conflict with GDPR obligations for EU-resident NRI customers.",
+      "version_a": {
+        "req_id": "TR-043",
+        "text": "Platform must comply with GDPR regulations for NRI customer data handling."
+      },
+      "version_b": {
+        "req_id": "TR-045",
+        "text": "All customer data must be stored on servers physically located within India."
+      },
+      "impact": "high",
+      "resolved": false
+    },
+    {
+      "id": "CONF-004",
+      "description": "Vendor product listing management vs. central admin exclusive catalog control: TR-022 and US-016 allow vendors to manage product information and descriptions, while TR-058 and US-013 state central admin must be able to manage product listings across the entire catalog, creating ambiguity and potential conflict over who has authority to create/update product listings.",
+      "version_a": {
+        "req_id": "TR-022",
+        "text": "Vendors must be able to manage product information and descriptions via the portal."
+      },
+      "version_b": {
+        "req_id": "TR-058",
+        "text": "Central admin must be able to manage product listings across the entire catalog."
+      },
+      "impact": "medium",
+      "resolved": false
+    },
+    {
+      "id": "CONF-005",
+      "description": "ZestMoney partnership assumption vs. go-live timeline constraint: TR-018 assumes the ZestMoney partnership agreement will be finalized before platform go-live, but no corresponding functional requirement for ZestMoney integration exists, and TR-009 constrains go-live to 6 months. If ZestMoney is required for EMI functionality alongside TR-015 (Bajaj Finance), the dependency on an unfinalized agreement conflicts with the fixed go-live deadline.",
+      "version_a": {
+        "req_id": "TR-018",
+        "text": "ZestMoney partnership agreement will be finalized before platform go-live."
+      },
+      "version_b": {
+        "req_id": "TR-009",
+        "text": "Platform must go live within 6 months maximum from project start."
+      },
+      "impact": "medium",
+      "resolved": false
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "User Journeys and Use Cases",
+      "coverage_level": "weak",
+      "message": "'User Journeys and Use Cases' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-010",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "weak",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

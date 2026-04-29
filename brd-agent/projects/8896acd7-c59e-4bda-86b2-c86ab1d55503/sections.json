@@ -1,0 +1,61 @@
+{
+  "sections": [
+    {
+      "id": "4e327559-b5c0-4b95-96bd-f38fe363e421",
+      "name": "Business Context and Background",
+      "content": "## Business Context and Background\n\n### Current State\n\nRetailCorp India, a mid-size retail chain operating across multiple regions in India, currently conducts its retail operations through physical store locations supported by a centralised SAP ERP system that manages inventory, pricing, and product data. Customer transactions are handled entirely in-store, with Store Managers overseeing regional order fulfilment and returns through manual or locally managed processes. Vendor partners currently have no self-service capability, requiring RetailCorp's Central Admin team to manually coordinate product listings, inventory updates, and pricing changes on their behalf. There is no existing digital commerce channel — customers cannot browse, search, or purchase products outside of a physical store visit.\n\n### Business Problem or Opportunity\n\nThe absence of a digital commerce presence means RetailCorp India is entirely dependent on physical footfall to generate revenue, leaving the business exposed to any disruption in in-store traffic and unable to capture the growing segment of Indian consumers who prefer to shop online. The Central Admin team carries a disproportionate operational burden by managing all product, pricing, and promotional activity without any vendor self-service tooling, creating bottlenecks as the product catalogue scales. The existing SAP ERP, while functional as a back-office system, has no customer-facing capability and cannot support the financing, logistics, and marketing integrations that modern e-commerce customers in India expect — including No-Cost EMI options through partners such as Bajaj Finance and ZestMoney, and tracked home delivery through providers such as Delhivery. Without a unified platform, Cart Abandonment Analytics and other demand signals that would inform merchandising and promotional decisions are entirely unavailable to the business.\n\n### Strategic Drivers\n\nRetailCorp India's leadership, under the direction of CEO Sunita Agarwal, has identified the launch of ShopEase — a purpose-built e-commerce platform — as a strategic priority to establish a direct digital revenue channel and remain competitive against both national e-commerce marketplaces and digitally native retail brands. The six-month go-live constraint (TR-009) reflects the urgency of this initiative; the business has set a firm market-entry deadline, and the platform must be deployed and accessible to customers within that window. The timing is further shaped by the need to finalise the ZestMoney lending partnership (TR-018) before launch, ensuring that financing options are available to customers from day one and that RetailCorp can compete on the affordability-driven purchasing behaviour that defines the Indian online retail market.\n\n### Cost of Inaction\n\nIf ShopEase is not delivered, RetailCorp India will continue to forfeit digital revenue to competitors and national marketplaces, with no mechanism to serve the estimated 50,000 peak concurrent users whose shopping behaviour — currently proxied against physical store footfall (TR-055) — represents a quantifiable and addressable online demand. Beyond lost revenue, the absence of a platform leaves the Central Admin team operationally constrained, vendor relationships underdeveloped, and the business without the data infrastructure needed to make informed decisions about pricing, promotions, or inventory — compounding competitive disadvantage with every month of delay.",
+      "quality_score": 0.55,
+      "quality_pct": "55%",
+      "word_count": 486,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-017",
+        "TR-018",
+        "TR-029"
+      ],
+      "req_count": 17
+    },
+    {
+      "id": "8150f2f1-da28-4f81-b8dc-4f2bdc3bd339",
+      "name": "Project Objectives and Success Criteria",
+      "content": "## Project Objectives and Success Criteria\n\n### Business Objectives\n\nShopEase is being developed to establish RetailCorp India's digital commerce presence, transforming physical retail footfall into measurable online revenue through a scalable, fully integrated e-commerce platform. The following objectives define the measurable outcomes this project must achieve.\n\n**OBJ-1:** Launch a fully operational ShopEase platform supporting a product catalog of up to 25,000 SKUs, with complete SAP ERP synchronisation, within the agreed project delivery timeline.\n\n**OBJ-2:** Achieve platform performance benchmarks whereby 95% of all page loads complete within 3 seconds under both normal and peak traffic conditions, including Diwali-scale seasonal events.\n\n**OBJ-3:** Enable ShopEase to sustain a minimum of 50,000 concurrent users during peak traffic periods without service degradation or availability failure.\n\n**OBJ-4:** Onboard vendor partners to the Vendor Portal such that 100% of active vendors can independently manage their product listings and inventory quantities at go-live, with no Central Admin intervention required for routine updates.\n\n**OBJ-5:** Integrate all third-party services — including Bajaj Finance API, Delhivery API, and SAP ERP — with zero critical integration defects outstanding at go-live, enabling real-time inventory sync within 60 seconds of an SAP update.\n\n**OBJ-6:** Deliver a complete analytics and reporting capability enabling Central Admin to generate sales reports filterable by region, category, and vendor, and to monitor Cart Abandonment Analytics, within 30 days of platform launch.\n\n**OBJ-7:** Achieve a fully functional Android and iOS mobile application at launch, supporting end-to-end customer journeys including browse, purchase, No-Cost EMI selection, and real-time order tracking.\n\n---\n\n### Success Criteria\n\n| Objective | Measurement Method | Target | Timeframe |\n|---|---|---|---|\n| **OBJ-1:** Catalog & SAP sync at launch | Catalog audit + SAP ERP batch sync validation | 25,000 SKUs live; daily batch sync completing within 24-hour cycle | At go-live |\n| **OBJ-2:** Page load performance | Performance test — 95th percentile load time | ≤ 3 seconds across all platform pages | At UAT sign-off and post-launch |\n| **OBJ-3:** Concurrent user capacity | Load test simulating peak and Diwali-scale traffic | Platform stable at 50,000 concurrent users | Pre-launch load testing |\n| **OBJ-4:** Vendor Portal adoption | Vendor onboarding completion rate | 100% of active vendors independently managing listings | Within 30 days of go-live |\n| **OBJ-5:** Third-party integration reliability | Integration test results; real-time sync monitoring | Zero critical defects; inventory sync ≤ 60 seconds | At go-live |\n| **OBJ-6:** Reporting & analytics availability | Admin dashboard review; report generation testing | All report filters operational; Cart Abandonment Analytics live | Within 30 days of launch |\n| **OBJ-7:** Mobile application functionality | End-to-end test on Android and iOS devices | Full purchase journey completed successfully on both platforms | At go-live |\n\n---\n\n### Critical Success Factors\n\nRetailCorp India must provide timely access to SAP ERP data exports and APIs, as the entire catalog migration, real-time inventory sync, and product information batch processing are dependent on this integration being technically accessible from project initiation.",
+      "quality_score": 0.65,
+      "quality_pct": "65%",
+      "word_count": 495,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "user_story",
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-010",
+        "TR-014",
+        "TR-015",
+        "TR-017",
+        "TR-018",
+        "TR-019",
+        "TR-021",
+        "TR-022",
+        "TR-023",
+        "TR-024",
+        "TR-025",
+        "TR-026"
+      ],
+      "req_count": 60
+    }
+  ]
+}
