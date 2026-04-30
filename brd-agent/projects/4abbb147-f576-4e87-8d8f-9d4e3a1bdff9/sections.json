@@ -1,0 +1,62 @@
+{
+  "sections": [
+    {
+      "id": "798a4836-a6a8-4a64-8210-37871b20f8a6",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\nRetailCorp India Pvt. Ltd. is embarking on a strategic initiative to establish a modern, scalable e-commerce presence through the development of ShopEase — a purpose-built online retail platform designed to serve customers across India, including the NRI market. This project represents a significant step in RetailCorp's digital growth strategy, moving from fragmented, offline-dependent sales channels to a unified, technology-enabled commerce experience. The business case is clear: without a robust digital storefront, RetailCorp risks losing market share to competitors who already offer seamless online purchasing experiences.\n\n### Business Problem\n\nRetailCorp currently lacks a direct-to-customer digital sales channel, leaving the business unable to capture the growing volume of online retail demand in India. The existing SAP ERP system holds valuable product and inventory data across an initial catalog of 8,000 SKUs, but there is no customer-facing platform to leverage this asset for revenue generation. This gap directly limits sales growth, customer reach, and the ability to run data-driven promotions during high-value commercial events such as Diwali.\n\n### Proposed Solution\n\nShopEase will be a fully integrated e-commerce platform — available on web, Android, and iOS — that connects customers, vendors, store managers, and the central admin team within a single, governed digital environment. The platform will bring RetailCorp's product catalog online, support flexible payment options including No-Cost EMI through Bajaj Finance, and deliver real-time order tracking via the Delhivery and BlueDart logistics integrations. By connecting directly to the existing SAP ERP system, ShopEase will ensure that inventory accuracy and product information remain reliable from day one, protecting both customer trust and operational efficiency.\n\n### Key Objectives\n\n- Launch the ShopEase platform to live customers within 6 months of project commencement.\n- Successfully migrate and publish the initial catalog of 8,000 SKUs from SAP ERP at go-live, with platform architecture supporting growth to 25,000 SKUs.\n- Ensure platform stability and performance for a minimum of 50,000 concurrent users during peak sale events, with all pages loading within 3 seconds.\n- Enable at least five payment methods at launch — including credit card EMI and Bajaj Finance No-Cost EMI — to reduce checkout abandonment and increase average order conversion.\n- Achieve full compliance with GDPR regulations and the Indian IT Act, with all customer data stored within Indian data centers, prior to go-live.\n\n### Expected Outcomes\n\nSix months after launch, ShopEase is expected to be RetailCorp's primary direct-to-consumer revenue channel, with measurable improvements in sales volume, customer reach, and operational visibility. The Cart Abandonment Analytics and regional sales reporting capabilities will equip the central admin team and store managers with actionable data to drive conversion improvements and smarter promotional decisions. With a scalable foundation in place, RetailCorp will be well-positioned to grow its digital catalog threefold and expand its customer base without requiring a platform rebuild.",
+      "quality_score": 0.8,
+      "quality_pct": "80%",
+      "word_count": 464,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 75
+    },
+    {
+      "id": "5870ef78-148e-4db9-b482-89144763848c",
+      "name": "Scope",
+      "content": "## Scope\n\n### In Scope\n\nShopEase is a full-featured e-commerce platform being built for RetailCorp India Pvt, encompassing a customer-facing web and mobile storefront, a Vendor Portal, a Central Admin console, and a Store Manager interface. The following capabilities are included in this release:\n\n- **Customer registration and authentication** via email, mobile number, OTP, and email/password login\n- **Product catalog management** supporting up to 25,000 SKUs, with initial migration of 8,000 SKUs from SAP ERP, including admin-controlled create, update, and deactivate operations\n- **Product search and discovery** by name, brand, and category, with filtering by price range, brand, ratings, and estimated delivery time\n- **Shopping cart and wishlist functionality**, allowing customers to add multiple products, save items for later, and manage delivery addresses across sessions\n- **Payment processing** via credit card, debit card, UPI, net banking, credit card EMI, and Bajaj Finance No-Cost EMI integration\n- **SAP ERP integration** for initial product data migration, daily batch sync of product information, and real-time inventory level sync (reflecting stock changes within 60 seconds)\n- **Delhivery and BlueDart API integration** for automated shipping rate calculation at checkout and real-time post-order tracking\n- **Vendor Portal** with Role-Based Access Control, enabling vendors to create, update, and manage their own product listings and inventory independently\n- **Store Manager dashboard** providing region-filtered order views and the ability to initiate and process customer returns within their assigned geography\n- **Customer returns workflow**, allowing customers to submit return requests with reasons and triggering the refund process\n- **Customer reviews and ratings** restricted to verified purchasers, with Central Admin moderation and approval before publication\n- **Sales reporting** with daily, weekly, and monthly intervals, filterable by region, product category, and vendor, with export capability\n- **Cart Abandonment Analytics** dashboard displaying products viewed but not purchased, along with abandonment counts\n- **Promotional campaign management** enabling Central Admin to create and dispatch email and SMS campaigns to segmented customer audiences\n- **Native mobile applications** for Android and iOS platforms supporting full browse, search, and purchase workflows, including an executive KPI dashboard\n- **Regulatory compliance** with GDPR for NRI customer data, the Indian IT Act, and mandatory data residency within Indian data centers\n\n---\n\n### Out of Scope\n\nThe following items are explicitly excluded from this release and will not be delivered under the current engagement:\n\n- ZestMoney or any financing partner integration other than Bajaj Finance\n- BlueDart API integration beyond shipping rate and tracking (e.g., returns pickup scheduling via BlueDart)\n- Cryptocurrency, buy-now-pay-later (non-EMI), or wallet-based payment methods\n- Marketplace seller onboarding workflows or vendor financial settlement processing\n- Customer loyalty programs, points systems, or referral schemes\n- Offline point-of-sale (POS) integration with physical RetailCorp stores\n- Third-party marketplace syndication (e.g., listing products on Amazon or Flipkart)\n- Automated tax calculation or GST filing integrations\n\n---\n\n### Future Scope (Phase 2+)\n\nThe following capabilities are acknowledged as desirable but are deliberately deferred to a subsequent phase:\n\n- ZestMoney and additional BNPL financing partner integrations (pending partnership finalization)\n- AI-driven product recommendation engine based on browsing and purchase history\n- Advanced vendor financial settlement dashboard with automated payout processing\n- Customer loyalty and rewards program with tiered membership benefits\n- Expanded international shipping integrations and multi-currency support for NRI customers\n\n---\n\n### Scope Boundary Notes\n\nThe Delhivery API is in scope for shipping rate calculation and order tracking; however, BlueDart is included solely for rate calculation and tracking and does not extend to returns logistics management in this phase.",
+      "quality_score": 0.74,
+      "quality_pct": "74%",
+      "word_count": 576,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015",
+        "TR-017",
+        "TR-018",
+        "TR-019",
+        "TR-020",
+        "TR-022",
+        "TR-023",
+        "TR-025",
+        "TR-026"
+      ],
+      "req_count": 59
+    }
+  ]
+}
