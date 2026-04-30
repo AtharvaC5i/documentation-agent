@@ -62,7 +62,7 @@ const H = 5.625;
 // Logo dimensions and position (top-left, inside the header band)
 const LOGO_X = 0.22;
 const LOGO_Y = 0.12;
-const LOGO_W = 0.56;
+const LOGO_W = 1.4;
 const LOGO_H = 0.56;
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
@@ -136,65 +136,70 @@ function pageBackground(slide) {
  * Header band with CENTERED title and logo on the left.
  * Height increased slightly to 0.88" for more breathing room.
  */
+// Header band with CENTERED title and logo on the left.
 function headerBand(slide, title, subtitle) {
-  const BAND_H = subtitle ? 1.0 : 0.88;
+  const BANDH = subtitle ? 1.0 : 0.88;
 
-  // Main purple band
+  // ── White band (was purple) ──────────────────────────────────
   slide.addShape("rect", {
     x: 0,
     y: 0,
     w: W,
-    h: BAND_H,
+    h: BANDH,
+    fill: { color: C.white },
+    line: { color: C.white },
+  });
+
+  // Bottom accent line — purple, marks the boundary cleanly
+  slide.addShape("rect", {
+    x: 0,
+    y: BANDH - 0.05,
+    w: W,
+    h: 0.05,
     fill: { color: C.purple },
     line: { color: C.purple },
   });
 
-  // Bottom accent line on the band (purpleMid)
-  slide.addShape("rect", {
-    x: 0,
-    y: BAND_H - 0.05,
-    w: W,
-    h: 0.05,
-    fill: { color: C.purpleMid },
-    line: { color: C.purpleMid },
-  });
-
-  // Decorative orb — top right
+  // Decorative orb top right (lighter now against white)
   slide.addShape("ellipse", {
     x: 8.2,
     y: -0.7,
     w: 2.4,
     h: 2.4,
-    fill: { color: C.purpleLight, transparency: 84 },
-    line: { color: C.purpleLight, transparency: 80, width: 1 },
+    fill: { color: C.purpleFaint, transparency: 40 },
+    line: { color: C.border, transparency: 50, width: 1 },
   });
-
   // Small secondary orb
   slide.addShape("ellipse", {
     x: 7.2,
     y: -0.2,
     w: 1.2,
     h: 1.2,
-    fill: { color: C.purpleFaint, transparency: 80 },
-    line: { color: C.purpleFaint, transparency: 78, width: 1 },
+    fill: { color: C.purpleFaint, transparency: 55 },
+    line: { color: C.border, transparency: 55, width: 1 },
   });
 
-  // Logo (top-left inside band)
-  addLogo(slide, { x: LOGO_X, y: (BAND_H - LOGO_H) / 2, w: LOGO_W, h: LOGO_H });
+  // Logo top-left inside band — slightly larger for white bg legibility
+  const LOGO_W = 1.4;
+  const LOGO_H = 0.62;
+  addLogo(slide, {
+    x: LOGO_X,
+    y: (BANDH - LOGO_H) / 2, // perfectly vertically centred in band
+    w: LOGO_W,
+    h: LOGO_H,
+  });
 
-  // Centered title text
-  // Reserve left space for logo (LOGO_X + LOGO_W + padding = ~0.92")
+  // Centered title text — dark navy on white (was white on purple)
   const titleX = LOGO_X + LOGO_W + 0.14;
   const titleW = W - titleX - 0.3;
-
   slide.addText(title, {
     x: titleX,
-    y: subtitle ? 0.1 : (BAND_H - 0.48) / 2,
+    y: subtitle ? 0.1 : (BANDH - 0.48) / 2,
     w: titleW,
     h: 0.48,
     fontSize: 20,
     bold: true,
-    color: C.white,
+    color: C.purpleDim, // was C.white
     fontFace: FONT_TITLE,
     align: "center",
     valign: "middle",
@@ -204,11 +209,11 @@ function headerBand(slide, title, subtitle) {
   if (subtitle) {
     slide.addText(subtitle, {
       x: titleX,
-      y: BAND_H - 0.32,
+      y: BANDH - 0.32,
       w: titleW,
       h: 0.26,
       fontSize: 9,
-      color: C.purpleLight,
+      color: C.purpleMid, // was C.purpleLight
       fontFace: FONT_BODY,
       italic: true,
       align: "center",
@@ -217,7 +222,7 @@ function headerBand(slide, title, subtitle) {
     });
   }
 
-  // Left vertical accent strip (runs full slide height, behind logo area)
+  // Left vertical accent strip — keep purple for brand anchor
   slide.addShape("rect", {
     x: 0,
     y: 0,
@@ -396,14 +401,35 @@ function addTitleSlide(pres) {
     fill: { color: C.purpleLight, transparency: 88 },
     line: { color: C.purpleLight, transparency: 85, width: 1 },
   });
-  // Small top-left accent dot
+
+  // 🟣 Circle behind logo (UPDATED)
+  const circleX = 0.48;
+  const circleY = 0.16;
+  const circleW = 0.82; // 2.32 cm
+  const circleH = 0.83; // 2.34 cm
+
   slide.addShape("ellipse", {
-    x: 0.55,
-    y: 0.18,
-    w: 0.7,
-    h: 0.7,
-    fill: { color: C.purpleLight, transparency: 72 },
-    line: { color: C.purpleLight, transparency: 70, width: 1 },
+    x: circleX,
+    y: circleY,
+    w: circleW,
+    h: circleH,
+    fill: { color: C.white },
+    line: { color: C.white, width: 0 },
+  });
+
+  // 🟢 Logo (UPDATED)
+  const logoW = 1.22; // 3.45 cm
+  const logoH = 0.64; // 1.8 cm
+
+  // Centering logo relative to circle
+  const logoX = circleX + (circleW - logoW) / 2;
+  const logoY = circleY + (circleH - logoH) / 2;
+
+  addLogo(slide, {
+    x: logoX,
+    y: logoY,
+    w: logoW,
+    h: logoH,
   });
 
   // Left accent bar
@@ -415,9 +441,6 @@ function addTitleSlide(pres) {
     fill: { color: C.purpleMid },
     line: { color: C.purpleMid },
   });
-
-  // Logo — top left, slightly larger on title slide
-  addLogo(slide, { x: 0.52, y: 0.22, w: 0.7, h: 0.7 });
 
   const name = DATA.project?.name || "Solution Architecture";
   const tagline =
@@ -437,7 +460,8 @@ function addTitleSlide(pres) {
     charSpacing: 4.5,
     margin: 0,
   });
-  // Main title — centered
+
+  // Title
   slide.addText(name, {
     x: 0.55,
     y: 1.52,
@@ -451,6 +475,7 @@ function addTitleSlide(pres) {
     valign: "top",
     margin: 0,
   });
+
   // Divider
   slide.addShape("rect", {
     x: 2.5,
@@ -460,7 +485,8 @@ function addTitleSlide(pres) {
     fill: { color: C.purpleLight },
     line: { color: C.purpleLight },
   });
-  // Tagline — centered
+
+  // Tagline
   slide.addText(tagline, {
     x: 0.55,
     y: 3.58,
@@ -473,6 +499,7 @@ function addTitleSlide(pres) {
     align: "center",
     margin: 0,
   });
+
   if (context) {
     slide.addText(context, {
       x: 0.55,
@@ -487,7 +514,8 @@ function addTitleSlide(pres) {
       margin: 0,
     });
   }
-  // Confidential footer
+
+  // Footer
   slide.addShape("rect", {
     x: 0,
     y: H - 0.42,
@@ -496,6 +524,7 @@ function addTitleSlide(pres) {
     fill: { color: "000000", transparency: 65 },
     line: { color: "000000", transparency: 65 },
   });
+
   slide.addText("CONFIDENTIAL  ·  Generated by AI Solution Architect", {
     x: 0.55,
     y: H - 0.38,
