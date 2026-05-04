@@ -1,4 +1,5 @@
 import os
+import io
 import json
 from pathlib import Path
 from datetime import date
@@ -18,25 +19,30 @@ load_dotenv()
 
 STORAGE_DIR = os.getenv("STORAGE_DIR", os.path.join("..", "storage"))
 
+LOGO_PATH   = os.path.join(os.path.dirname(__file__), "logo.png")
+LOGO_WIDTH  = Inches(0.9)
+LOGO_HEIGHT = Inches(0.35)
+
 PAGE_WIDTH_CM  = Cm(21)
 PAGE_HEIGHT_CM = Cm(29.7)
 
 
 # ─────────────────────────────────────────────────────────────
-# DESIGN TOKENS
+# DESIGN TOKENS  —  Purple Brand Palette
 # ─────────────────────────────────────────────────────────────
 
 class DesignTokens:
-    COLOR_INK          = RGBColor(0x0F, 0x0F, 0x1A)
-    COLOR_HEADING      = RGBColor(0x0D, 0x1B, 0x3E)
-    COLOR_ACCENT       = RGBColor(0x1A, 0x56, 0xDB)
-    COLOR_MUTED        = RGBColor(0x5A, 0x5A, 0x72)
-    COLOR_LIGHT_MUTED  = RGBColor(0x9C, 0xA3, 0xAF)
-    COLOR_CODE_TEXT    = RGBColor(0x1E, 0x3A, 0x8A)
-    COLOR_TABLE_STRIPE = RGBColor(0xF8, 0xF9, 0xFF)
+    # ── Text / Ink ─────────────────────────────────────────────
+    COLOR_INK          = RGBColor(0x1A, 0x05, 0x33)   # near-black purple ink
+    COLOR_HEADING      = RGBColor(0x4C, 0x1D, 0x95)   # NAVY  — darkest purple, primary headings
+    COLOR_ACCENT       = RGBColor(0x7C, 0x3A, 0xED)   # ACCENT — vivid purple, sub-headings / numbers
+    COLOR_MUTED        = RGBColor(0xA7, 0x8B, 0xFA)   # LIGHT — soft purple, labels / captions
+    COLOR_LIGHT_MUTED  = RGBColor(0xC4, 0xB5, 0xFD)   # very soft purple, faint decorators
+    COLOR_CODE_TEXT    = RGBColor(0x4C, 0x1D, 0x95)   # same as NAVY for code text
+    COLOR_TABLE_STRIPE = RGBColor(0xED, 0xE9, 0xFE)   # EDE9FE — light lavender row stripe
     COLOR_WHITE        = RGBColor(0xFF, 0xFF, 0xFF)
-    COLOR_BLOCKQUOTE   = RGBColor(0x2D, 0x4A, 0x8A)
-    COLOR_ACCENT_LIGHT = RGBColor(0xEB, 0xF0, 0xFF)
+    COLOR_BLOCKQUOTE   = RGBColor(0x6D, 0x28, 0xD9)   # deep purple for blockquote text
+    COLOR_ACCENT_LIGHT = RGBColor(0xF5, 0xF3, 0xFF)   # F5F3FF — near-white lavender surface
 
     FONT_BODY    = "Calibri"
     FONT_HEADING = "Calibri"
@@ -72,6 +78,17 @@ class DesignTokens:
 T = DesignTokens
 
 BODY_WIDTH = PAGE_WIDTH_CM - T.MARGIN_LEFT - T.MARGIN_RIGHT  # ~Cm(15.5)
+
+# ── Hex palette constants (for XML shading / border color attrs) ──────────────
+HEX_NAVY    = "4C1D95"   # darkest purple — primary headings
+HEX_PURPLE  = "5B21B6"   # mid-tone brand purple — accent strip, rules
+HEX_ACCENT  = "7C3AED"   # vivid purple — borders, H2
+HEX_MUTED   = "A78BFA"   # soft purple — labels, footer text
+HEX_DIVIDER = "DDD6FE"   # light lavender — row dividers
+HEX_SURFACE = "F5F3FF"   # near-white lavender — card backgrounds
+HEX_STRIPE  = "EDE9FE"   # alternate row tint
+HEX_WHITE   = "FFFFFF"
+HEX_CODE_BG = "F5F3FF"   # code block background
 
 
 # ─────────────────────────────────────────────────────────────
@@ -129,7 +146,6 @@ def _remove_table_borders(table):
 
 
 def _set_table_width(table, width_emu: int):
-    """Set total table width in EMU via tblW XML."""
     dxa   = int(width_emu * 1440 / 914400)
     tbl   = table._tbl
     tblPr = tbl.find(qn("w:tblPr"))
@@ -157,39 +173,6 @@ def _set_col_width(table, col_idx: int, width_emu: int):
         tcW.set(qn("w:type"), "dxa")
 
 
-def _make_table(container, rows: int, cols: int, total_width_emu: int):
-    """
-    THE SINGLE CORRECT WAY to add a table in python-docx regardless of container type.
-
-    python-docx's Document.add_table() accepts (rows, cols, style).
-    Header/Footer._Body.add_table() is BlockItemContainer.add_table() which
-    requires a positional `width` argument.
-
-    To handle BOTH cases uniformly, we build the table XML directly and insert
-    it into the container's body element. This bypasses the conflicting signatures.
-    """
-    from docx.oxml.table import CT_Tbl
-    from docx.table import Table
-
-    tbl_xml = CT_Tbl.new_tbl(rows, cols, Inches(1))  # Inches(1) is a throwaway default
-    tbl_obj = Table(tbl_xml, container)
-
-    tbl_obj.autofit   = False
-    tbl_obj.alignment = WD_TABLE_ALIGNMENT.LEFT
-    _set_table_width(tbl_obj, total_width_emu)
-
-    try:
-        body_elem = container._body._body
-    except AttributeError:
-        try:
-            body_elem = container._body
-        except AttributeError:
-            body_elem = container._element
-
-    body_elem.append(tbl_xml)
-    return tbl_obj
-
-
 def _prevent_table_row_split(row):
     tr   = row._tr
     trPr = tr.find(qn("w:trPr"))
@@ -201,7 +184,7 @@ def _prevent_table_row_split(row):
     trPr.append(cantSplit)
 
 
-def _add_horizontal_rule(doc, color_hex: str = "D0D8F0", thickness: str = "4"):
+def _add_horizontal_rule(doc, color_hex: str = "C4B5FD", thickness: str = "4"):
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(4)
     p.paragraph_format.space_after  = Pt(4)
@@ -389,12 +372,6 @@ def _apply_base_styles(doc: Document):
 # ─────────────────────────────────────────────────────────────
 
 def _add_table_to_hf(hf_container, rows: int, cols: int, total_width_emu: int):
-    """
-    Add a table to a Header or Footer container.
-    python-docx Header/Footer objects require a positional width argument
-    unlike Document.add_table. We bypass this by building the tbl XML
-    directly and appending it to the container's _element.
-    """
     from docx.oxml.table import CT_Tbl
     from docx.table import Table
 
@@ -409,7 +386,7 @@ def _add_table_to_hf(hf_container, rows: int, cols: int, total_width_emu: int):
     return tbl_obj
 
 
-def _configure_header_footer(doc: Document, project_name: str):
+def _configure_header_footer(doc: Document, project_name: str, logo_buffer: bytes = None):
     title_section = doc.sections[0]
     title_section.different_first_page_header_footer = False
     title_section.header.is_linked_to_previous = False
@@ -424,7 +401,6 @@ def _configure_header_footer(doc: Document, project_name: str):
 
     body_section = doc.sections[1]
 
-    # ── Header ────────────────────────────────────────────────
     header = body_section.header
     header.is_linked_to_previous = False
 
@@ -436,14 +412,20 @@ def _configure_header_footer(doc: Document, project_name: str):
     _set_col_width(header_table, 0, BODY_WIDTH // 2)
     _set_col_width(header_table, 1, BODY_WIDTH // 2)
 
+    # ── Left cell: logo or fallback text ──────────────────────
     lp = header_table.cell(0, 0).paragraphs[0]
     lp.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    lr = lp.add_run(project_name)
-    lr.font.name      = T.FONT_BODY
-    lr.font.size      = T.SIZE_CAPTION
-    lr.font.bold      = True
-    lr.font.color.rgb = T.COLOR_HEADING
+    lp.paragraph_format.space_before = Pt(8)
+    if logo_buffer:
+        lp.add_run().add_picture(io.BytesIO(logo_buffer), width=LOGO_WIDTH, height=LOGO_HEIGHT)
+    else:
+        lr = lp.add_run(project_name)
+        lr.font.name      = T.FONT_BODY
+        lr.font.size      = T.SIZE_CAPTION
+        lr.font.bold      = True
+        lr.font.color.rgb = T.COLOR_HEADING
 
+    # ── Right cell: doc type label ─────────────────────────────
     rp = header_table.cell(0, 1).paragraphs[0]
     rp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     rr = rp.add_run("TECHNICAL DOCUMENTATION")
@@ -460,11 +442,11 @@ def _configure_header_footer(doc: Document, project_name: str):
     btm.set(qn("w:val"),   "single")
     btm.set(qn("w:sz"),    "6")
     btm.set(qn("w:space"), "1")
-    btm.set(qn("w:color"), "1A56DB")
+    btm.set(qn("w:color"), HEX_PURPLE)
     pBdr.append(btm)
     pPr.append(pBdr)
 
-    # ── Footer ────────────────────────────────────────────────
+    # ── Footer ─────────────────────────────────────────────────
     footer = body_section.footer
     footer.is_linked_to_previous = False
 
@@ -514,38 +496,39 @@ def _build_title_page(
     team_str: str,
     description: str,
 ):
-    # ── 1. Full-width top accent bar ──────────────────────────
-    top_bar  = _make_table(doc, rows=1, cols=1, total_width_emu=BODY_WIDTH)
-    _remove_table_borders(top_bar)
-    bar_cell = top_bar.cell(0, 0)
-    _set_cell_shading(bar_cell, "1A56DB")
-    bar_p = bar_cell.paragraphs[0]
-    bar_p.paragraph_format.space_before = Pt(6)   # FIX: was Pt(10) — slimmer bar
-    bar_p.paragraph_format.space_after  = Pt(6)   # FIX: was Pt(10)
-    bar_p.add_run("")
+    # ── 1. Hero block ──────────────────────────────────────────
+    hero = _make_table(doc, rows=2, cols=1, total_width_emu=BODY_WIDTH)
+    _remove_table_borders(hero)
 
-    # ── 2. Vertical spacer ───────────────────────────────────
-    # FIX: replaced 6 zero-height paragraphs with one properly-sized spacer
-    # Word collapses zero-height paragraphs, causing the title to clip at top
-    sp = doc.add_paragraph()
-    sp.paragraph_format.space_before = Pt(0)
-    sp.paragraph_format.space_after  = Pt(52)
+    # Row 0 — accent strip
+    strip_cell = hero.cell(0, 0)
+    _set_cell_shading(strip_cell, HEX_PURPLE)
+    strip_p = strip_cell.paragraphs[0]
+    strip_p.paragraph_format.space_before = Pt(4)
+    strip_p.paragraph_format.space_after  = Pt(4)
+    strip_p.add_run("")
 
-    # ── 3. Project name (large display title) ─────────────────
-    title_p = doc.add_paragraph()
-    title_p.paragraph_format.space_before = Pt(0)
-    title_p.paragraph_format.space_after  = Pt(4)
-    title_p.paragraph_format.left_indent  = Inches(0)
+    # Row 1 — white title area
+    title_cell = hero.cell(1, 0)
+    _set_cell_shading(title_cell, HEX_WHITE)
+    title_cell._tc.get_or_add_tcPr()
+
+    # Project name
+    title_p = title_cell.paragraphs[0]
+    title_p.paragraph_format.space_before = Pt(32)
+    title_p.paragraph_format.space_after  = Pt(6)
+    title_p.paragraph_format.left_indent  = Inches(0.1)
     title_run = title_p.add_run(project_name.upper())
     title_run.font.name      = T.FONT_HEADING
     title_run.font.size      = T.SIZE_DISPLAY
     title_run.font.bold      = True
     title_run.font.color.rgb = T.COLOR_HEADING
 
-    # ── 4. Subtitle label ─────────────────────────────────────
-    sub_p = doc.add_paragraph()
+    # Subtitle
+    sub_p = title_cell.add_paragraph()
     sub_p.paragraph_format.space_before = Pt(0)
     sub_p.paragraph_format.space_after  = Pt(0)
+    sub_p.paragraph_format.left_indent  = Inches(0.1)
     sub_run = sub_p.add_run("TECHNICAL DOCUMENTATION")
     sub_run.font.name      = T.FONT_BODY
     sub_run.font.size      = T.SIZE_SUBTITLE
@@ -556,36 +539,38 @@ def _build_title_page(
     spacing_el.set(qn("w:val"), "80")
     rPr.append(spacing_el)
 
-    # ── 5. Accent rule ────────────────────────────────────────
-    rule_p = doc.add_paragraph()
-    rule_p.paragraph_format.space_before = Pt(14)
-    rule_p.paragraph_format.space_after  = Pt(14)
+    # Accent rule
+    rule_p = title_cell.add_paragraph()
+    rule_p.paragraph_format.space_before = Pt(20)
+    rule_p.paragraph_format.space_after  = Pt(0)
+    rule_p.paragraph_format.left_indent  = Inches(0.1)
     pPr  = rule_p._p.get_or_add_pPr()
     pBdr = OxmlElement("w:pBdr")
     btm  = OxmlElement("w:bottom")
     btm.set(qn("w:val"),   "single")
     btm.set(qn("w:sz"),    "12")
     btm.set(qn("w:space"), "1")
-    btm.set(qn("w:color"), "1A56DB")
+    btm.set(qn("w:color"), HEX_PURPLE)
     pBdr.append(btm)
     pPr.append(pBdr)
 
-    # ── 6. Description ────────────────────────────────────────
+    # Description
     if description:
-        desc_p = doc.add_paragraph()
-        desc_p.paragraph_format.space_before = Pt(0)
-        desc_p.paragraph_format.space_after  = Pt(20)   # FIX: was Pt(28)
+        desc_p = title_cell.add_paragraph()
+        desc_p.paragraph_format.space_before = Pt(14)
+        desc_p.paragraph_format.space_after  = Pt(28)
+        desc_p.paragraph_format.left_indent  = Inches(0.1)
         desc_run = desc_p.add_run(description)
         desc_run.font.name      = T.FONT_BODY
-        desc_run.font.size      = Pt(10.5)               # FIX: was Pt(11), matches body
+        desc_run.font.size      = Pt(10.5)
         desc_run.font.color.rgb = T.COLOR_MUTED
         desc_run.font.italic    = True
     else:
-        sp2 = doc.add_paragraph()
-        sp2.paragraph_format.space_before = Pt(0)
-        sp2.paragraph_format.space_after  = Pt(20)       # FIX: was Pt(28)
+        sp_pad = title_cell.add_paragraph()
+        sp_pad.paragraph_format.space_before = Pt(14)
+        sp_pad.paragraph_format.space_after  = Pt(28)
 
-    # ── 7. Metadata card ──────────────────────────────────────
+    # ── 2. Metadata card ───────────────────────────────────────
     meta_rows = []
     if client_name: meta_rows.append(("Client",         client_name))
     if team_str:    meta_rows.append(("Team",           team_str))
@@ -594,21 +579,21 @@ def _build_title_page(
 
     wrapper = _make_table(doc, rows=1, cols=2, total_width_emu=BODY_WIDTH)
     _remove_table_borders(wrapper)
-    _set_col_width(wrapper, 0, Inches(0.06))
-    _set_col_width(wrapper, 1, BODY_WIDTH - Inches(0.06))
-    _set_cell_shading(wrapper.cell(0, 0), "1A56DB")
+    _set_col_width(wrapper, 0, Inches(0.08))
+    _set_col_width(wrapper, 1, BODY_WIDTH - Inches(0.08))
+    _set_cell_shading(wrapper.cell(0, 0), HEX_PURPLE)
 
     right_cell = wrapper.cell(0, 1)
-    _set_cell_shading(right_cell, "F0F4FF")
+    _set_cell_shading(right_cell, HEX_SURFACE)
 
     inner_meta = right_cell.add_table(rows=len(meta_rows), cols=2)
     inner_meta.autofit   = False
     inner_meta.alignment = WD_TABLE_ALIGNMENT.LEFT
     _remove_table_borders(inner_meta)
 
-    inner_width = BODY_WIDTH - Inches(0.06)
-    label_w = Inches(1.5)
-    value_w = inner_width - label_w
+    inner_width = BODY_WIDTH - Inches(0.08)
+    label_w     = Inches(1.6)
+    value_w     = inner_width - label_w
 
     for row in inner_meta.rows:
         for ci, cell in enumerate(row.cells):
@@ -625,8 +610,8 @@ def _build_title_page(
 
         lc = inner_meta.cell(i, 0)
         vc = inner_meta.cell(i, 1)
-        _set_cell_shading(lc, "F0F4FF")
-        _set_cell_shading(vc, "F0F4FF")
+        _set_cell_shading(lc, HEX_SURFACE)
+        _set_cell_shading(vc, HEX_SURFACE)
 
         if not is_last:
             for cell in (lc, vc):
@@ -637,34 +622,34 @@ def _build_title_page(
                 btm_b.set(qn("w:val"),   "single")
                 btm_b.set(qn("w:sz"),    "2")
                 btm_b.set(qn("w:space"), "0")
-                btm_b.set(qn("w:color"), "D0D8F0")
+                btm_b.set(qn("w:color"), HEX_DIVIDER)
                 tcBd.append(btm_b)
                 tcPr.append(tcBd)
 
         lp = lc.paragraphs[0]
-        lp.paragraph_format.left_indent  = Inches(0.25)
-        lp.paragraph_format.space_before = Pt(7)
-        lp.paragraph_format.space_after  = Pt(7)
+        lp.paragraph_format.left_indent  = Inches(0.28)
+        lp.paragraph_format.space_before = Pt(10)
+        lp.paragraph_format.space_after  = Pt(10)
         lr = lp.add_run(label.upper())
         lr.font.name      = T.FONT_BODY
         lr.font.size      = T.SIZE_META_LABEL
         lr.font.bold      = True
-        lr.font.color.rgb = T.COLOR_LIGHT_MUTED
+        lr.font.color.rgb = T.COLOR_MUTED
 
         vp = vc.paragraphs[0]
-        vp.paragraph_format.space_before = Pt(7)
-        vp.paragraph_format.space_after  = Pt(7)
-        vp.paragraph_format.left_indent  = Inches(0.1)
+        vp.paragraph_format.space_before = Pt(10)
+        vp.paragraph_format.space_after  = Pt(10)
+        vp.paragraph_format.left_indent  = Inches(0.14)
         vr = vp.add_run(value)
         vr.font.name      = T.FONT_BODY
         vr.font.size      = T.SIZE_META_VALUE
+        vr.font.bold      = True
         vr.font.color.rgb = T.COLOR_HEADING
 
-    # ── 8. Bottom spacer then page break ─────────────────────
-    # FIX: replaced 3 zero-height spacers with one real spacer
+    # ── 3. Spacer → page break ─────────────────────────────────
     sp3 = doc.add_paragraph()
     sp3.paragraph_format.space_before = Pt(0)
-    sp3.paragraph_format.space_after  = Pt(36)
+    sp3.paragraph_format.space_after  = Pt(32)
 
     doc.add_section(WD_SECTION.NEW_PAGE)
 
@@ -697,7 +682,7 @@ def _build_toc_page(doc: Document, sections: List[Dict[str, Any]]):
     thr.font.bold      = True
     thr.font.color.rgb = T.COLOR_HEADING
 
-    _add_horizontal_rule(doc, color_hex="1A56DB", thickness="6")
+    _add_horizontal_rule(doc, color_hex=HEX_PURPLE, thickness="6")
 
     toc_table = _make_table(doc, rows=len(sorted_sections), cols=2, total_width_emu=BODY_WIDTH)
     toc_table.alignment = WD_TABLE_ALIGNMENT.LEFT
@@ -711,7 +696,7 @@ def _build_toc_page(doc: Document, sections: List[Dict[str, Any]]):
 
         if row_idx % 2 == 0:
             for cell in row.cells:
-                _set_cell_shading(cell, "F8F9FF")
+                _set_cell_shading(cell, HEX_STRIPE)
 
         name_cell = row.cells[0]
         name_para = name_cell.paragraphs[0]
@@ -742,7 +727,7 @@ def _build_toc_page(doc: Document, sections: List[Dict[str, Any]]):
         pg_run.font.size      = T.SIZE_BODY
         pg_run.font.color.rgb = T.COLOR_MUTED
 
-    _add_horizontal_rule(doc, color_hex="D0D8F0", thickness="4")
+    _add_horizontal_rule(doc, color_hex=HEX_DIVIDER, thickness="4")
 
     note_p = doc.add_paragraph()
     note_p.paragraph_format.space_before = Pt(4)
@@ -798,15 +783,15 @@ def _render_professional_table(doc: Document, rows: List[List[str]]):
             cell = tr.cells[col_idx]
 
             if is_header:
-                _set_cell_shading(cell, "0D1B3E")
+                _set_cell_shading(cell, HEX_NAVY)
             elif row_idx % 2 == 0:
-                _set_cell_shading(cell, "F8F9FF")
+                _set_cell_shading(cell, HEX_STRIPE)
             else:
-                _set_cell_shading(cell, "FFFFFF")
+                _set_cell_shading(cell, HEX_WHITE)
 
             if is_header:
                 _set_cell_border(cell, {
-                    "bottom": {"val": "single", "sz": "6", "color": "1A56DB"}
+                    "bottom": {"val": "single", "sz": "6", "color": HEX_ACCENT}
                 })
 
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
@@ -891,7 +876,7 @@ def _apply_code_paragraph_border(para):
     left_border.set(qn("w:val"),   "single")
     left_border.set(qn("w:sz"),    "12")
     left_border.set(qn("w:space"), "6")
-    left_border.set(qn("w:color"), "1A56DB")
+    left_border.set(qn("w:color"), HEX_ACCENT)
     pBdr.append(left_border)
     pPr.append(pBdr)
 
@@ -907,7 +892,7 @@ def _render_code_block(doc: Document, code_lines: List[str]):
         p.paragraph_format.right_indent = Inches(0.22)
         p.paragraph_format.space_before = Pt(6) if idx == 0 else Pt(0)
         p.paragraph_format.space_after  = Pt(6) if idx == len(code_lines) - 1 else Pt(0)
-        _set_paragraph_shading(p, "F5F7FF")
+        _set_paragraph_shading(p, HEX_CODE_BG)
         _apply_code_paragraph_border(p)
 
         run = p.add_run(line)
@@ -1012,14 +997,14 @@ def _render_section_content(doc: Document, content: str):
             bq_p.paragraph_format.left_indent  = Inches(0.3)
             bq_p.paragraph_format.space_before = Pt(4)
             bq_p.paragraph_format.space_after  = Pt(4)
-            _set_paragraph_shading(bq_p, "EEF2FF")
+            _set_paragraph_shading(bq_p, HEX_SURFACE)
             pPr    = bq_p._p.get_or_add_pPr()
             pBdr   = OxmlElement("w:pBdr")
             left_b = OxmlElement("w:left")
             left_b.set(qn("w:val"),   "single")
             left_b.set(qn("w:sz"),    "12")
             left_b.set(qn("w:space"), "6")
-            left_b.set(qn("w:color"), "1A56DB")
+            left_b.set(qn("w:color"), HEX_ACCENT)
             pBdr.append(left_b)
             pPr.append(pBdr)
             _apply_inline_markdown(bq_p, line[2:].strip(), base_color=T.COLOR_BLOCKQUOTE)
@@ -1072,14 +1057,10 @@ def _render_section_content(doc: Document, content: str):
 
 
 # ─────────────────────────────────────────────────────────────
-# _make_table for Document bodies (title page, TOC, content)
+# _make_table  (Document body version)
 # ─────────────────────────────────────────────────────────────
 
 def _make_table(container, rows: int, cols: int, total_width_emu: int):
-    """
-    Add a table to a Document (or any container with .add_table(rows, cols)).
-    For Header/Footer containers use _add_table_to_hf() instead.
-    """
     table           = container.add_table(rows=rows, cols=cols)
     table.autofit   = False
     table.alignment = WD_TABLE_ALIGNMENT.LEFT
@@ -1100,8 +1081,6 @@ def build_document(
     _configure_margins(doc)
     _apply_base_styles(doc)
 
-    # ── FIX: defensive multi-key lookup covers all casing variants ──
-    # GitHub ingest sends project_name (underscore); ZIP may send projectName (camel)
     project_name = (
         metadata.get("project_name")
         or metadata.get("projectName")
@@ -1124,6 +1103,13 @@ def build_document(
 
     team_str = ", ".join(team_members) if isinstance(team_members, list) else team_members
 
+    logo_buffer = None
+    try:
+        with open(LOGO_PATH, "rb") as f:
+            logo_buffer = f.read()
+    except FileNotFoundError:
+        pass
+
     _build_title_page(doc, project_name, client_name, team_str, description)
     _build_toc_page(doc, sections)
 
@@ -1135,14 +1121,14 @@ def build_document(
         heading_p.paragraph_format.page_break_before = (idx > 0)
         heading_p.paragraph_format.keep_with_next    = True
 
-        _add_horizontal_rule(doc, color_hex="D0D8F0", thickness="4")
+        _add_horizontal_rule(doc, color_hex=HEX_DIVIDER, thickness="4")
 
         clean_content = _strip_leading_duplicate_heading(
             sec.get("content", ""), sec["name"]
         )
         _render_section_content(doc, clean_content)
 
-    _configure_header_footer(doc, project_name)
+    _configure_header_footer(doc, project_name, logo_buffer)
 
     out_dir  = Path(STORAGE_DIR) / "projects" / project_id
     out_dir.mkdir(parents=True, exist_ok=True)

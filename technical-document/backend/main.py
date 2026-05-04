@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
 from api.routes import ingest, sections, context, generation, assembly
 from api.routes.review  import router as review_router
 from api.routes.publish import router as publish_router
@@ -7,20 +6,10 @@ from api.routes.report  import router as report_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    print("Documentation Agent API starting up...")
-    yield
-    print("Documentation Agent API shutting down...")
-
-
 app = FastAPI(
     title="Documentation Agent",
     description="Automated technical documentation generation from codebases.",
     version="1.0.0",
-    lifespan=lifespan,
 )
 
 app.add_middleware(

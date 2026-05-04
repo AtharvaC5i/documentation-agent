@@ -1,78 +1,62 @@
-/**
- * generate_pptx.js  —  AI Solution Architect · PowerPoint Generator
- *
- * Changes in this version:
- *  - Logo added to top-left of every slide (content slides + title + closing)
- *  - Slide titles are now centered in the header band
- *  - Improved visual presentation across all slides
- *
- * Usage: node generate_pptx.js <input.json> <output.pptx>
- */
-
 "use strict";
 
 const fs = require("fs");
 const pptxgen = require("pptxgenjs");
 const { generateDrawioXml } = require("./drawioGenerator");
 const { renderDrawioToPng } = require("./drawioRenderer");
+const { addCustomSlide } = require("./customSlideRenderer");
 const path = require("path");
+const { execSync } = require("child_process");
 
-// ─── CLI ─────────────────────────────────────────────────────────────────────
+// ── CLI ──────────────────────────────────────────────────────────────────────
 const [, , inputPath, outputPath] = process.argv;
 if (!inputPath || !outputPath) {
-  console.error("Usage: node generate_pptx.js <input.json> <output.pptx>");
+  console.error("Usage: node generatepptx.js input.json output.pptx");
   process.exit(1);
 }
 
 const DATA = JSON.parse(fs.readFileSync(inputPath, "utf8"));
+const imageLogo = path.join(__dirname, "logo.png");
+const imageLogoWhite = path.join(__dirname, "logo_white.png");
 
-// ─── Logo Placeholder ─────────────────────────────────────────────────────────
-// Replace "logo.png" with the actual path to your logo file.
-// The logo is placed in the top-left of every slide.
-const image_logo = path.join(__dirname, "logo.png"); // Ensure this path points to your logo image file
+// ── Template file paths ───────────────────────────────────────────────────────
+const titleSlidesPath = path.join(__dirname, "title_slides.pptx");
+const closingSlidesPath = path.join(__dirname, "closing_slides.pptx");
 
-// ─── Brand Design System ─────────────────────────────────────────────────────
+// ── Brand colors ─────────────────────────────────────────────────────────────
 const C = {
-  purpleDim: "4C1D95",
-  purple: "5B21B6",
-  purpleMid: "7C3AED",
+  purple: "3D35C9",
+  purpleDark: "2A239A",
+  purpleMid: "5B21B6",
   purpleLight: "A78BFA",
   purpleFaint: "EDE9FE",
-  pageBg: "F5F3FF",
+  pageBg: "FFFFFF",
+  closingBg: "5B21D4",
   white: "FFFFFF",
   offwhite: "FAFAFE",
   text: "1E1B4B",
+  textDark: "222222",
   textMuted: "6B7280",
-  textFaint: "9CA3AF",
-  border: "C4B5FD",
-  borderMid: "A78BFA",
+  border: "E2E0EF",
   success: "10B981",
   warning: "D97706",
   error: "EF4444",
   info: "2563EB",
 };
 
-const FONT_TITLE = "Georgia";
+const FONT_TITLE = "Calibri";
 const FONT_BODY = "Calibri";
-
-// Slide canvas (16:9 inches)
 const W = 10;
 const H = 5.625;
 
-// Logo dimensions and position (top-left, inside the header band)
-const LOGO_X = 0.22;
-const LOGO_Y = 0.12;
-const LOGO_W = 1.4;
-const LOGO_H = 0.56;
-
-// ─── Utilities ────────────────────────────────────────────────────────────────
+// ── Utilities ────────────────────────────────────────────────────────────────
 function log(msg) {
   console.error(msg);
 }
 
-function _shouldInclude(key) {
+function shouldInclude(key) {
   try {
-    const sel = DATA.selected_slides;
+    const sel = DATA.selected_slides || DATA.selectedslides;
     if (!sel || !Array.isArray(sel) || sel.length === 0) return true;
     return sel.includes(key);
   } catch (e) {
@@ -80,39 +64,49 @@ function _shouldInclude(key) {
   }
 }
 
-const mkShadow = () => ({
-  type: "outer",
-  blur: 12,
-  offset: 4,
-  angle: 135,
-  color: "000000",
-  opacity: 0.1,
-});
+// NEW: if custom_slides already has an exec summary, skip the predefined one
+function hasCustomExecSummary() {
+  const custom = DATA.custom_slides || DATA.customslides;
+  if (!Array.isArray(custom)) return false;
+  return custom.some(
+    (cs) =>
+      typeof cs === "object" &&
+      (String(cs.type || "").toLowerCase() === "executive-summary" ||
+        String(cs.title || "")
+          .trim()
+          .toLowerCase() === "executive summary"),
+  );
+}
 
-const mkShadowStrong = () => ({
-  type: "outer",
-  blur: 18,
-  offset: 5,
-  angle: 135,
-  color: "000000",
-  opacity: 0.15,
-});
+function sanitize(val) {
+  if (val === null || val === undefined) return "";
+  return String(val)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .trim();
+}
 
-// ─── Logo Helper ──────────────────────────────────────────────────────────────
-/**
- * Adds the logo image to the top-left of any slide.
- * Falls back silently if the logo file is missing.
- */
-function addLogo(slide, opts = {}) {
-  const x = opts.x !== undefined ? opts.x : LOGO_X;
-  const y = opts.y !== undefined ? opts.y : LOGO_Y;
-  const w = opts.w !== undefined ? opts.w : LOGO_W;
-  const h = opts.h !== undefined ? opts.h : LOGO_H;
+function R(slide, x, y, w, h, opts) {
+  if (w > 0.001 && h > 0.001) slide.addShape("rect", { x, y, w, h, ...opts });
+}
+function E(slide, x, y, w, h, opts) {
+  if (w > 0.001 && h > 0.001)
+    slide.addShape("ellipse", { x, y, w, h, ...opts });
+}
 
+function clampH(h, min) {
+  return Math.max(min || 0.2, h);
+}
+
+function addLogo(slide, x, y, w, h) {
   try {
-    if (fs.existsSync(image_logo)) {
+    const logoPath = fs.existsSync(imageLogoWhite)
+      ? imageLogoWhite
+      : fs.existsSync(imageLogo)
+        ? imageLogo
+        : null;
+    if (logoPath) {
       slide.addImage({
-        path: image_logo,
+        path: logoPath,
         x,
         y,
         w,
@@ -121,611 +115,377 @@ function addLogo(slide, opts = {}) {
       });
     }
   } catch (e) {
-    // Logo file not found — skip silently
+    log(`[pptx-gen] logo skipped: ${e.message}`);
   }
 }
 
-// ─── Layout Helpers ───────────────────────────────────────────────────────────
+// ── Layout constants ─────────────────────────────────────────────────────────
+const HDR_H = 0.76;
+const BODY_Y = 0.86;
+const BODY_H = H - BODY_Y - 0.36;
 
-/** Light lavender page canvas */
-function pageBackground(slide) {
-  slide.background = { color: C.pageBg };
+// ── Merge helper ─────────────────────────────────────────────────────────────
+function mergeWithTemplates(contentPath, finalOutputPath) {
+  const hasTitleFile = fs.existsSync(titleSlidesPath);
+  const hasClosingFile = fs.existsSync(closingSlidesPath);
+
+  if (!hasTitleFile) {
+    log(`[pptx-gen] NOTE: title template not found at ${titleSlidesPath}`);
+  }
+  if (!hasClosingFile) {
+    log(`[pptx-gen] NOTE: closing template not found at ${closingSlidesPath}`);
+  }
+
+  if (!hasTitleFile && !hasClosingFile) {
+    log("[pptx-gen] No template files found — using content-only output.");
+    try {
+      fs.renameSync(contentPath, finalOutputPath);
+    } catch (_) {
+      fs.copyFileSync(contentPath, finalOutputPath);
+      try {
+        fs.unlinkSync(contentPath);
+      } catch (_) {}
+    }
+    return;
+  }
+
+  const files = [
+    hasTitleFile ? titleSlidesPath : null,
+    contentPath,
+    hasClosingFile ? closingSlidesPath : null,
+  ].filter(Boolean);
+
+  log(`[pptx-gen] Merging: ${files.join(" + ")}`);
+
+  const pyScriptPath = contentPath + "_merge.py";
+
+  const pyScript = `
+import sys, copy
+from pptx import Presentation
+
+files = ${JSON.stringify(files)}
+out   = ${JSON.stringify(finalOutputPath)}
+
+try:
+    merged = Presentation()
+    ref = Presentation(files[0])
+    merged.slide_width  = ref.slide_width
+    merged.slide_height = ref.slide_height
+
+    def copy_slide(src_prs, src_slide, dest_prs):
+        blank_layout = dest_prs.slide_layouts[6]
+        dest_slide = dest_prs.slides.add_slide(blank_layout)
+        for ph in list(dest_slide.placeholders):
+            ph._element.getparent().remove(ph._element)
+        for shape in src_slide.shapes:
+            dest_slide.shapes._spTree.append(copy.deepcopy(shape.element))
+        try:
+            bg = src_slide.background
+            dest_bg = dest_slide.background
+            src_bg_elem = bg.element
+            dest_bg_elem = dest_bg.element
+            for child in list(dest_bg_elem):
+                dest_bg_elem.remove(child)
+            for child in src_bg_elem:
+                dest_bg_elem.append(copy.deepcopy(child))
+        except Exception:
+            pass
+        return dest_slide
+
+    for fp in files:
+        prs = Presentation(fp)
+        for slide in prs.slides:
+            copy_slide(prs, slide, merged)
+
+    merged.save(out)
+    print("MERGE_OK")
+except Exception as e:
+    print("ERROR: " + str(e), file=sys.stderr)
+    sys.exit(1)
+`.trimStart();
+
+  fs.writeFileSync(pyScriptPath, pyScript, "utf8");
+
+  try {
+    // 2>&1 captures Python stderr into stdout so Node can log it on failure
+    const result = execSync(`python3 "${pyScriptPath}" 2>&1`, {
+      encoding: "utf8",
+      timeout: 60000,
+    });
+    if (!result.includes("MERGE_OK")) {
+      throw new Error(`MERGE_OK not in output. Python said:\n${result}`);
+    }
+    log(`[pptx-gen] Merge complete → ${finalOutputPath}`);
+  } catch (err) {
+    log(
+      `[pptx-gen] WARNING: merge failed — ${err.message}\nFalling back to content-only output.`,
+    );
+    try {
+      fs.copyFileSync(contentPath, finalOutputPath);
+    } catch (_) {}
+  } finally {
+    try {
+      fs.unlinkSync(pyScriptPath);
+    } catch (_) {}
+    try {
+      fs.unlinkSync(contentPath);
+    } catch (_) {}
+  }
 }
 
-/**
- * Header band with CENTERED title and logo on the left.
- * Height increased slightly to 0.88" for more breathing room.
- */
-// Header band with CENTERED title and logo on the left.
-function headerBand(slide, title, subtitle) {
-  const BANDH = subtitle ? 1.0 : 0.88;
+// ════════════════════════════════════════════════════════════════════════════
+// CONTENT CHROME
+// ════════════════════════════════════════════════════════════════════════════
+function contentChrome(slide, title) {
+  slide.background = { color: C.pageBg };
 
-  // ── White band (was purple) ──────────────────────────────────
-  slide.addShape("rect", {
-    x: 0,
-    y: 0,
-    w: W,
-    h: BANDH,
-    fill: { color: C.white },
-    line: { color: C.white },
-  });
-
-  // Bottom accent line — purple, marks the boundary cleanly
-  slide.addShape("rect", {
-    x: 0,
-    y: BANDH - 0.05,
-    w: W,
-    h: 0.05,
+  R(slide, 0, 0, 0.055, H, {
     fill: { color: C.purple },
     line: { color: C.purple },
   });
 
-  // Decorative orb top right (lighter now against white)
-  slide.addShape("ellipse", {
-    x: 8.2,
-    y: -0.7,
-    w: 2.4,
-    h: 2.4,
-    fill: { color: C.purpleFaint, transparency: 40 },
-    line: { color: C.border, transparency: 50, width: 1 },
-  });
-  // Small secondary orb
-  slide.addShape("ellipse", {
-    x: 7.2,
-    y: -0.2,
-    w: 1.2,
-    h: 1.2,
-    fill: { color: C.purpleFaint, transparency: 55 },
-    line: { color: C.border, transparency: 55, width: 1 },
-  });
+  addLogo(slide, W - 1.18, 0.1, 1.1, 0.52);
 
-  // Logo top-left inside band — slightly larger for white bg legibility
-  const LOGO_W = 1.4;
-  const LOGO_H = 0.62;
-  addLogo(slide, {
-    x: LOGO_X,
-    y: (BANDH - LOGO_H) / 2, // perfectly vertically centred in band
-    w: LOGO_W,
-    h: LOGO_H,
-  });
-
-  // Centered title text — dark navy on white (was white on purple)
-  const titleX = LOGO_X + LOGO_W + 0.14;
-  const titleW = W - titleX - 0.3;
-  slide.addText(title, {
-    x: titleX,
-    y: subtitle ? 0.1 : (BANDH - 0.48) / 2,
-    w: titleW,
-    h: 0.48,
+  slide.addText(sanitize(title), {
+    x: 0.18,
+    y: 0.12,
+    w: W - 1.42,
+    h: 0.52,
     fontSize: 20,
     bold: true,
-    color: C.purpleDim, // was C.white
+    color: C.text,
     fontFace: FONT_TITLE,
-    align: "center",
+    align: "left",
     valign: "middle",
     margin: 0,
   });
 
-  if (subtitle) {
-    slide.addText(subtitle, {
-      x: titleX,
-      y: BANDH - 0.32,
-      w: titleW,
-      h: 0.26,
-      fontSize: 9,
-      color: C.purpleMid, // was C.purpleLight
-      fontFace: FONT_BODY,
-      italic: true,
-      align: "center",
-      valign: "top",
-      margin: 0,
-    });
-  }
-
-  // Left vertical accent strip — keep purple for brand anchor
-  slide.addShape("rect", {
-    x: 0,
-    y: 0,
-    w: 0.06,
-    h: H,
-    fill: { color: C.purpleMid },
-    line: { color: C.purpleMid },
-  });
-}
-
-/**
- * White card — cleaner drop shadow, slightly larger radius feel via thicker border.
- */
-function card(slide, x, y, w, h, label, value, accentColor) {
-  const ac = accentColor || C.purpleMid;
-
-  slide.addShape("rect", {
-    x,
-    y,
-    w,
-    h,
-    fill: { color: C.white },
-    line: { color: C.border, width: 0.75 },
-    shadow: mkShadow(),
-  });
-  // Top accent stripe (instead of left — cleaner look)
-  slide.addShape("rect", {
-    x,
-    y,
-    w,
-    h: 0.06,
-    fill: { color: ac },
-    line: { color: ac },
+  R(slide, 0, HDR_H, W, 0.06, {
+    fill: { color: C.purple },
+    line: { color: C.purple },
   });
 
-  if (label) {
-    slide.addText(label.toUpperCase(), {
-      x: x + 0.14,
-      y: y + 0.12,
-      w: w - 0.22,
-      h: 0.22,
-      fontSize: 7.5,
-      bold: true,
-      color: ac,
-      fontFace: FONT_BODY,
-      charSpacing: 0.8,
-      margin: 0,
-    });
-  }
-  if (value) {
-    slide.addText(value, {
-      x: x + 0.14,
-      y: y + (label ? 0.38 : 0.14),
-      w: w - 0.22,
-      h: h - (label ? 0.46 : 0.22),
-      fontSize: 11,
-      color: C.text,
-      fontFace: FONT_BODY,
-      valign: "top",
-      margin: 0,
-      wrap: true,
-    });
-  }
-}
-
-/** Bullet list with proper PptxGenJS bullet syntax */
-function bulletList(slide, items, x, y, w, h, opts = {}) {
-  if (!items || items.length === 0) return;
-  const richText = items.map((item, i) => {
-    const text =
-      typeof item === "string"
-        ? item
-        : item.risk ||
-          item.phase ||
-          item.step ||
-          item.description ||
-          JSON.stringify(item);
-    return {
-      text,
-      options: {
-        bullet: { type: "bullet", characterCode: "2022", indent: 10 },
-        breakLine: i < items.length - 1,
-        fontSize: opts.fontSize || 11.5,
-        color: opts.color || C.text,
-        fontFace: FONT_BODY,
-      },
-    };
-  });
-  slide.addText(richText, {
-    x,
-    y,
-    w,
-    h,
-    valign: "top",
-    margin: [4, 6, 4, 14],
-    paraSpaceAfter: opts.paraSpaceAfter !== undefined ? opts.paraSpaceAfter : 6,
-    lineSpacingMultiple: 1.1,
-  });
-}
-
-/** Small ALL-CAPS section label */
-function sectionLabel(slide, text, x, y, w) {
-  // Subtle underline bar
-  slide.addShape("rect", {
-    x,
-    y: y + 0.21,
-    w: Math.min(w, 1.8),
-    h: 0.03,
-    fill: { color: C.purpleLight },
-    line: { color: C.purpleLight },
-  });
-  slide.addText(text.toUpperCase(), {
-    x,
-    y,
-    w,
-    h: 0.24,
-    fontSize: 8,
-    bold: true,
-    color: C.purpleMid,
-    fontFace: FONT_BODY,
-    charSpacing: 0.8,
-    margin: 0,
-  });
-}
-
-/** Footer strip */
-function addFooter(slide, text) {
-  slide.addShape("rect", {
-    x: 0.06,
-    y: H - 0.24,
-    w: W - 0.06,
-    h: 0.24,
-    fill: { color: C.purpleFaint },
-    line: { color: C.border, width: 0.5 },
-  });
-  slide.addText(text || "AI Solution Architect  ·  Confidential", {
-    x: 0.24,
-    y: H - 0.23,
-    w: W - 0.5,
-    h: 0.2,
-    fontSize: 7.5,
-    color: C.textMuted,
-    fontFace: FONT_BODY,
-    italic: true,
-    margin: 0,
-  });
-}
-
-// ─── Slide 1 — Title ──────────────────────────────────────────────────────────
-function addTitleSlide(pres) {
-  const slide = pres.addSlide();
-  slide.background = { color: C.purpleDim };
-
-  // Decorative orbs
-  slide.addShape("ellipse", {
-    x: 6.0,
-    y: -1.6,
-    w: 6.5,
-    h: 6.5,
-    fill: { color: C.purple, transparency: 80 },
-    line: { color: C.purple, transparency: 76, width: 1 },
-  });
-  slide.addShape("ellipse", {
-    x: 7.8,
-    y: 3.0,
-    w: 3.6,
-    h: 3.6,
-    fill: { color: C.purpleMid, transparency: 86 },
-    line: { color: C.purpleMid, transparency: 83, width: 1 },
-  });
-  slide.addShape("ellipse", {
-    x: -1.2,
-    y: 3.2,
-    w: 4.5,
-    h: 4.5,
-    fill: { color: C.purpleLight, transparency: 88 },
-    line: { color: C.purpleLight, transparency: 85, width: 1 },
-  });
-
-  // 🟣 Circle behind logo (UPDATED)
-  const circleX = 0.48;
-  const circleY = 0.16;
-  const circleW = 0.82; // 2.32 cm
-  const circleH = 0.83; // 2.34 cm
-
-  slide.addShape("ellipse", {
-    x: circleX,
-    y: circleY,
-    w: circleW,
-    h: circleH,
-    fill: { color: C.white },
-    line: { color: C.white, width: 0 },
-  });
-
-  // 🟢 Logo (UPDATED)
-  const logoW = 1.22; // 3.45 cm
-  const logoH = 0.64; // 1.8 cm
-
-  // Centering logo relative to circle
-  const logoX = circleX + (circleW - logoW) / 2;
-  const logoY = circleY + (circleH - logoH) / 2;
-
-  addLogo(slide, {
-    x: logoX,
-    y: logoY,
-    w: logoW,
-    h: logoH,
-  });
-
-  // Left accent bar
-  slide.addShape("rect", {
-    x: 0,
-    y: 0,
-    w: 0.32,
-    h: H,
-    fill: { color: C.purpleMid },
-    line: { color: C.purpleMid },
-  });
-
-  const name = DATA.project?.name || "Solution Architecture";
-  const tagline =
-    DATA.project?.tagline || "High-Level Architecture & Implementation Plan";
-  const context = DATA.project?.client_context || "";
-
-  // Eyebrow
-  slide.addText("AI SOLUTION ARCHITECT", {
-    x: 0.55,
-    y: 1.08,
-    w: 7.5,
-    h: 0.36,
-    fontSize: 9,
-    bold: true,
-    color: C.purpleLight,
-    fontFace: FONT_BODY,
-    charSpacing: 4.5,
-    margin: 0,
-  });
-
-  // Title
-  slide.addText(name, {
-    x: 0.55,
-    y: 1.52,
-    w: 8.8,
-    h: 1.9,
-    fontSize: 42,
-    bold: true,
-    color: C.white,
-    fontFace: FONT_TITLE,
-    align: "center",
-    valign: "top",
-    margin: 0,
-  });
-
-  // Divider
-  slide.addShape("rect", {
-    x: 2.5,
-    y: 3.44,
-    w: 5.0,
-    h: 0.05,
-    fill: { color: C.purpleLight },
-    line: { color: C.purpleLight },
-  });
-
-  // Tagline
-  slide.addText(tagline, {
-    x: 0.55,
-    y: 3.58,
-    w: 8.8,
-    h: 0.66,
-    fontSize: 15,
-    color: C.purpleLight,
-    fontFace: FONT_BODY,
-    italic: true,
-    align: "center",
-    margin: 0,
-  });
-
-  if (context) {
-    slide.addText(context, {
-      x: 0.55,
-      y: 4.28,
-      w: 8.8,
-      h: 0.44,
-      fontSize: 10.5,
-      color: C.white,
-      fontFace: FONT_BODY,
-      align: "center",
-      transparency: 18,
-      margin: 0,
-    });
-  }
-
-  // Footer
-  slide.addShape("rect", {
-    x: 0,
-    y: H - 0.42,
-    w: W,
-    h: 0.42,
-    fill: { color: "000000", transparency: 65 },
-    line: { color: "000000", transparency: 65 },
-  });
-
-  slide.addText("CONFIDENTIAL  ·  Generated by AI Solution Architect", {
-    x: 0.55,
-    y: H - 0.38,
-    w: 9,
-    h: 0.32,
-    fontSize: 8,
-    color: C.purpleLight,
-    fontFace: FONT_BODY,
-    align: "center",
-    margin: 0,
-    charSpacing: 0.5,
-  });
-}
-
-// ─── Slide 2 — Executive Summary ─────────────────────────────────────────────
-function addExecSummarySlide(pres) {
-  const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Executive Summary");
-
-  const BAND_H = 0.88;
-  const a = DATA.alignment || {};
-  const sol = DATA.proposed_solution || {};
-  const goals = a.goals || [];
-  const metrics = a.success_metrics || [];
-  const bizVal = a.business_value || "";
-  const solSum = sol.summary || "";
-
-  const bannerText = solSum || bizVal;
-  if (bannerText) {
-    slide.addShape("rect", {
-      x: 0.3,
-      y: BAND_H + 0.1,
-      w: W - 0.5,
-      h: 0.78,
-      fill: { color: C.purpleFaint },
-      line: { color: C.border, width: 0.75 },
-      shadow: mkShadow(),
-    });
-    // Left accent bar on banner
-    slide.addShape("rect", {
-      x: 0.3,
-      y: BAND_H + 0.1,
-      w: 0.07,
-      h: 0.78,
-      fill: { color: C.purple },
-      line: { color: C.purple },
-    });
-    slide.addText(bannerText, {
-      x: 0.5,
-      y: BAND_H + 0.14,
-      w: W - 0.74,
-      h: 0.68,
-      fontSize: 12.5,
-      color: C.purpleDim,
-      fontFace: FONT_BODY,
-      bold: true,
-      align: "center",
-      valign: "middle",
-      margin: [0, 8, 0, 8],
-      wrap: true,
-    });
-  }
-
-  const contentY = BAND_H + (bannerText ? 0.98 : 0.14);
-  const col2Start = 5.0;
-  const dividerX = 4.86;
-
-  sectionLabel(slide, "Strategic Goals", 0.4, contentY, 4.0);
-  if (goals.length > 0) {
-    bulletList(slide, goals.slice(0, 5), 0.4, contentY + 0.28, 4.0, 3.0, {
-      fontSize: 11,
-    });
-  } else {
-    slide.addText("No goals defined.", {
-      x: 0.4,
-      y: contentY + 0.28,
-      w: 4.0,
-      h: 0.36,
-      fontSize: 11,
-      color: C.textMuted,
-      italic: true,
-      fontFace: FONT_BODY,
-      margin: 0,
-    });
-  }
-
-  // Vertical divider
-  slide.addShape("rect", {
-    x: dividerX,
-    y: contentY,
-    w: 0.02,
-    h: H - contentY - 0.28,
+  R(slide, 0, H - 0.28, W, 0.02, {
     fill: { color: C.border },
     line: { color: C.border },
   });
 
-  sectionLabel(slide, "Success Metrics", col2Start, contentY, 5.0);
-  if (metrics.length > 0) {
-    bulletList(
-      slide,
-      metrics.slice(0, 5),
-      col2Start,
-      contentY + 0.28,
-      4.8,
-      3.0,
-      { fontSize: 11 },
-    );
-  } else {
-    slide.addText("No metrics defined.", {
-      x: col2Start,
-      y: contentY + 0.28,
-      w: 4.8,
-      h: 0.36,
-      fontSize: 11,
-      color: C.textMuted,
-      italic: true,
-      fontFace: FONT_BODY,
-      margin: 0,
-    });
-  }
-
-  if (bizVal && solSum) {
-    slide.addText(`Business Value: ${bizVal}`, {
-      x: 0.4,
-      y: H - 0.48,
-      w: W - 0.58,
-      h: 0.26,
-      fontSize: 9,
-      color: C.textMuted,
-      fontFace: FONT_BODY,
-      italic: true,
-      margin: 0,
-    });
-  }
-
-  addFooter(slide);
+  const pn = sanitize(DATA.project?.name) || "AI Solution Architect";
+  slide.addText(pn, {
+    x: 0.22,
+    y: H - 0.27,
+    w: 4,
+    h: 0.18,
+    fontSize: 8,
+    bold: true,
+    color: C.purple,
+    fontFace: FONT_BODY,
+    align: "left",
+    margin: 0,
+  });
+  slide.addText("Confidential", {
+    x: 0.22,
+    y: H - 0.14,
+    w: 4,
+    h: 0.14,
+    fontSize: 7,
+    color: C.textMuted,
+    fontFace: FONT_BODY,
+    align: "left",
+    margin: 0,
+  });
+  slide.addText(pn, {
+    x: W - 4.2,
+    y: H - 0.22,
+    w: 4,
+    h: 0.18,
+    fontSize: 8,
+    bold: true,
+    color: C.purple,
+    fontFace: FONT_BODY,
+    align: "right",
+    margin: 0,
+  });
 }
 
-// ─── Slide 3 — Problem Statement ─────────────────────────────────────────────
+// ── Bullet list ───────────────────────────────────────────────────────────────
+function bulletList(slide, items, x, y, w, h, opts = {}) {
+  if (!items || items.length === 0) return;
+  const rowH = opts.rowH || 0.46;
+  items.slice(0, 12).forEach((item, i) => {
+    const text = sanitize(
+      typeof item === "string"
+        ? item
+        : item.risk ||
+            item.phase ||
+            item.step ||
+            item.description ||
+            JSON.stringify(item),
+    );
+    const rowY = y + i * rowH;
+    if (rowY + 0.22 > y + h) return;
+    R(slide, x, rowY + 0.17, 0.1, 0.1, {
+      fill: { color: C.purple },
+      line: { color: C.purple },
+    });
+    slide.addText(text, {
+      x: x + 0.2,
+      y: rowY,
+      w: Math.max(0.5, w - 0.22),
+      h: rowH,
+      fontSize: opts.fontSize || 11.5,
+      color: opts.color || C.textDark,
+      fontFace: FONT_BODY,
+      valign: "middle",
+      margin: 0,
+      wrap: true,
+    });
+  });
+}
+
+// ── Section label ─────────────────────────────────────────────────────────────
+function sectionLabel(slide, text, x, y, w) {
+  slide.addText(sanitize(text).toUpperCase(), {
+    x,
+    y,
+    w,
+    h: 0.24,
+    fontSize: 8,
+    bold: true,
+    color: C.purple,
+    fontFace: FONT_BODY,
+    charSpacing: 0.8,
+    margin: 0,
+  });
+  R(slide, x, y + 0.22, Math.min(w, 1.8), 0.025, {
+    fill: { color: C.purple },
+    line: { color: C.purple },
+  });
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+function card(slide, x, y, w, h, label, value, accentColor) {
+  R(slide, x, y, w, h, {
+    fill: { color: C.white },
+    line: { color: C.border, width: 0.75 },
+  });
+  R(slide, x, y, w, 0.05, {
+    fill: { color: C.purple },
+    line: { color: C.purple },
+  });
+  if (label)
+    slide.addText(sanitize(label).toUpperCase(), {
+      x: x + 0.14,
+      y: y + 0.1,
+      w: w - 0.22,
+      h: 0.22,
+      fontSize: 7.5,
+      bold: true,
+      color: C.purple,
+      fontFace: FONT_BODY,
+      charSpacing: 0.8,
+      margin: 0,
+    });
+  if (value)
+    slide.addText(sanitize(value), {
+      x: x + 0.14,
+      y: y + (label ? 0.36 : 0.14),
+      w: w - 0.22,
+      h: clampH(h - (label ? 0.44 : 0.22)),
+      fontSize: 11,
+      color: C.textDark,
+      fontFace: FONT_BODY,
+      valign: "top",
+      margin: 0,
+      wrap: true,
+    });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CONTENT SLIDES
+// ════════════════════════════════════════════════════════════════════════════
+
+function addExecSummarySlide(pres) {
+  const slide = pres.addSlide();
+  contentChrome(slide, "Executive Summary");
+
+  const a = DATA.alignment || {};
+  const sol = DATA.proposed_solution || DATA.proposedsolution || {};
+  const goals = a.goals || [];
+  const metrics = a.success_metrics || a.successmetrics || [];
+  const banner = sanitize(sol.summary || a.business_value || a.businessvalue);
+
+  if (banner) {
+    R(slide, 0.18, BODY_Y, W - 0.28, 0.68, {
+      fill: { color: C.purpleFaint },
+      line: { color: C.border, width: 0.75 },
+    });
+    R(slide, 0.18, BODY_Y, 0.06, 0.68, {
+      fill: { color: C.purple },
+      line: { color: C.purple },
+    });
+    slide.addText(banner, {
+      x: 0.36,
+      y: BODY_Y + 0.06,
+      w: W - 0.62,
+      h: 0.56,
+      fontSize: 11.5,
+      color: C.text,
+      bold: true,
+      fontFace: FONT_BODY,
+      align: "center",
+      valign: "middle",
+      margin: 0,
+      wrap: true,
+    });
+  }
+
+  const cY = BODY_Y + (banner ? 0.78 : 0.04);
+  const c2X = 5.18;
+  sectionLabel(slide, "Strategic Goals", 0.22, cY, 4.5);
+  bulletList(slide, goals.slice(0, 5), 0.22, cY + 0.3, 4.6, BODY_H - 0.34);
+  R(slide, 4.96, cY, 0.02, clampH(BODY_H - 0.1), {
+    fill: { color: C.border },
+    line: { color: C.border },
+  });
+  sectionLabel(slide, "Success Metrics", c2X, cY, 4.5);
+  bulletList(slide, metrics.slice(0, 5), c2X, cY + 0.3, 4.5, BODY_H - 0.34);
+}
+
 function addProblemSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Problem Statement & Business Context");
+  contentChrome(slide, "Problem Statement");
 
-  const BAND_H = 0.88;
-  const ps = DATA.problem_statement || {};
-  const pains = ps.current_pain_points || [];
-  const impact = ps.impact || "";
-  const rootCause = ps.root_cause || "";
-
-  sectionLabel(slide, "Current Pain Points", 0.4, BAND_H + 0.1, 9.2);
+  const ps = DATA.problem_statement || DATA.problemstatement || {};
+  const pains = ps.current_pain_points || ps.currentpainpoints || [];
+  const impact = sanitize(ps.impact);
+  const rootCause = sanitize(ps.root_cause || ps.rootcause);
 
   if (pains.length > 0) {
-    const cardW = 4.44,
-      cardH = 0.74,
-      gapY = 0.1;
-    const cols = [0.3, 5.18];
-    const startY = BAND_H + 0.38;
-    const accentCycle = [C.purple, C.purpleMid, C.purpleLight];
-
+    const cW = 4.44,
+      cH = 0.72,
+      gY = 0.1;
     pains.slice(0, 6).forEach((pain, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      const x = cols[col];
-      const y = startY + row * (cardH + gapY);
-      const ac = accentCycle[i % 3];
-
-      slide.addShape("rect", {
-        x,
-        y,
-        w: cardW,
-        h: cardH,
+      const x = i % 2 === 0 ? 0.18 : 5.08;
+      const y = BODY_Y + 0.04 + Math.floor(i / 2) * (cH + gY);
+      R(slide, x, y, cW, cH, {
         fill: { color: C.white },
         line: { color: C.border, width: 0.75 },
-        shadow: mkShadow(),
       });
-      // Top accent stripe
-      slide.addShape("rect", {
-        x,
-        y,
-        w: cardW,
-        h: 0.05,
-        fill: { color: ac },
-        line: { color: ac },
+      R(slide, x, y, cW, 0.05, {
+        fill: { color: C.purple },
+        line: { color: C.purple },
       });
-      // Numbered bubble
-      slide.addShape("ellipse", {
-        x: x + 0.12,
-        y: y + 0.18,
-        w: 0.38,
-        h: 0.38,
-        fill: { color: ac },
-        line: { color: ac },
+      E(slide, x + 0.1, y + 0.17, 0.36, 0.36, {
+        fill: { color: C.purple },
+        line: { color: C.purple },
       });
       slide.addText(String(i + 1), {
-        x: x + 0.12,
-        y: y + 0.18,
-        w: 0.38,
-        h: 0.38,
-        fontSize: 10,
+        x: x + 0.1,
+        y: y + 0.17,
+        w: 0.36,
+        h: 0.36,
+        fontSize: 9,
         bold: true,
         color: C.white,
         fontFace: FONT_BODY,
@@ -733,23 +493,26 @@ function addProblemSlide(pres) {
         valign: "middle",
         margin: 0,
       });
-      slide.addText(pain, {
-        x: x + 0.62,
-        y: y + 0.14,
-        w: cardW - 0.76,
-        h: cardH - 0.22,
-        fontSize: 10.5,
-        color: C.text,
-        fontFace: FONT_BODY,
-        valign: "middle",
-        wrap: true,
-        margin: 0,
-      });
+      slide.addText(
+        sanitize(typeof pain === "string" ? pain : JSON.stringify(pain)),
+        {
+          x: x + 0.58,
+          y: y + 0.1,
+          w: cW - 0.72,
+          h: clampH(cH - 0.18),
+          fontSize: 10.5,
+          color: C.textDark,
+          fontFace: FONT_BODY,
+          valign: "middle",
+          wrap: true,
+          margin: 0,
+        },
+      );
     });
   } else {
     slide.addText("No pain points specified.", {
-      x: 0.4,
-      y: BAND_H + 0.38,
+      x: 0.3,
+      y: BODY_Y + 0.2,
       w: 9,
       h: 0.4,
       fontSize: 12,
@@ -760,226 +523,108 @@ function addProblemSlide(pres) {
     });
   }
 
-  if (impact) {
-    card(slide, 0.3, 4.1, 4.44, 1.1, "Business Impact", impact, C.error);
-  }
-  if (rootCause) {
-    card(slide, 5.18, 4.1, 4.44, 1.1, "Root Cause", rootCause, C.warning);
-  }
-
-  addFooter(slide);
+  const bY = H - 0.38 - 1.14;
+  if (impact) card(slide, 0.18, bY, 4.44, 1.1, "Business Impact", impact);
+  if (rootCause) card(slide, 5.08, bY, 4.44, 1.1, "Root Cause", rootCause);
 }
 
-// ─── Slide 4 — Proposed Solution Overview ────────────────────────────────────
 function addSolutionSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Proposed Solution Overview");
+  contentChrome(slide, "Proposed Solution");
 
-  const BAND_H = 0.88;
-  const sol = DATA.proposed_solution || {};
+  const sol = DATA.proposed_solution || DATA.proposedsolution || {};
   const arch = DATA.architecture || {};
-  const diff = sol.key_differentiators || [];
-  const approach = sol.approach || "";
-  const summary = sol.summary || "";
+  const diff = sol.key_differentiators || sol.keydifferentiators || [];
+  const approach = sanitize(sol.approach);
+  const summary = sanitize(sol.summary);
 
   if (summary) {
-    slide.addShape("rect", {
-      x: 0.3,
-      y: BAND_H + 0.1,
-      w: W - 0.5,
-      h: 0.74,
+    R(slide, 0.18, BODY_Y, W - 0.28, 0.68, {
       fill: { color: C.purpleFaint },
       line: { color: C.border, width: 0.75 },
-      shadow: mkShadow(),
     });
-    slide.addShape("rect", {
-      x: 0.3,
-      y: BAND_H + 0.1,
-      w: 0.07,
-      h: 0.74,
+    R(slide, 0.18, BODY_Y, 0.06, 0.68, {
       fill: { color: C.purple },
       line: { color: C.purple },
     });
     slide.addText(summary, {
-      x: 0.5,
-      y: BAND_H + 0.14,
-      w: W - 0.74,
-      h: 0.64,
-      fontSize: 12,
-      color: C.purpleDim,
+      x: 0.36,
+      y: BODY_Y + 0.06,
+      w: W - 0.62,
+      h: 0.56,
+      fontSize: 11,
+      color: C.text,
       bold: true,
       fontFace: FONT_BODY,
       align: "center",
       valign: "middle",
-      margin: [0, 4, 0, 4],
+      margin: 0,
       wrap: true,
     });
   }
 
-  const contentY = BAND_H + (summary ? 0.94 : 0.14);
+  const cY = BODY_Y + (summary ? 0.78 : 0.04);
+  sectionLabel(slide, "Key Differentiators", 0.22, cY, 5.2);
+  bulletList(slide, diff.slice(0, 5), 0.22, cY + 0.3, 5.2, 2.2);
+  if (approach)
+    card(slide, 5.98, cY, 3.66, 2.5, "Approach", approach, C.purple);
 
-  sectionLabel(slide, "Key Differentiators", 0.4, contentY, 5.2);
-  if (diff.length > 0) {
-    bulletList(slide, diff.slice(0, 5), 0.4, contentY + 0.28, 5.2, 2.4, {
-      fontSize: 11,
-    });
-  } else {
-    slide.addText("No differentiators specified.", {
-      x: 0.4,
-      y: contentY + 0.28,
-      w: 5.2,
-      h: 0.36,
-      fontSize: 11,
-      color: C.textMuted,
-      italic: true,
-      fontFace: FONT_BODY,
-      margin: 0,
-    });
+  const pattern = sanitize(arch.pattern);
+  if (pattern) {
+    const patY = cY + 2.62;
+    if (patY + 0.72 < H - 0.3) {
+      R(slide, 0.18, patY, W - 0.28, 0.72, {
+        fill: { color: C.white },
+        line: { color: C.border, width: 0.75 },
+      });
+      R(slide, 0.18, patY, 0.06, 0.72, {
+        fill: { color: C.purpleLight },
+        line: { color: C.purpleLight },
+      });
+      slide.addText("ARCHITECTURE PATTERN", {
+        x: 0.38,
+        y: patY + 0.06,
+        w: 3.8,
+        h: 0.2,
+        fontSize: 7.5,
+        bold: true,
+        color: C.purple,
+        fontFace: FONT_BODY,
+        charSpacing: 0.6,
+        margin: 0,
+      });
+      slide.addText(pattern, {
+        x: 0.38,
+        y: patY + 0.3,
+        w: W - 0.6,
+        h: 0.36,
+        fontSize: 13,
+        color: C.purple,
+        bold: true,
+        fontFace: FONT_BODY,
+        margin: 0,
+      });
+    }
   }
-
-  if (approach) {
-    card(slide, 5.98, contentY, 3.66, 2.6, "Approach", approach, C.purpleMid);
-  }
-
-  if (arch.pattern) {
-    slide.addShape("rect", {
-      x: 0.3,
-      y: 4.42,
-      w: W - 0.5,
-      h: 0.82,
-      fill: { color: C.white },
-      line: { color: C.border, width: 0.75 },
-      shadow: mkShadow(),
-    });
-    slide.addShape("rect", {
-      x: 0.3,
-      y: 4.42,
-      w: 0.07,
-      h: 0.82,
-      fill: { color: C.purpleLight },
-      line: { color: C.purpleLight },
-    });
-    slide.addText("ARCHITECTURE PATTERN", {
-      x: 0.5,
-      y: 4.48,
-      w: 3.8,
-      h: 0.22,
-      fontSize: 7.5,
-      bold: true,
-      color: C.purpleLight,
-      fontFace: FONT_BODY,
-      charSpacing: 0.6,
-      margin: 0,
-    });
-    slide.addText(arch.pattern, {
-      x: 0.5,
-      y: 4.72,
-      w: W - 0.72,
-      h: 0.42,
-      fontSize: 13,
-      color: C.purple,
-      bold: true,
-      fontFace: FONT_BODY,
-      margin: 0,
-    });
-  }
-
-  addFooter(slide);
 }
 
-// ─── Slide 5 — Architecture Diagram ──────────────────────────────────────────
-function addDiagramSlide(pres, imgBase64) {
+function addDiagramSlide(pres, rawBase64) {
   const slide = pres.addSlide();
-  slide.background = { color: C.purpleDim };
-
-  // Left accent strip
-  slide.addShape("rect", {
-    x: 0,
-    y: 0,
-    w: 0.07,
-    h: H,
-    fill: { color: C.purpleMid },
-    line: { color: C.purpleMid },
-  });
-  // Header band
-  slide.addShape("rect", {
-    x: 0.07,
-    y: 0,
-    w: W - 0.07,
-    h: 0.82,
-    fill: { color: C.purple },
-    line: { color: C.purple },
-  });
-  // Bottom highlight on band
-  slide.addShape("rect", {
-    x: 0.07,
-    y: 0.77,
-    w: W - 0.07,
-    h: 0.05,
-    fill: { color: C.purpleMid },
-    line: { color: C.purpleMid },
-  });
-  // Decorative orb
-  slide.addShape("ellipse", {
-    x: 8.2,
-    y: -0.6,
-    w: 2.6,
-    h: 2.6,
-    fill: { color: C.purpleLight, transparency: 84 },
-    line: { color: C.purpleLight, transparency: 82, width: 1 },
-  });
-
-  // Logo
-  addLogo(slide, { x: LOGO_X, y: (0.82 - LOGO_H) / 2, w: LOGO_W, h: LOGO_H });
-
-  slide.addText("HIGH-LEVEL ARCHITECTURE DIAGRAM", {
-    x: LOGO_X + LOGO_W + 0.14,
-    y: 0.14,
-    w: W - (LOGO_X + LOGO_W + 0.14) - 0.3,
-    h: 0.54,
-    fontSize: 18,
-    bold: true,
-    color: C.white,
-    fontFace: FONT_TITLE,
-    align: "center",
-    valign: "middle",
-    margin: 0,
-  });
-
+  contentChrome(slide, "High-Level Architecture Diagram");
   slide.addImage({
-    data: imgBase64,
-    x: 0.2,
-    y: 0.9,
-    w: W - 0.32,
-    h: 4.4,
-    sizing: { type: "contain", w: W - 0.32, h: 4.4 },
+    data: rawBase64,
+    x: 0.18,
+    y: BODY_Y,
+    w: W - 0.28,
+    h: BODY_H,
+    sizing: { type: "contain", w: W - 0.28, h: BODY_H },
   });
-
-  slide.addText(
-    "Architecture diagram rendered via draw.io  ·  AI Solution Architect",
-    {
-      x: 0.4,
-      y: H - 0.3,
-      w: W - 0.5,
-      h: 0.24,
-      fontSize: 7.5,
-      color: C.purpleLight,
-      fontFace: FONT_BODY,
-      italic: true,
-      align: "center",
-      margin: 0,
-    },
-  );
 }
 
-// ─── Slide 6 — Component Breakdown ───────────────────────────────────────────
 function addComponentsSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Component Breakdown");
+  contentChrome(slide, "Component Breakdown");
 
-  const BAND_H = 0.88;
   const arch = DATA.architecture || {};
   const components = arch.components || [];
 
@@ -987,106 +632,73 @@ function addComponentsSlide(pres) {
     const pairs = [
       ["Frontend", arch.frontend],
       ["Backend", arch.backend],
-      ["AI Layer", arch.ai_layer],
-      ["Data Store", arch.data_store],
+      ["AI Layer", arch.ai_layer || arch.ailayer],
+      ["Data Store", arch.data_store || arch.datastore],
       ["Hosting", arch.hosting],
     ].filter(([, v]) => v);
-
-    const colW = 4.5,
-      colH = 0.9,
-      gap = 0.12;
-    const cols = [0.3, 5.18];
     pairs.forEach(([label, value], i) => {
       card(
         slide,
-        cols[i % 2],
-        BAND_H + 0.1 + Math.floor(i / 2) * (colH + gap),
-        colW,
-        colH,
+        i % 2 === 0 ? 0.18 : 5.08,
+        BODY_Y + Math.floor(i / 2) * 0.96,
+        4.5,
+        0.86,
         label,
-        value,
+        sanitize(value),
       );
     });
-    addFooter(slide);
     return;
   }
 
-  const maxComp = 8;
-  const shown = components.slice(0, maxComp);
-  const colW = 4.5,
-    colH = 1.04,
-    gap = 0.1;
-  const cols = [0.3, 5.18];
-  const startY = BAND_H + 0.08;
+  components.slice(0, 8).forEach((comp, i) => {
+    const x = i % 2 === 0 ? 0.18 : 5.08;
+    const y = BODY_Y + Math.floor(i / 2) * 1.08;
+    const ac = i % 2 === 0 ? C.purple : C.purpleMid;
+    const compName = sanitize(
+      comp.name || comp.label || comp.id || "Component",
+    );
+    const compRole = sanitize(comp.role || "");
+    const compTech = sanitize(comp.technology || "");
 
-  shown.forEach((comp, i) => {
-    const col = i % 2;
-    const row = Math.floor(i / 2);
-    const x = cols[col];
-    const y = startY + row * (colH + gap);
-    const ac = col === 0 ? C.purple : C.purpleMid;
-
-    slide.addShape("rect", {
-      x,
-      y,
-      w: colW,
-      h: colH,
+    R(slide, x, y, 4.5, 1.0, {
       fill: { color: C.white },
       line: { color: C.border, width: 0.75 },
-      shadow: mkShadow(),
     });
-    // Top accent stripe
-    slide.addShape("rect", {
-      x,
-      y,
-      w: colW,
-      h: 0.05,
-      fill: { color: ac },
-      line: { color: ac },
-    });
-
-    const compName = comp.name || comp.label || comp.id || "Component";
-    const compRole = comp.role || "";
-    const compTech = comp.technology || "";
-
+    R(slide, x, y, 4.5, 0.05, { fill: { color: ac }, line: { color: ac } });
     slide.addText(compName, {
       x: x + 0.14,
       y: y + 0.1,
-      w: colW - 0.24,
-      h: 0.26,
-      fontSize: 11.5,
+      w: 4.26,
+      h: 0.24,
+      fontSize: 11,
       bold: true,
-      color: C.purpleDim,
+      color: C.purple,
       fontFace: FONT_BODY,
       margin: 0,
     });
     if (compTech) {
-      const badgeW = Math.min(compTech.length * 0.082 + 0.28, colW - 0.28);
-      slide.addShape("rect", {
-        x: x + 0.14,
-        y: y + 0.38,
-        w: badgeW,
-        h: 0.22,
+      const bW = Math.min(Math.max(compTech.length * 0.082 + 0.28, 0.5), 4.22);
+      R(slide, x + 0.14, y + 0.36, bW, 0.2, {
         fill: { color: C.purpleFaint },
         line: { color: C.border, width: 0.5 },
       });
       slide.addText(compTech, {
         x: x + 0.18,
-        y: y + 0.4,
-        w: badgeW - 0.08,
-        h: 0.18,
-        fontSize: 8.5,
+        y: y + 0.38,
+        w: bW - 0.08,
+        h: 0.16,
+        fontSize: 8,
         color: ac,
         bold: true,
         fontFace: FONT_BODY,
         margin: 0,
       });
     }
-    if (compRole) {
+    if (compRole)
       slide.addText(compRole, {
         x: x + 0.14,
-        y: y + (compTech ? 0.65 : 0.38),
-        w: colW - 0.24,
+        y: y + (compTech ? 0.6 : 0.36),
+        w: 4.26,
         h: 0.32,
         fontSize: 10,
         color: C.textMuted,
@@ -1094,272 +706,157 @@ function addComponentsSlide(pres) {
         margin: 0,
         wrap: true,
       });
-    }
   });
-
-  if (components.length > maxComp) {
-    slide.addText(
-      `+ ${components.length - maxComp} more components — see architecture JSON`,
-      {
-        x: 0.3,
-        y: H - 0.44,
-        w: W - 0.5,
-        h: 0.24,
-        fontSize: 9,
-        color: C.textMuted,
-        italic: true,
-        fontFace: FONT_BODY,
-        margin: 0,
-      },
-    );
-  }
-
-  addFooter(slide);
 }
 
-// ─── Slide 7 — Data Flow ──────────────────────────────────────────────────────
 function addDataFlowSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Data Flow & System Flow");
+  contentChrome(slide, "Data Flow");
 
-  const BAND_H = 0.88;
-  const steps = (DATA.data_flow || []).slice(0, 8);
-
+  const steps = (DATA.data_flow || DATA.dataflow || []).slice(0, 8);
   if (steps.length === 0) {
-    slide.addText("No data flow steps defined in the architecture JSON.", {
-      x: 0.5,
-      y: 2.5,
+    slide.addText("No data flow steps defined.", {
+      x: 0.3,
+      y: BODY_Y + 0.3,
       w: 9,
-      h: 0.5,
-      fontSize: 13,
+      h: 0.4,
+      fontSize: 12,
       color: C.textMuted,
-      align: "center",
+      italic: true,
       fontFace: FONT_BODY,
       margin: 0,
-      italic: true,
     });
-    addFooter(slide);
     return;
   }
 
-  const stepH = 0.56;
-  const gapY = 0.08;
-  const startY = BAND_H + 0.1;
+  const stepH = 0.52,
+    gapY = 0.07;
+
+  const renderStep = (label, idx, x, y, boxW) => {
+    const ac = idx % 2 === 0 ? C.purple : C.purpleMid;
+    R(slide, x + 0.44, y, boxW, stepH, {
+      fill: { color: idx % 2 === 0 ? C.white : C.purpleFaint },
+      line: { color: C.border, width: 0.5 },
+    });
+    R(slide, x + 0.44, y, boxW, 0.04, {
+      fill: { color: ac },
+      line: { color: ac },
+    });
+    E(slide, x + 0.08, y + 0.09, 0.36, 0.36, {
+      fill: { color: ac },
+      line: { color: ac },
+    });
+    slide.addText(String(idx + 1), {
+      x: x + 0.08,
+      y: y + 0.09,
+      w: 0.36,
+      h: 0.36,
+      fontSize: 10,
+      bold: true,
+      color: C.white,
+      fontFace: FONT_BODY,
+      align: "center",
+      valign: "middle",
+      margin: 0,
+    });
+    slide.addText(sanitize(label), {
+      x: x + 0.58,
+      y: y + 0.09,
+      w: Math.max(0.5, boxW - 0.18),
+      h: 0.36,
+      fontSize: 11,
+      color: C.textDark,
+      fontFace: FONT_BODY,
+      valign: "middle",
+      margin: 0,
+      wrap: true,
+    });
+    if (idx < steps.length - 1) {
+      R(slide, x + 0.24, y + stepH, 0.02, clampH(gapY, 0.05), {
+        fill: { color: C.purpleLight },
+        line: { color: C.purpleLight },
+      });
+    }
+  };
+
+  const getLabel = (step) =>
+    sanitize(
+      typeof step === "string"
+        ? step
+        : step.step || step.description || JSON.stringify(step),
+    );
 
   if (steps.length <= 4) {
-    steps.forEach((step, i) => {
-      const label =
-        typeof step === "string"
-          ? step
-          : step.step || step.description || JSON.stringify(step);
-      const y = startY + i * (stepH + gapY);
-      const ac = i % 2 === 0 ? C.purple : C.purpleMid;
-
-      slide.addShape("rect", {
-        x: 0.7,
-        y,
-        w: 8.9,
-        h: stepH,
-        fill: { color: i % 2 === 0 ? C.white : C.purpleFaint },
-        line: { color: C.border, width: 0.5 },
-        shadow: mkShadow(),
-      });
-      // Top accent stripe
-      slide.addShape("rect", {
-        x: 0.7,
-        y,
-        w: 8.9,
-        h: 0.04,
-        fill: { color: ac },
-        line: { color: ac },
-      });
-      // Step bubble
-      slide.addShape("ellipse", {
-        x: 0.26,
-        y: y + 0.09,
-        w: 0.42,
-        h: 0.42,
-        fill: { color: ac },
-        line: { color: ac },
-      });
-      slide.addText(String(i + 1), {
-        x: 0.26,
-        y: y + 0.09,
-        w: 0.42,
-        h: 0.42,
-        fontSize: 11,
-        bold: true,
-        color: C.white,
-        fontFace: FONT_BODY,
-        align: "center",
-        valign: "middle",
-        margin: 0,
-      });
-      slide.addText(label, {
-        x: 0.9,
-        y: y + 0.1,
-        w: 8.5,
-        h: 0.36,
-        fontSize: 11.5,
-        color: C.text,
-        fontFace: FONT_BODY,
-        valign: "middle",
-        margin: 0,
-        wrap: true,
-      });
-      // Dotted connector
-      if (i < steps.length - 1) {
-        slide.addShape("line", {
-          x: 0.47,
-          y: y + stepH,
-          w: 0,
-          h: gapY,
-          line: { color: C.purpleLight, width: 1.5, dashType: "sysDot" },
-        });
-      }
-    });
+    steps.forEach((step, i) =>
+      renderStep(getLabel(step), i, 0.1, BODY_Y + i * (stepH + gapY), 9.26),
+    );
   } else {
     const half = Math.ceil(steps.length / 2);
-    const xBases = [0.3, 5.18];
-    [steps.slice(0, half), steps.slice(half)].forEach((col, colIdx) => {
-      col.forEach((step, rowIdx) => {
-        const globalIdx = colIdx === 0 ? rowIdx : half + rowIdx;
-        const label =
-          typeof step === "string"
-            ? step
-            : step.step || step.description || JSON.stringify(step);
-        const xBase = xBases[colIdx];
-        const y = startY + rowIdx * (stepH + gapY);
-        const ac = globalIdx % 2 === 0 ? C.purple : C.purpleMid;
-
-        slide.addShape("rect", {
-          x: xBase + 0.44,
-          y,
-          w: 4.28,
-          h: stepH,
-          fill: { color: globalIdx % 2 === 0 ? C.white : C.purpleFaint },
-          line: { color: C.border, width: 0.5 },
-          shadow: mkShadow(),
-        });
-        slide.addShape("rect", {
-          x: xBase + 0.44,
-          y,
-          w: 4.28,
-          h: 0.04,
-          fill: { color: ac },
-          line: { color: ac },
-        });
-        slide.addShape("ellipse", {
-          x: xBase + 0.08,
-          y: y + 0.1,
-          w: 0.36,
-          h: 0.36,
-          fill: { color: ac },
-          line: { color: ac },
-        });
-        slide.addText(String(globalIdx + 1), {
-          x: xBase + 0.08,
-          y: y + 0.1,
-          w: 0.36,
-          h: 0.36,
-          fontSize: 10,
-          bold: true,
-          color: C.white,
-          fontFace: FONT_BODY,
-          align: "center",
-          valign: "middle",
-          margin: 0,
-        });
-        slide.addText(label, {
-          x: xBase + 0.58,
-          y: y + 0.1,
-          w: 3.92,
-          h: 0.36,
-          fontSize: 10.5,
-          color: C.text,
-          fontFace: FONT_BODY,
-          valign: "middle",
-          margin: 0,
-          wrap: true,
-        });
+    [steps.slice(0, half), steps.slice(half)].forEach((col, ci) => {
+      const xBase = ci === 0 ? 0.1 : 5.08;
+      col.forEach((step, ri) => {
+        renderStep(
+          getLabel(step),
+          ci === 0 ? ri : half + ri,
+          xBase,
+          BODY_Y + ri * (stepH + gapY),
+          4.28,
+        );
       });
     });
   }
-
-  addFooter(slide);
 }
 
-// ─── Slide 8 — Technology Stack ───────────────────────────────────────────────
 function addTechStackSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Technology Stack");
+  contentChrome(slide, "Technology Stack");
 
-  const BAND_H = 0.88;
-  const ts = DATA.technology_stack || {};
-  const layerDefs = [
-    { label: "Frontend", items: ts.frontend || [], color: C.purple },
-    { label: "Backend", items: ts.backend || [], color: C.purpleMid },
-    { label: "AI / ML", items: ts.ai_ml || [], color: C.success },
-    { label: "Data", items: ts.data || [], color: C.warning },
-    {
-      label: "Infrastructure",
-      items: ts.infrastructure || [],
-      color: C.purpleLight,
-    },
-    { label: "Security", items: ts.security || [], color: C.error },
+  const ts = DATA.technology_stack || DATA.technologystack || {};
+  const layers = [
+    { label: "Frontend", items: ts.frontend || [] },
+    { label: "Backend", items: ts.backend || [] },
+    { label: "AI / ML", items: ts.ai_ml || ts.aiml || [] },
+    { label: "Data", items: ts.data || [] },
+    { label: "Infrastructure", items: ts.infrastructure || [] },
+    { label: "Security", items: ts.security || [] },
   ].filter((l) => l.items.length > 0);
 
-  if (layerDefs.length === 0) {
+  if (layers.length === 0) {
     slide.addText("No technology stack defined.", {
-      x: 0.5,
-      y: 2.5,
+      x: 0.3,
+      y: BODY_Y + 0.3,
       w: 9,
-      h: 0.5,
-      fontSize: 13,
+      h: 0.4,
+      fontSize: 12,
       color: C.textMuted,
-      align: "center",
+      italic: true,
       fontFace: FONT_BODY,
       margin: 0,
-      italic: true,
     });
-    addFooter(slide);
     return;
   }
 
   const colW = 3.02,
-    boxH = 1.5,
-    gap = 0.12;
-  const cols = [0.3, 3.5, 6.68];
+    boxH = 1.48,
+    gap = 0.1;
+  const cols = [0.18, 3.5, 6.68];
   let col = 0,
     row = 0;
 
-  layerDefs.forEach((layer) => {
+  layers.forEach((layer) => {
     const x = cols[col];
-    const y = BAND_H + 0.08 + row * (boxH + gap);
-
-    slide.addShape("rect", {
-      x,
-      y,
-      w: colW,
-      h: boxH,
+    const y = BODY_Y + row * (boxH + gap);
+    R(slide, x, y, colW, boxH, {
       fill: { color: C.white },
       line: { color: C.border, width: 0.75 },
-      shadow: mkShadow(),
     });
-    // Coloured header band
-    slide.addShape("rect", {
-      x,
-      y,
-      w: colW,
-      h: 0.38,
-      fill: { color: layer.color },
-      line: { color: layer.color },
+    R(slide, x, y, colW, 0.36, {
+      fill: { color: C.purple },
+      line: { color: C.purple },
     });
     slide.addText(layer.label.toUpperCase(), {
       x: x + 0.1,
-      y: y + 0.07,
+      y: y + 0.06,
       w: colW - 0.18,
       h: 0.24,
       fontSize: 8.5,
@@ -1370,108 +867,79 @@ function addTechStackSlide(pres) {
       align: "center",
       margin: 0,
     });
-    // Tech items
-    const techItems = layer.items.slice(0, 5);
-    const richItems = techItems.map((t, ti) => ({
-      text: t + (ti < techItems.length - 1 ? "  ·  " : ""),
-      options: { fontSize: 10.5, color: C.text, fontFace: FONT_BODY },
-    }));
-    slide.addText(richItems, {
+    slide.addText(layer.items.slice(0, 5).map(sanitize).join("\n"), {
       x: x + 0.1,
       y: y + 0.42,
       w: colW - 0.18,
-      h: boxH - 0.52,
+      h: clampH(boxH - 0.52),
+      fontSize: 10.5,
+      color: C.textDark,
+      fontFace: FONT_BODY,
       valign: "top",
       wrap: true,
-      margin: [2, 4, 2, 4],
+      margin: 0,
       lineSpacingMultiple: 1.15,
     });
-
     col++;
     if (col >= 3) {
       col = 0;
       row++;
     }
   });
-
-  addFooter(slide);
 }
 
-// ─── Slide 9 — Key Features & Capabilities ────────────────────────────────────
 function addFeaturesSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Key Features & Capabilities");
+  contentChrome(slide, "Key Features & Capabilities");
 
-  const BAND_H = 0.88;
-  const sol = DATA.proposed_solution || {};
-  const diff = sol.key_differentiators || [];
+  const sol = DATA.proposed_solution || DATA.proposedsolution || {};
+  const diff = sol.key_differentiators || sol.keydifferentiators || [];
   const goals = DATA.alignment?.goals || [];
-
   const seen = new Set();
   const features = [...diff, ...goals].filter((f) => {
-    const key = String(f).trim().toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
+    const k = String(f).trim().toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
     return Boolean(f);
   });
 
   if (features.length === 0) {
-    slide.addText("No features or capabilities defined.", {
-      x: 0.5,
-      y: 2.5,
+    slide.addText("No features defined.", {
+      x: 0.3,
+      y: BODY_Y + 0.3,
       w: 9,
-      h: 0.5,
-      fontSize: 13,
+      h: 0.4,
+      fontSize: 12,
       color: C.textMuted,
-      align: "center",
+      italic: true,
       fontFace: FONT_BODY,
       margin: 0,
-      italic: true,
     });
-    addFooter(slide);
     return;
   }
 
-  const accentCycle = [C.purple, C.purpleMid, C.purpleLight];
-
-  const renderFeatures = (items, xBase, colW) => {
+  const accents = [C.purple, C.purpleMid, C.purpleLight];
+  const renderF = (items, xBase, cW) => {
     items.slice(0, 6).forEach((item, i) => {
-      const y = BAND_H + 0.1 + i * 0.76;
-      const ac = accentCycle[i % 3];
-
-      slide.addShape("rect", {
-        x: xBase,
-        y,
-        w: colW,
-        h: 0.66,
+      const y = BODY_Y + i * 0.72;
+      const ac = accents[i % 3];
+      R(slide, xBase, y, cW, 0.64, {
         fill: { color: i % 2 === 0 ? C.white : C.offwhite },
         line: { color: C.border, width: 0.75 },
-        shadow: mkShadow(),
       });
-      // Top stripe
-      slide.addShape("rect", {
-        x: xBase,
-        y,
-        w: colW,
-        h: 0.05,
+      R(slide, xBase, y, cW, 0.05, {
         fill: { color: ac },
         line: { color: ac },
       });
-      // Index number
-      slide.addShape("ellipse", {
-        x: xBase + 0.1,
-        y: y + 0.14,
-        w: 0.36,
-        h: 0.36,
+      E(slide, xBase + 0.1, y + 0.14, 0.34, 0.34, {
         fill: { color: ac },
         line: { color: ac },
       });
       slide.addText(String(i + 1), {
         x: xBase + 0.1,
         y: y + 0.14,
-        w: 0.36,
-        h: 0.36,
+        w: 0.34,
+        h: 0.34,
         fontSize: 9,
         bold: true,
         color: C.white,
@@ -1480,13 +948,13 @@ function addFeaturesSlide(pres) {
         valign: "middle",
         margin: 0,
       });
-      slide.addText(item, {
-        x: xBase + 0.56,
-        y: y + 0.1,
-        w: colW - 0.66,
-        h: 0.46,
+      slide.addText(sanitize(item), {
+        x: xBase + 0.54,
+        y: y + 0.08,
+        w: Math.max(0.5, cW - 0.64),
+        h: 0.48,
         fontSize: 11,
-        color: C.text,
+        color: C.textDark,
         fontFace: FONT_BODY,
         valign: "middle",
         margin: 0,
@@ -1495,84 +963,60 @@ function addFeaturesSlide(pres) {
     });
   };
 
-  if (features.length <= 6) {
-    renderFeatures(features, 0.3, 9.38);
-  } else {
+  if (features.length <= 6) renderF(features, 0.18, 9.62);
+  else {
     const half = Math.ceil(features.length / 2);
-    renderFeatures(features.slice(0, half), 0.3, 4.52);
-    renderFeatures(features.slice(half), 5.14, 4.52);
+    renderF(features.slice(0, half), 0.18, 4.52);
+    renderF(features.slice(half), 5.08, 4.52);
   }
-
-  addFooter(slide);
 }
 
-// ─── Slide 10 — Non-Functional Requirements ──────────────────────────────────
 function addNFRSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Non-Functional Requirements");
+  contentChrome(slide, "Non-Functional Requirements");
 
-  const BAND_H = 0.88;
-  const nf = DATA.non_functional || {};
+  const nf = DATA.non_functional || DATA.nonfunctional || {};
   const nfrs = [
-    { label: "Scalability", value: nf.scalability || "", color: C.purple },
-    { label: "Security", value: nf.security || "", color: C.error },
-    { label: "Availability", value: nf.availability || "", color: C.success },
-    { label: "Performance", value: nf.performance || "", color: C.warning },
-    { label: "Compliance", value: nf.compliance || "", color: C.purpleMid },
+    { label: "Scalability", value: sanitize(nf.scalability) },
+    { label: "Security", value: sanitize(nf.security) },
+    { label: "Availability", value: sanitize(nf.availability) },
+    { label: "Performance", value: sanitize(nf.performance) },
+    { label: "Compliance", value: sanitize(nf.compliance) },
   ].filter((n) => n.value);
 
   if (nfrs.length === 0) {
     slide.addText("Non-functional requirements not specified.", {
-      x: 0.5,
-      y: 2.5,
+      x: 0.3,
+      y: BODY_Y + 0.3,
       w: 9,
-      h: 0.5,
-      fontSize: 13,
+      h: 0.4,
+      fontSize: 12,
       color: C.textMuted,
-      align: "center",
+      italic: true,
       fontFace: FONT_BODY,
       margin: 0,
-      italic: true,
     });
-    addFooter(slide);
     return;
   }
 
-  const cardW = 4.52,
-    cardH = 1.08,
-    gap = 0.14;
-  const cols = [0.3, 5.12];
-  const startY = BAND_H + 0.08;
-
+  const cW = 4.52,
+    cH = 1.06,
+    gap = 0.12;
   nfrs.forEach((nfr, i) => {
-    const col = i % 2;
-    const row = Math.floor(i / 2);
-    const x = cols[col];
-    const y = startY + row * (cardH + gap);
-
-    slide.addShape("rect", {
-      x,
-      y,
-      w: cardW,
-      h: cardH,
+    const x = i % 2 === 0 ? 0.18 : 5.08;
+    const y = BODY_Y + Math.floor(i / 2) * (cH + gap);
+    R(slide, x, y, cW, cH, {
       fill: { color: C.white },
       line: { color: C.border, width: 0.75 },
-      shadow: mkShadow(),
     });
-    // Coloured top band
-    slide.addShape("rect", {
-      x,
-      y,
-      w: cardW,
-      h: 0.34,
-      fill: { color: nfr.color },
-      line: { color: nfr.color },
+    R(slide, x, y, cW, 0.32, {
+      fill: { color: C.purple },
+      line: { color: C.purple },
     });
     slide.addText(nfr.label.toUpperCase(), {
       x: x + 0.1,
-      y: y + 0.06,
-      w: cardW - 0.18,
+      y: y + 0.05,
+      w: cW - 0.18,
       h: 0.22,
       fontSize: 8,
       bold: true,
@@ -1584,82 +1028,59 @@ function addNFRSlide(pres) {
     });
     slide.addText(nfr.value, {
       x: x + 0.12,
-      y: y + 0.38,
-      w: cardW - 0.22,
-      h: cardH - 0.46,
+      y: y + 0.36,
+      w: cW - 0.22,
+      h: clampH(cH - 0.44),
       fontSize: 11,
-      color: C.text,
+      color: C.textDark,
       fontFace: FONT_BODY,
       valign: "top",
       wrap: true,
       margin: 0,
     });
   });
-
-  addFooter(slide);
 }
 
-// ─── Slide 11 — Implementation Roadmap ───────────────────────────────────────
 function addRoadmapSlide(pres) {
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Implementation Roadmap");
+  contentChrome(slide, "Implementation Roadmap");
 
-  const BAND_H = 0.88;
   const phases = (DATA.roadmap || []).slice(0, 3);
-
   if (phases.length === 0) {
     slide.addText("Roadmap not defined.", {
-      x: 0.5,
-      y: 2.5,
+      x: 0.3,
+      y: BODY_Y + 0.3,
       w: 9,
-      h: 0.5,
-      fontSize: 13,
+      h: 0.4,
+      fontSize: 12,
       color: C.textMuted,
-      align: "center",
+      italic: true,
       fontFace: FONT_BODY,
       margin: 0,
-      italic: true,
     });
-    addFooter(slide);
     return;
   }
 
-  const phaseColors = [C.success, C.purple, C.info];
-  const startY = BAND_H + 0.08;
-  const endY = H - 0.28;
-  const phaseH = endY - startY;
-  const totalW = W - 0.62;
-  const phaseW = (totalW - 0.16 * (phases.length - 1)) / phases.length;
-  const startX = 0.3;
+  const phaseColors = [C.purple, C.purpleMid, C.purpleLight];
+  const phaseH = clampH(H - BODY_Y - 0.32, 0.8);
+  const phaseW = (W - 0.54 - 0.14 * (phases.length - 1)) / phases.length;
 
   phases.forEach((phase, i) => {
-    const x = startX + i * (phaseW + 0.16);
+    const x = 0.22 + i * (phaseW + 0.14);
     const color = phaseColors[i] || C.purple;
-
-    slide.addShape("rect", {
-      x,
-      y: startY,
-      w: phaseW,
-      h: phaseH,
+    R(slide, x, BODY_Y, phaseW, phaseH, {
       fill: { color: C.white },
       line: { color: C.border, width: 0.75 },
-      shadow: mkShadowStrong(),
     });
-    // Phase header
-    slide.addShape("rect", {
-      x,
-      y: startY,
-      w: phaseW,
-      h: 0.64,
-      fill: { color },
-      line: { color },
+    R(slide, x, BODY_Y, phaseW, 0.6, {
+      fill: { color: C.purple },
+      line: { color: C.purple },
     });
-    slide.addText(phase.phase || `Phase ${i + 1}`, {
+    slide.addText(sanitize(phase.phase) || `Phase ${i + 1}`, {
       x: x + 0.1,
-      y: startY + 0.04,
+      y: BODY_Y + 0.04,
       w: phaseW - 0.14,
-      h: 0.32,
+      h: 0.3,
       fontSize: 9.5,
       bold: true,
       color: C.white,
@@ -1669,12 +1090,13 @@ function addRoadmapSlide(pres) {
       margin: 0,
       wrap: true,
     });
-    if (phase.duration) {
-      slide.addText(phase.duration, {
+    const dur = sanitize(phase.duration);
+    if (dur)
+      slide.addText(dur, {
         x: x + 0.1,
-        y: startY + 0.38,
+        y: BODY_Y + 0.36,
         w: phaseW - 0.14,
-        h: 0.22,
+        h: 0.2,
         fontSize: 8.5,
         color: C.white,
         fontFace: FONT_BODY,
@@ -1682,41 +1104,25 @@ function addRoadmapSlide(pres) {
         align: "center",
         margin: 0,
       });
-    }
 
-    const deliverables = (phase.deliverables || []).slice(0, 5);
-    const delivH = 0.5;
-    const delivGap = 0.08;
-    const delivStartY = startY + 0.72;
-
-    deliverables.forEach((d, di) => {
-      const dy = delivStartY + di * (delivH + delivGap);
-      if (dy + delivH > startY + phaseH - 0.06) return;
-
-      slide.addShape("rect", {
-        x: x + 0.1,
-        y: dy,
-        w: phaseW - 0.2,
-        h: delivH,
+    (phase.deliverables || []).slice(0, 5).forEach((d, di) => {
+      const dy = BODY_Y + 0.68 + di * 0.55;
+      if (dy + 0.48 > BODY_Y + phaseH - 0.04) return;
+      R(slide, x + 0.1, dy, Math.max(0.2, phaseW - 0.18), 0.48, {
         fill: { color: C.purpleFaint },
         line: { color: C.border, width: 0.5 },
       });
-      // Coloured dot
-      slide.addShape("ellipse", {
-        x: x + 0.18,
-        y: dy + 0.16,
-        w: 0.18,
-        h: 0.18,
+      E(slide, x + 0.18, dy + 0.15, 0.16, 0.16, {
         fill: { color },
         line: { color },
       });
-      slide.addText(d, {
-        x: x + 0.42,
-        y: dy + 0.06,
-        w: phaseW - 0.58,
-        h: delivH - 0.1,
-        fontSize: 9.5,
-        color: C.text,
+      slide.addText(sanitize(d), {
+        x: x + 0.4,
+        y: dy + 0.05,
+        w: Math.max(0.2, phaseW - 0.56),
+        h: 0.38,
+        fontSize: 9,
+        color: C.textDark,
         fontFace: FONT_BODY,
         valign: "middle",
         wrap: true,
@@ -1724,74 +1130,39 @@ function addRoadmapSlide(pres) {
       });
     });
   });
-
-  addFooter(slide);
 }
 
-// ─── Slide 12 — Risks, Assumptions & Open Questions ──────────────────────────
 function addRisksSlide(pres) {
   const risks = DATA.risks || [];
   const assumptions = DATA.assumptions || [];
-  const questions = DATA.open_questions || [];
+  const questions = DATA.open_questions || DATA.openquestions || [];
   if (!risks.length && !assumptions.length && !questions.length) return;
 
   const slide = pres.addSlide();
-  pageBackground(slide);
-  headerBand(slide, "Risks, Assumptions & Open Questions");
+  contentChrome(slide, "Risks, Assumptions & Open Questions");
 
-  const BAND_H = 0.88;
   const sections = [
-    {
-      label: "Risks & Mitigation",
-      items: risks,
-      x: 0.28,
-      color: C.error,
-      isRisk: true,
-    },
-    {
-      label: "Assumptions",
-      items: assumptions,
-      x: 3.5,
-      color: C.success,
-      isRisk: false,
-    },
-    {
-      label: "Open Questions",
-      items: questions,
-      x: 6.72,
-      color: C.purpleMid,
-      isRisk: false,
-    },
+    { label: "Risks & Mitigation", items: risks, x: 0.18, isRisk: true },
+    { label: "Assumptions", items: assumptions, x: 3.46, isRisk: false },
+    { label: "Open Questions", items: questions, x: 6.74, isRisk: false },
   ];
+  const cW = 3.04;
+  const cH = clampH(H - BODY_Y - 0.32, 0.8);
 
-  const colW = 3.06;
-  const startY = BAND_H + 0.08;
-  const colH = H - startY - 0.28;
-
-  sections.forEach(({ label, items, x, color, isRisk }) => {
-    slide.addShape("rect", {
-      x,
-      y: startY,
-      w: colW,
-      h: colH,
+  sections.forEach(({ label, items, x, isRisk }) => {
+    R(slide, x, BODY_Y, cW, cH, {
       fill: { color: C.white },
       line: { color: C.border, width: 0.75 },
-      shadow: mkShadow(),
     });
-    // Header
-    slide.addShape("rect", {
-      x,
-      y: startY,
-      w: colW,
-      h: 0.42,
-      fill: { color },
-      line: { color },
+    R(slide, x, BODY_Y, cW, 0.4, {
+      fill: { color: C.purple },
+      line: { color: C.purple },
     });
-    slide.addText(label.toUpperCase(), {
+    slide.addText(sanitize(label).toUpperCase(), {
       x: x + 0.1,
-      y: startY,
-      w: colW - 0.14,
-      h: 0.42,
+      y: BODY_Y,
+      w: cW - 0.14,
+      h: 0.4,
       fontSize: 9,
       bold: true,
       color: C.white,
@@ -1805,10 +1176,10 @@ function addRisksSlide(pres) {
     if (items.length === 0) {
       slide.addText("None identified.", {
         x: x + 0.1,
-        y: startY + 0.5,
-        w: colW - 0.18,
+        y: BODY_Y + 0.48,
+        w: cW - 0.18,
         h: 0.3,
-        fontSize: 10.5,
+        fontSize: 10,
         color: C.textMuted,
         italic: true,
         fontFace: FONT_BODY,
@@ -1819,46 +1190,36 @@ function addRisksSlide(pres) {
 
     if (isRisk) {
       items.slice(0, 5).forEach((r, i) => {
-        const riskText = typeof r === "string" ? r : r.risk || "";
-        const mitText = typeof r === "object" ? r.mitigation || "" : "";
-        const rCardH = mitText ? 0.82 : 0.48;
-        const ry = startY + 0.5 + i * (rCardH + 0.08);
-        if (ry + rCardH > startY + colH - 0.06) return;
-
-        slide.addShape("rect", {
-          x: x + 0.1,
-          y: ry,
-          w: colW - 0.18,
-          h: rCardH,
+        const riskText = sanitize(typeof r === "string" ? r : r.risk);
+        const mitText = typeof r === "object" ? sanitize(r.mitigation) : "";
+        const rH = clampH(mitText ? 0.8 : 0.46, 0.3);
+        const ry = BODY_Y + 0.48 + i * (rH + 0.07);
+        if (ry + rH > BODY_Y + cH - 0.04) return;
+        R(slide, x + 0.1, ry, cW - 0.18, rH, {
           fill: { color: C.offwhite },
           line: { color: C.border, width: 0.5 },
         });
-        // Red left accent
-        slide.addShape("rect", {
-          x: x + 0.1,
-          y: ry,
-          w: 0.05,
-          h: rCardH,
+        R(slide, x + 0.1, ry, 0.05, rH, {
           fill: { color: C.error },
           line: { color: C.error },
         });
         slide.addText(riskText, {
           x: x + 0.2,
           y: ry + 0.06,
-          w: colW - 0.32,
-          h: 0.3,
+          w: cW - 0.32,
+          h: 0.28,
           fontSize: 9.5,
           bold: true,
-          color: C.text,
+          color: C.textDark,
           fontFace: FONT_BODY,
           wrap: true,
           margin: 0,
         });
-        if (mitText) {
-          slide.addText(`→ ${mitText}`, {
+        if (mitText)
+          slide.addText(mitText, {
             x: x + 0.2,
-            y: ry + 0.4,
-            w: colW - 0.32,
+            y: ry + 0.38,
+            w: cW - 0.32,
             h: 0.36,
             fontSize: 9,
             color: C.textMuted,
@@ -1867,298 +1228,152 @@ function addRisksSlide(pres) {
             wrap: true,
             margin: 0,
           });
-        }
       });
     } else {
       bulletList(
         slide,
         items.slice(0, 7),
         x + 0.1,
-        startY + 0.5,
-        colW - 0.18,
-        colH - 0.56,
-        {
-          fontSize: 10.5,
-          paraSpaceAfter: 4,
-        },
+        BODY_Y + 0.48,
+        cW - 0.18,
+        cH - 0.54,
+        { fontSize: 10.5, rowH: 0.44 },
       );
     }
   });
-
-  addFooter(slide);
 }
 
-// ─── Slide 13 — Closing / Next Steps ─────────────────────────────────────────
-function addClosingSlide(pres) {
-  const slide = pres.addSlide();
-  slide.background = { color: C.purpleDim };
-
-  // Decorative orbs
-  slide.addShape("ellipse", {
-    x: 5.6,
-    y: -1.2,
-    w: 6.5,
-    h: 6.5,
-    fill: { color: C.purple, transparency: 80 },
-    line: { color: C.purple, transparency: 76, width: 1 },
-  });
-  slide.addShape("ellipse", {
-    x: -1.2,
-    y: 3.2,
-    w: 4.5,
-    h: 4.5,
-    fill: { color: C.purpleLight, transparency: 88 },
-    line: { color: C.purpleLight, transparency: 85, width: 1 },
-  });
-  slide.addShape("ellipse", {
-    x: 7.2,
-    y: 3.4,
-    w: 3.6,
-    h: 3.6,
-    fill: { color: C.purpleMid, transparency: 86 },
-    line: { color: C.purpleMid, transparency: 83, width: 1 },
-  });
-
-  // Left accent bar
-  slide.addShape("rect", {
-    x: 0,
-    y: 0,
-    w: 0.32,
-    h: H,
-    fill: { color: C.purpleMid },
-    line: { color: C.purpleMid },
-  });
-
-  // Logo — top left (on dark slide, logo should be light version)
-  addLogo(slide, { x: 0.48, y: 0.22, w: 0.66, h: 0.66 });
-
-  // Eyebrow
-  slide.addText("NEXT STEPS", {
-    x: 0.55,
-    y: 1.28,
-    w: 8.8,
-    h: 0.36,
-    fontSize: 9,
-    bold: true,
-    color: C.purpleLight,
-    fontFace: FONT_BODY,
-    charSpacing: 4.5,
-    align: "center",
-    margin: 0,
-  });
-  // Main heading — centered
-  slide.addText("Review · Refine · Build", {
-    x: 0.55,
-    y: 1.72,
-    w: 8.8,
-    h: 1.3,
-    fontSize: 42,
-    bold: true,
-    color: C.white,
-    fontFace: FONT_TITLE,
-    align: "center",
-    margin: 0,
-  });
-  // Divider — centered
-  slide.addShape("rect", {
-    x: 2.5,
-    y: 3.1,
-    w: 5.0,
-    h: 0.05,
-    fill: { color: C.purpleLight },
-    line: { color: C.purpleLight },
-  });
-  // Disclaimer
-  slide.addText(
-    "This document was generated by the AI Solution Architect pipeline.\n" +
-      "All outputs should be reviewed and validated by a qualified solution architect before implementation.",
-    {
-      x: 0.55,
-      y: 3.24,
-      w: 8.8,
-      h: 1.1,
-      fontSize: 11.5,
-      color: C.purpleLight,
-      fontFace: FONT_BODY,
-      italic: true,
-      align: "center",
-      margin: 0,
-    },
-  );
-  // Confidential footer
-  slide.addShape("rect", {
-    x: 0,
-    y: H - 0.42,
-    w: W,
-    h: 0.42,
-    fill: { color: "000000", transparency: 65 },
-    line: { color: "000000", transparency: 65 },
-  });
-  slide.addText("CONFIDENTIAL  ·  AI Solution Architect", {
-    x: 0.55,
-    y: H - 0.38,
-    w: 9,
-    h: 0.32,
-    fontSize: 8,
-    color: C.purpleLight,
-    fontFace: FONT_BODY,
-    align: "center",
-    margin: 0,
-    charSpacing: 0.5,
-  });
-}
-
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+// MAIN
+// ════════════════════════════════════════════════════════════════════════════
 (async () => {
-  log(
-    "[pptx-gen] ═══════════════════════════════════════════════════════════════",
-  );
   log("[pptx-gen] Starting PowerPoint generation pipeline...");
-  log("[pptx-gen] Project:", DATA.project?.name || "Unknown");
+  log(`[pptx-gen] Project: ${DATA.project?.name || "Unknown"}`);
 
-  log(
-    "[pptx-gen] ─────────────────────────────────────────────────────────────",
-  );
-  log("[pptx-gen] STEP 1: Generating draw.io XML from architecture JSON...");
-
-  const archData = DATA.architecture || {};
-  log(
-    "[pptx-gen] Architecture components:",
-    (archData.components || []).length,
-  );
-  log(
-    "[pptx-gen] Architecture connections:",
-    (archData.connections || []).length,
-  );
-  log(
-    "[pptx-gen] Diagram components:",
-    (archData.diagram_components || []).length,
-  );
-  log(
-    "[pptx-gen] Diagram connections:",
-    (archData.diagram_connections || []).length,
-  );
-
+  // STEP 1 — draw.io XML
+  log("\n[pptx-gen] STEP 1: Generating draw.io XML...");
   let drawioXml;
   try {
     drawioXml = generateDrawioXml(DATA);
-    log(`[pptx-gen] ✓ draw.io XML generated (${drawioXml.length} chars)`);
-    if (drawioXml.length < 200) {
-      log(
-        "[pptx-gen] WARNING: XML is suspiciously small — diagram may be empty.",
-      );
-    }
+    log(`[pptx-gen] draw.io XML: ${drawioXml.length} chars`);
   } catch (err) {
-    console.error(
-      `[pptx-gen] FATAL: draw.io XML generation failed: ${err.message}`,
-    );
+    console.error(`[pptx-gen] FATAL: draw.io XML failed: ${err.message}`);
     process.exit(1);
   }
 
-  log(
-    "[pptx-gen] ─────────────────────────────────────────────────────────────",
-  );
-  log("[pptx-gen] STEP 2: Rendering diagram to PNG via local Puppeteer...");
-
+  // STEP 2 — Render PNG via Puppeteer
+  log("\n[pptx-gen] STEP 2: Rendering PNG...");
   let pngBuffer;
   try {
     pngBuffer = await renderDrawioToPng(drawioXml, {
       width: 1400,
       height: 850,
     });
-    log(`[pptx-gen] ✓ PNG render SUCCESS — ${pngBuffer.length} bytes`);
-    if (pngBuffer.length < 500) {
-      console.error(
-        "[pptx-gen] WARNING: PNG is very small — diagram may be blank.",
+    if (!pngBuffer || pngBuffer.length < 1000) {
+      throw new Error(
+        `PNG buffer too small (${pngBuffer ? pngBuffer.length : 0} bytes) — likely corrupt render`,
       );
     }
+    log(`[pptx-gen] PNG: ${pngBuffer.length} bytes — OK`);
   } catch (err) {
-    console.error(`[pptx-gen] FATAL: Puppeteer render failed: ${err.message}`);
-    console.error(`[pptx-gen] Stack: ${err.stack}`);
+    console.error(`[pptx-gen] FATAL: PNG render failed: ${err.message}`);
     process.exit(1);
   }
 
-  const diagramB64 = "data:image/png;base64," + pngBuffer.toString("base64");
-  log(`[pptx-gen] ✓ PNG encoded as base64 (${diagramB64.length} chars)`);
+  const diagramRawB64 = pngBuffer.toString("base64");
+  log(`[pptx-gen] Diagram base64 length: ${diagramRawB64.length}`);
 
-  log(
-    "[pptx-gen] ─────────────────────────────────────────────────────────────",
-  );
-  log("[pptx-gen] STEP 3: Building PPTX presentation...");
-
+  // STEP 3 — Build content-only PPTX
+  log("\n[pptx-gen] STEP 3: Building content PPTX...");
   const pres = new pptxgen();
   pres.layout = "LAYOUT_16x9";
-  pres.title = DATA.project?.name || "AI Solution Architecture";
+  pres.title = sanitize(DATA.project?.name) || "AI Solution Architecture";
   pres.author = "AI Solution Architect";
   pres.subject = "High-Level Architecture Document";
 
-  log("[pptx-gen] Adding slides...");
-  if (_shouldInclude("Title")) addTitleSlide(pres);
-  if (_shouldInclude("ExecSummary")) addExecSummarySlide(pres);
-  if (_shouldInclude("Problem")) addProblemSlide(pres);
-  if (_shouldInclude("Solution")) addSolutionSlide(pres);
-  if (_shouldInclude("Diagram")) addDiagramSlide(pres, diagramB64);
-  if (_shouldInclude("Components")) addComponentsSlide(pres);
-  if (_shouldInclude("DataFlow")) addDataFlowSlide(pres);
-  if (_shouldInclude("TechStack")) addTechStackSlide(pres);
-  if (_shouldInclude("Features")) addFeaturesSlide(pres);
-  if (_shouldInclude("NFR")) addNFRSlide(pres);
-  if (_shouldInclude("Roadmap")) addRoadmapSlide(pres);
-  if (_shouldInclude("Risks")) addRisksSlide(pres);
+  // Skip predefined exec summary if a custom one is present in custom_slides
+  if (shouldInclude("ExecSummary")) addExecSummarySlide(pres);
+  if (shouldInclude("Problem")) addProblemSlide(pres);
+  if (shouldInclude("Solution")) addSolutionSlide(pres);
+  if (shouldInclude("Diagram")) addDiagramSlide(pres, diagramRawB64);
+  if (shouldInclude("Components")) addComponentsSlide(pres);
+  if (shouldInclude("DataFlow")) addDataFlowSlide(pres);
+  if (shouldInclude("TechStack")) addTechStackSlide(pres);
+  if (shouldInclude("Features")) addFeaturesSlide(pres);
+  if (shouldInclude("NFR")) addNFRSlide(pres);
+  if (shouldInclude("Roadmap")) addRoadmapSlide(pres);
+  if (shouldInclude("Risks")) addRisksSlide(pres);
 
-  // ── Custom slides ──────────────────────────────────────────────────────────
+  // ── Custom slides ──────────────────────────────────────────────────────
   try {
-    const custom = DATA.custom_slides || [];
+    const custom = DATA.custom_slides || DATA.customslides;
     if (Array.isArray(custom) && custom.length > 0) {
+      log(
+        `[pptx-gen] Rendering ${custom.length} custom slide(s) via layout engine...`,
+      );
+      const ctx = {
+        R,
+        E,
+        clampH,
+        sanitize,
+        card,
+        bulletList,
+        sectionLabel,
+        contentChrome,
+        addLogo,
+        C,
+        FONT_TITLE,
+        FONT_BODY,
+        W,
+        H,
+        HDR_H,
+        BODY_Y,
+        BODY_H,
+      };
       for (const cs of custom) {
         try {
-          const title = cs.title || "Custom";
-          const bullets = cs.bullets || cs.content || [];
-          const cSlide = pres.addSlide();
-          pageBackground(cSlide);
-          headerBand(cSlide, title);
-          if (Array.isArray(bullets)) {
-            const items = bullets.map((b) =>
-              typeof b === "string" ? b : String(b),
-            );
-            bulletList(cSlide, items, 0.6, 1.02, W - 1.2, 2.6, {
-              fontSize: 11.5,
-            });
-          } else {
-            cSlide.addText(String(bullets), {
-              x: 0.6,
-              y: 1.02,
-              w: W - 1.2,
-              h: 2.0,
-              fontSize: 13.5,
-              color: C.text,
-              fontFace: FONT_BODY,
-            });
-          }
-          addFooter(cSlide);
+          addCustomSlide(pres, cs, DATA, ctx);
         } catch (err) {
-          console.error(
-            "[pptx-gen] Warning: failed to add custom slide:",
-            err.message,
+          log(
+            `[pptx-gen] custom slide '${cs?.title || "?"}' skipped: ${err.message}`,
           );
+          try {
+            const fallbackSlide = pres.addSlide();
+            contentChrome(fallbackSlide, sanitize(cs?.title) || "Custom");
+            const rawBullets = cs?.bullets || cs?.content;
+            if (Array.isArray(rawBullets)) {
+              bulletList(
+                fallbackSlide,
+                rawBullets
+                  .map((b) =>
+                    typeof b === "string" ? b : sanitize(JSON.stringify(b)),
+                  )
+                  .filter(Boolean),
+                0.22,
+                BODY_Y,
+                W - 0.36,
+                BODY_H,
+              );
+            }
+          } catch (_) {}
         }
       }
     }
   } catch (err) {
-    console.error(
-      "[pptx-gen] Warning: custom slides processing failed:",
-      err.message,
-    );
+    log(`[pptx-gen] custom slides block failed: ${err.message}`);
   }
 
-  if (_shouldInclude("Closing")) addClosingSlide(pres);
+  // STEP 4 — Write content temp file
+  const contentTempPath = outputPath.replace(/\.pptx$/i, "_content_tmp.pptx");
+  log(`\n[pptx-gen] STEP 4: Writing content temp file → ${contentTempPath}`);
+  await pres.writeFile({ fileName: contentTempPath });
 
-  log("[pptx-gen] ✓ All slides added");
-  log("[pptx-gen] Writing PPTX file...");
-  await pres.writeFile({ fileName: outputPath });
-  log(`[pptx-gen] ✓ Done → ${outputPath}`);
+  // STEP 5 — Merge title + content + closing
   log(
-    "[pptx-gen] ═══════════════════════════════════════════════════════════════",
+    "\n[pptx-gen] STEP 5: Merging title_slides.pptx + content + closing_slides.pptx...",
   );
+  mergeWithTemplates(contentTempPath, outputPath);
+
+  log(`\n[pptx-gen] Done → ${outputPath}`);
   process.exit(0);
 })();

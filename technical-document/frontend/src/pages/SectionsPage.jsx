@@ -467,10 +467,10 @@ export default function SectionsPage() {
             </p>
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-3.5">
               <div className="text-sm font-semibold text-blue-900 mb-0.5">
-                {state.metadata?.projectname}
+                Project Name: {state.metadata?.project_name}
               </div>
               <div className="text-xs text-blue-500 mb-2">
-                {state.metadata?.clientname}
+                Client Name: {state.metadata?.client_name}
               </div>
               <div className="font-mono text-[10px] text-blue-300 break-all">
                 {state.projectId}

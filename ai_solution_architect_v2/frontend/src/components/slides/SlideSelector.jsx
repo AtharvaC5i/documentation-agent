@@ -1,209 +1,257 @@
+// src/components/slides/SlideSelector.jsx
 import { useState } from "react";
+import { LayoutTemplate, ChevronDown, Check, Sparkles } from "lucide-react";
 import { useAppStore } from "../../store/useAppStore";
 
 const SLIDES = [
-  { key: "Title", label: "Title" },
-  { key: "ExecSummary", label: "Executive Summary" },
-  { key: "Problem", label: "Problem Statement" },
-  { key: "Solution", label: "Proposed Solution" },
-  { key: "Diagram", label: "Architecture Diagram" },
-  { key: "Components", label: "Component Breakdown" },
-  { key: "DataFlow", label: "Data Flow" },
-  { key: "TechStack", label: "Technology Stack" },
-  { key: "Features", label: "Key Features & Capabilities" },
-  { key: "NFR", label: "Non-Functional Requirements" },
-  { key: "Roadmap", label: "Implementation Roadmap" },
-  { key: "Risks", label: "Risks, Assumptions & Open Questions" },
-  { key: "Closing", label: "Closing / Next Steps" },
+  { key: "Problem", label: "Problem Statement", group: "core" },
+  { key: "Solution", label: "Proposed Solution", group: "core" },
+  { key: "Diagram", label: "Architecture Diagram", group: "core" },
+  { key: "Components", label: "Component Breakdown", group: "core" },
+  { key: "DataFlow", label: "Data Flow", group: "core" },
+  { key: "TechStack", label: "Technology Stack", group: "core" },
+  { key: "Features", label: "Key Features & Capabilities", group: "detail" },
+  { key: "NFR", label: "Non-Functional Requirements", group: "detail" },
+  { key: "Roadmap", label: "Implementation Roadmap", group: "detail" },
+  { key: "Risks", label: "Risks & Assumptions", group: "detail" },
 ];
 
-function SlideCheckbox({ slideKey, label, checked, onChange }) {
-  const id = `slide-${slideKey}`;
+const GROUPS = [
+  { key: "core", label: "Core Architecture" },
+  { key: "detail", label: "Details & NFRs" },
+];
+
+/* ── Single pill ─────────────────────────────────────────── */
+function SlidePill({ slideKey, label, index, checked, onChange }) {
   return (
-    <label
-      htmlFor={id}
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      onClick={onChange}
       className={`
-        flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] cursor-pointer
-        border transition-all duration-150 select-none
+        group relative flex items-center gap-2.5 w-full
+        px-3 py-2.5 rounded-[10px] text-left
+        border transition-all duration-200 select-none
         ${
           checked
-            ? "border-brand-purple bg-brand-purple-light text-brand-navy"
-            : "border-brand-border bg-white text-[#1A1A2E] hover:border-brand-purple hover:bg-brand-purple-light"
+            ? "bg-[#F0EBFF] border-brand-purple/50 shadow-[0_0_0_3px_rgba(124,92,191,0.07)]"
+            : "bg-white border-brand-border hover:border-brand-purple/30 hover:bg-[#FAF8FF]"
         }
       `}
     >
-      {/* Hidden native checkbox — accessible but visually replaced */}
-      <input
-        id={id}
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="sr-only"
-      />
-
-      {/* Custom checkbox box */}
       <span
         className={`
-          flex items-center justify-center w-4 h-4 rounded-[4px] shrink-0
-          border transition-colors duration-150
-          ${
-            checked
-              ? "bg-brand-purple border-brand-purple"
-              : "bg-white border-brand-border"
-          }
-        `}
-        aria-hidden="true"
+        shrink-0 w-5 h-5 rounded-full text-[0.6rem] font-bold
+        flex items-center justify-center tabular-nums
+        transition-all duration-200
+        ${
+          checked
+            ? "bg-brand-purple text-white"
+            : "bg-[#EDE9F7] text-brand-muted group-hover:bg-[#E2D9F3]"
+        }
+      `}
       >
-        {checked && (
-          <svg
-            className="w-2.5 h-2.5 text-white"
-            viewBox="0 0 10 10"
-            fill="none"
-          >
-            <path
-              d="M1.5 5L4 7.5L8.5 2.5"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
+        {checked ? <Check size={10} strokeWidth={3} /> : index}
       </span>
 
-      <span className="text-[0.82rem] font-medium leading-tight">{label}</span>
-    </label>
+      <span
+        className={`
+        flex-1 text-[0.78rem] font-medium leading-tight
+        transition-colors duration-200
+        ${checked ? "text-brand-navy" : "text-[#4A4870] group-hover:text-brand-navy"}
+      `}
+      >
+        {label}
+      </span>
+
+      <span
+        className={`shrink-0 transition-all duration-200 ${checked ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
+      >
+        <Check size={12} className="text-brand-purple" strokeWidth={2.5} />
+      </span>
+    </button>
   );
 }
 
+/* ── Group section ───────────────────────────────────────── */
+function SlideGroup({
+  groupKey,
+  groupLabel,
+  selectedSlides,
+  toggleSlide,
+  onToggleGroup,
+}) {
+  const groupSlides = SLIDES.filter((s) => s.group === groupKey);
+  const startIndex = SLIDES.findIndex((s) => s.group === groupKey) + 1;
+  const allOn = groupSlides.every((s) => selectedSlides.includes(s.key));
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[0.65rem] font-bold uppercase tracking-[0.1em] text-brand-muted whitespace-nowrap">
+          {groupLabel}
+        </span>
+        <div className="flex-1 h-px bg-brand-border" />
+        <button
+          onClick={() => onToggleGroup(groupSlides)}
+          className="text-[0.65rem] font-semibold text-brand-purple/70 hover:text-brand-purple transition-colors ml-1 shrink-0"
+        >
+          {allOn ? "Deselect all" : "Select all"}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 mb-4">
+        {groupSlides.map((slide, i) => (
+          <SlidePill
+            key={slide.key}
+            slideKey={slide.key}
+            label={slide.label}
+            index={startIndex + i}
+            checked={selectedSlides.includes(slide.key)}
+            onChange={() => toggleSlide(slide.key)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Main component ──────────────────────────────────────── */
 export default function SlideSelector() {
   const [open, setOpen] = useState(true);
   const { selectedSlides, toggleSlide, customSlidesRaw, setCustomSlidesRaw } =
     useAppStore();
 
-  const allSelected = selectedSlides.length === SLIDES.length;
-  const noneSelected = selectedSlides.length === 0;
-
-  const handleSelectAll = () =>
-    SLIDES.forEach(({ key }) => {
-      if (!selectedSlides.includes(key)) toggleSlide(key);
+  const selectAll = () =>
+    SLIDES.forEach((s) => {
+      if (!selectedSlides.includes(s.key)) toggleSlide(s.key);
     });
-  const handleDeselectAll = () =>
-    SLIDES.forEach(({ key }) => {
-      if (selectedSlides.includes(key)) toggleSlide(key);
+  const clearAll = () =>
+    SLIDES.forEach((s) => {
+      if (selectedSlides.includes(s.key)) toggleSlide(s.key);
     });
+  const toggleGroup = (groupSlides) => {
+    const allOn = groupSlides.every((s) => selectedSlides.includes(s.key));
+    groupSlides.forEach((s) => {
+      const isOn = selectedSlides.includes(s.key);
+      if (allOn && isOn) toggleSlide(s.key);
+      if (!allOn && !isOn) toggleSlide(s.key);
+    });
+  };
 
   return (
-    <div className="mb-6 border border-brand-border rounded-[12px] overflow-hidden bg-white shadow-sm">
-      {/* ── Expander header ── */}
+    <div className="mb-6 rounded-[14px] bg-white border border-brand-border shadow-[0_2px_16px_rgba(124,92,191,0.07)] overflow-hidden">
+      {/* Header */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="
-          w-full flex items-center justify-between
-          px-5 py-3.5 bg-white
-          hover:bg-brand-purple-light transition-colors duration-150
-        "
+        className="w-full flex items-center gap-3.5 px-5 py-4 hover:bg-[#FDFCFF] transition-colors duration-150"
         aria-expanded={open}
+        aria-controls="slide-selector-body"
       >
-        <span className="text-[0.88rem] font-semibold text-brand-navy">
-          Select slides to include
-          <span className="ml-2 text-brand-muted font-normal text-[0.78rem]">
-            ({selectedSlides.length} / {SLIDES.length} selected)
-          </span>
-        </span>
-
-        <svg
-          className={`w-4 h-4 text-brand-purple transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M19 9l-7 7-7-7"
+        <span className="flex items-center justify-center w-9 h-9 rounded-[9px] bg-[#EDE9F7] shrink-0">
+          <LayoutTemplate
+            size={16}
+            className="text-brand-purple"
+            strokeWidth={1.8}
           />
-        </svg>
+        </span>
+        <div className="flex-1 text-left">
+          <p className="text-[0.88rem] font-semibold text-brand-navy leading-none">
+            Slide deck composition
+          </p>
+          <p className="text-[0.72rem] text-brand-muted mt-0.5">
+            Choose which slides to include in your deck
+          </p>
+        </div>
+        <ChevronDown
+          size={16}
+          className={`text-brand-purple shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          strokeWidth={2}
+        />
       </button>
 
-      {/* ── Collapsible body ── */}
+      {/* Body */}
       {open && (
-        <div className="px-5 pb-5 pt-1 border-t border-brand-border">
-          {/* Select / Deselect all controls */}
-          <div className="flex items-center gap-3 mb-4 mt-3">
+        <div
+          id="slide-selector-body"
+          className="px-5 pt-3 pb-5 border-t border-brand-border"
+        >
+          {/* Select / clear all */}
+          <div className="flex items-center justify-end gap-2 mb-3">
             <button
-              onClick={handleSelectAll}
-              disabled={allSelected}
-              className="
-                text-[0.78rem] font-medium text-brand-purple
-                hover:underline underline-offset-2
-                disabled:opacity-40 disabled:cursor-not-allowed
-                transition-opacity duration-150
-              "
+              onClick={selectAll}
+              className="text-[0.7rem] font-semibold text-brand-purple hover:text-brand-navy transition-colors"
             >
               Select all
             </button>
-            <span className="text-brand-border text-xs">|</span>
+            <span className="text-brand-border text-xs">·</span>
             <button
-              onClick={handleDeselectAll}
-              disabled={noneSelected}
-              className="
-                text-[0.78rem] font-medium text-brand-purple
-                hover:underline underline-offset-2
-                disabled:opacity-40 disabled:cursor-not-allowed
-                transition-opacity duration-150
-              "
+              onClick={clearAll}
+              className="text-[0.7rem] font-medium text-brand-muted hover:text-brand-navy transition-colors"
             >
-              Deselect all
+              Clear all
             </button>
           </div>
 
-          {/* 4-column checkbox grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {SLIDES.map(({ key, label }) => (
-              <SlideCheckbox
-                key={key}
-                slideKey={key}
-                label={label}
-                checked={selectedSlides.includes(key)}
-                onChange={() => toggleSlide(key)}
-              />
-            ))}
+          {/* Grouped slide pills */}
+          {GROUPS.map(({ key, label }) => (
+            <SlideGroup
+              key={key}
+              groupKey={key}
+              groupLabel={label}
+              selectedSlides={selectedSlides}
+              toggleSlide={toggleSlide}
+              onToggleGroup={toggleGroup}
+            />
+          ))}
+
+          {/* Custom slides */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[0.65rem] font-bold uppercase tracking-[0.1em] text-brand-muted whitespace-nowrap">
+              Custom Slides
+            </span>
+            <div className="flex-1 h-px bg-brand-border" />
+            <span className="text-[0.65rem] text-brand-muted font-medium">
+              optional
+            </span>
           </div>
 
-          {/* Divider */}
-          <hr className="border-brand-border my-4" />
+          <p className="text-[0.73rem] text-brand-muted mb-2 leading-relaxed">
+            One slide topic per line — AI will automatically expand each into
+            full slide content
+          </p>
 
-          {/* Custom slides textarea */}
-          <div>
-            <p className="text-[0.78rem] font-semibold uppercase tracking-[0.06em] text-brand-navy mb-1">
-              Custom slides
-              <span className="font-normal normal-case tracking-normal text-brand-muted ml-1">
-                (optional)
-              </span>
-            </p>
-            <p className="text-[0.75rem] text-brand-muted mb-2">
-              One per line in format:{" "}
-              <code className="bg-[#EDE9F7] text-brand-purple px-1 py-0.5 rounded text-[0.72rem]">
-                Title|One-line content
-              </code>
-            </p>
-            <textarea
-              value={customSlidesRaw}
-              onChange={(e) => setCustomSlidesRaw(e.target.value)}
-              placeholder={`e.g. Appendix|Short note about appendix\nCustom Slide|Single-line content`}
-              rows={3}
-              className="
-                w-full bg-white border border-brand-border rounded-[10px]
-                px-4 py-3 text-[0.85rem] text-[#1A1A2E] font-sans
-                resize-y shadow-sm
-                placeholder:text-brand-muted
-                focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/10
-                transition-all duration-200
-              "
+          <textarea
+            value={customSlidesRaw}
+            onChange={(e) => setCustomSlidesRaw(e.target.value)}
+            placeholder={`e.g. Implementation Timeline\nBudget Breakdown\nStakeholder Analysis`}
+            rows={3}
+            className="
+              w-full bg-[#FDFCFF] border border-brand-border rounded-[10px]
+              px-4 py-3 text-[0.84rem] text-[#1A1A2E] font-sans
+              resize-y shadow-[inset_0_1px_3px_rgba(124,92,191,0.04)]
+              placeholder:text-brand-muted/50
+              focus:outline-none focus:border-brand-purple
+              focus:shadow-[0_0_0_3px_rgba(124,92,191,0.09)]
+              transition-all duration-200
+            "
+          />
+
+          <div className="flex items-start gap-2 mt-2.5 px-3 py-2.5 rounded-[9px] bg-[#F5F2FF] border border-brand-purple/15">
+            <Sparkles
+              size={13}
+              className="text-brand-purple shrink-0 mt-0.5"
+              strokeWidth={1.8}
             />
+            <p className="text-[0.7rem] text-[#4A4870] leading-relaxed">
+              Each line is treated as a topic. The AI will automatically
+              generate{" "}
+              <span className="font-semibold text-brand-purple">
+                rich, structured slide content
+              </span>{" "}
+              based on your BRD and technical documentation.
+            </p>
           </div>
         </div>
       )}

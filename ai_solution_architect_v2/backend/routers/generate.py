@@ -61,7 +61,6 @@ async def generate_pptx(
     pptx_service: PptxService = Depends(get_pptx_service),
 ):
     try:
-        # Validate that at least one of BRD or tech doc is provided
         if not brd_text.strip() and not tech_doc_text.strip():
             raise HTTPException(
                 status_code=400,
@@ -70,18 +69,14 @@ async def generate_pptx(
 
         print("[generate.py] ════════════════════════════════════════════════════════════")
         print(f"[generate.py] Starting PPT generation (BRD: {len(brd_text)} chars, TechDoc: {len(tech_doc_text)} chars)")
-        
+
         payload = GenerateRequest(brd_text=brd_text, tech_doc_text=tech_doc_text)
         result  = await orchestrator.run(payload)
         print(f"[generate.py] Orchestrator completed, generating PPTX...")
 
-        # model_dump_json() serialises all public Pydantic fields.
-        # _raw_arch is set via model_post_init/set_raw_architecture, invisible to Pydantic serialisation.
-        # We restore it here so the JS generator gets id/label components
-        # and connections for the draw.io diagram render.
         result_dict = json.loads(result.model_dump_json())
         raw_arch = result.get_raw_architecture()
-        
+
         print(f"[generate.py] Raw architecture present: {bool(raw_arch)}")
         if raw_arch and isinstance(raw_arch, dict):
             arch_data = raw_arch.get("architecture", {})
@@ -90,90 +85,101 @@ async def generate_pptx(
             print(f"[generate.py] Architecture data: {len(comps)} components, {len(conns)} connections")
             result_dict["architecture"] = raw_arch
 
-        # Pass slide selection and custom slides through to JS generator
+        # ── Parse selected_slides and custom_slides ───────────────────────
         try:
             if selected_slides:
-                # expected comma-separated values or JSON array
                 try:
                     sel = json.loads(selected_slides)
                 except Exception:
                     sel = [s.strip() for s in selected_slides.split(",") if s.strip()]
                 result_dict["selected_slides"] = sel
+
             if custom_slides:
                 try:
+                    # Try parsing as JSON first (in case frontend sends JSON array)
                     cs = json.loads(custom_slides)
                 except Exception:
-                    # expect lines like Title|Content OR single-line titles
+                    # Plain text — one topic per line
                     cs = []
                     for line in custom_slides.splitlines():
                         if not line or not line.strip():
                             continue
-                        if "|" in line:
-                            t, c = line.split("|", 1)
-                            cs.append({"title": t.strip(), "content": c.strip()})
-                        else:
-                            # Accept a single word/phrase — use it as title and as simple content
-                            txt = line.strip()
-                            cs.append({"title": txt, "content": txt})
+                        # Every line is a topic — LLM will always expand it
+                        cs.append({"title": line.strip()})
                 result_dict["custom_slides"] = cs
+                print(f"[generate.py] Parsed {len(cs)} custom slide topic(s)")
+
         except Exception as e:
             print(f"[generate.py] Warning: failed to parse slide selection/custom slides: {e}")
 
-        # If user provided short custom-slide prompts (single-line titles),
-        # expand them via the orchestrator's LLM client using the BRD and tech doc.
+        # ── LLM enrichment: expand every custom slide topic into bullets ──
         try:
             cs_list = result_dict.get("custom_slides") or []
             expanded = []
-            for cs in cs_list:
+
+            print(f"[generate.py] Enriching {len(cs_list)} custom slide(s) via LLM...")
+
+            for idx, cs in enumerate(cs_list):
                 title = (cs.get("title") or "").strip() if isinstance(cs, dict) else str(cs).strip()
-                content = (cs.get("content") or "").strip() if isinstance(cs, dict) else ""
-                if title and (not content or content == title):
-                    # Build user message with BRD + tech doc for context
-                    user_msg = build_user_message(brd_text, tech_doc_text)
-                    user_msg += "\n\n=== CUSTOM SLIDE TOPIC ===\n" + title
-                    try:
-                        # Request structured JSON (title + bullets) from the model
-                        generated_obj = await orchestrator.client.invoke(CUSTOM_SLIDE_PROMPT, user_msg)
-                        # Expect a dict like {title:..., bullets:[...]}
-                        if isinstance(generated_obj, dict):
-                            gtitle = generated_obj.get("title") or title
-                            bullets = generated_obj.get("bullets") or []
-                            expanded.append({"title": gtitle, "bullets": bullets})
-                        else:
-                            # Fallback to plain string
-                            gen_text = str(generated_obj).strip()
-                            expanded.append({"title": title, "bullets": [gen_text]})
-                    except Exception as e:
-                        print(f"[generate.py] Warning: custom slide generation failed for '{title}': {e}")
-                        expanded.append({"title": title, "bullets": [title]})
-                else:
-                    # Already structured or has explicit content
-                    # Normalize to {title, bullets}
-                    if content and isinstance(content, list):
-                        bullets = content
-                    elif content and isinstance(content, str):
-                        bullets = [content]
+                if not title:
+                    print(f"[generate.py] Skipping custom slide {idx + 1} — empty title")
+                    continue
+
+                user_msg = build_user_message(brd_text, tech_doc_text)
+                user_msg += (
+                    "\n\n=== CUSTOM SLIDE TOPIC ===\n"
+                    f"{title}\n\n"
+                    "INSTRUCTIONS:\n"
+                    "- Generate EXACTLY 3 to 6 bullet points for this slide topic.\n"
+                    "- Each bullet must be 10-20 words, specific to the BRD and technical documentation above.\n"
+                    "- Do NOT write generic bullets. Reference actual details from the BRD/tech doc.\n"
+                    "- Return ONLY valid JSON in this exact format:\n"
+                    '  {"title": "<slide title>", "bullets": ["bullet 1", "bullet 2", ...]}\n'
+                    "- The bullets array MUST have at least 3 items."
+                )
+
+                try:
+                    print(f"[generate.py] Enriching slide {idx + 1}/{len(cs_list)}: '{title}'")
+                    generated_obj = await orchestrator.client.invoke(CUSTOM_SLIDE_PROMPT, user_msg)
+
+                    if isinstance(generated_obj, dict):
+                        gtitle  = generated_obj.get("title") or title
+                        bullets = generated_obj.get("bullets") or []
+                        if not isinstance(bullets, list):
+                            print(f"[generate.py] Warning: bullets is not a list for '{title}', got: {type(bullets)}")
+                            bullets = [str(bullets)]
+                        if len(bullets) < 3:
+                            print(f"[generate.py] Warning: LLM returned only {len(bullets)} bullet(s) for '{title}' — expected 3+. Response: {generated_obj}")
+                        expanded.append({"title": gtitle, "bullets": bullets})
                     else:
-                        bullets = [title] if title else []
-                    expanded.append({"title": title or "Custom", "bullets": bullets})
+                        print(f"[generate.py] Warning: LLM returned non-dict for '{title}': {type(generated_obj)} — {str(generated_obj)[:200]}")
+                        expanded.append({"title": title, "bullets": [f"Content generation pending for: {title}"]})
+
+                except Exception as e:
+                    print(f"[generate.py] ERROR: LLM enrichment failed for '{title}': {e}")
+                    expanded.append({"title": title, "bullets": [f"Content generation pending for: {title}"]})
+
             if expanded:
                 result_dict["custom_slides"] = expanded
+                print(f"[generate.py] ✓ Enriched {len(expanded)} custom slide(s)")
 
-            # Diagnostic logging: show what we are passing to the JS generator for custom slides
-            try:
-                cs_preview = result_dict.get("custom_slides")
-                sel_preview = result_dict.get("selected_slides")
-                print(f"[generate.py] selected_slides -> {sel_preview}")
-                print(f"[generate.py] custom_slides -> {json.dumps(cs_preview) if cs_preview is not None else cs_preview}")
-            except Exception:
-                pass
         except Exception as e:
             print(f"[generate.py] Warning: custom slide processing failed: {e}")
+
+        # ── Diagnostic log ────────────────────────────────────────────────
+        try:
+            cs_preview = result_dict.get("custom_slides")
+            sel_preview = result_dict.get("selected_slides")
+            print(f"[generate.py] selected_slides -> {sel_preview}")
+            print(f"[generate.py] custom_slides -> {json.dumps(cs_preview) if cs_preview is not None else cs_preview}")
+        except Exception:
+            pass
 
         pptx_bytes = pptx_service.generate(result_dict)
         print(f"[generate.py] ✓ PPTX generated: {len(pptx_bytes)} bytes")
         print("[generate.py] ════════════════════════════════════════════════════════════")
         return _pptx_response(pptx_bytes)
+
     except Exception as e:
         print(f"[generate.py] FATAL: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

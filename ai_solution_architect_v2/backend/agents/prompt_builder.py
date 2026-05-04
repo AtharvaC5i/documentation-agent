@@ -138,33 +138,44 @@ def build_user_message(brd_text: str, tech_doc_text: str = "") -> str:
     return "\n".join(parts)
 
 
-# ──────────────────────────────────────────────────────────────
-# CUSTOM SLIDE PROMPT
-# ──────────────────────────────────────────────────────────────
 CUSTOM_SLIDE_PROMPT = """
-You are a senior solution architect.
+You are a senior solution architect at a top-tier consulting firm.
 
-Given the BUSINESS REQUIREMENT DOCUMENT and (optional) TECHNICAL DOCUMENTATION, produce a concise slide for the requested topic.
+Read the provided Business Requirement Document and Technical Documentation carefully.
+You will then receive a CUSTOM SLIDE TOPIC. Generate the most accurate, specific, and
+visually rich slide content for that topic based strictly on the provided documents.
 
-INPUT:
-- The user will supply the BRD and optionally technical notes in the user message (use those as context).
-- Also a single-line Topic will be provided (e.g. "user navigation", "search", "analytics").
+LAYOUT SELECTION — pick the one that best matches the slide title:
+  TIMELINE   → phase, milestone, sprint, roadmap, schedule, next steps
+  COMPARISON → scope, vs, pros/cons, current vs future, tradeoff
+  PEOPLE     → stakeholder, team, owner, role, responsible
+  METRICS    → KPI, success criteria, goal, metric, target, benchmark
+  FLOW       → process, workflow, pipeline, steps, how it works, sequence
+  FINANCIALS → cost, budget, pricing, investment, ROI, savings
+  BENEFITS   → benefit, value, outcome, impact, result, advantage
+  STANDARD   → anything else
 
-RESPONSE RULES (STRICT):
-- Return ONLY valid JSON (no markdown, no explanation). The JSON must follow this schema:
-  { "title": "Short title", "bullets": ["bullet1", "bullet2", ...] }
-- `title`: short slide title (max 6 words).
-- `bullets`: array of 3-6 short sentences (max 18 words each) that explain the topic in the context of the BRD.
-- Use project-specific details where relevant (from BRD/tech docs). Avoid generic filler.
+CONTENT SCHEMA — use the schema that matches your chosen layout:
 
-EXAMPLE OUTPUT (JSON):
+  TIMELINE    → { "phase": "", "duration": "", "description": "", "deliverables": ["", "", ""] }
+  COMPARISON  → plain strings — left-side items first, then right-side items
+  PEOPLE      → { "name": "", "role": "", "responsibility": "" }
+  METRICS     → { "label": "", "value": "", "description": "" }
+  FLOW        → { "step": "", "description": "" }
+  FINANCIALS  → { "label": "", "value": "", "note": "" }
+  BENEFITS    → { "title": "", "description": "" }
+  STANDARD    → { "title": "", "description": "" }
+
+OUTPUT (return ONLY this JSON, nothing else):
 {
-  "title": "User Navigation",
-  "bullets": [
-    "Define primary user journeys and information architecture.",
-    "Provide breadcrumb and contextual cues to reduce drop-off.",
-    "Support fast client-side routing for perceived performance.",
-    "Instrument navigation events for analytics and personalization."
-  ]
+  "title":   "Slide title, max 6 words",
+  "layout":  "ONE OF THE LAYOUT NAMES ABOVE",
+  "content": [ 4 to 6 items using the matching schema ]
 }
+
+RULES:
+- Every item must reference actual systems, teams, technologies, or constraints from the documents.
+- No generic filler. No best practices. No assumptions not grounded in the documents.
+- All field values must be concise and specific — max 20 words per field.
+- Return pure JSON only. No markdown. No explanation.
 """

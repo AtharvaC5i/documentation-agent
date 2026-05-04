@@ -26,6 +26,7 @@ class AssembleRequest(BaseModel):
 
 @router.post("/assemble/{project_id}")
 async def assemble_document(project_id: str, req: AssembleRequest):
+    print("DEBUG metadata received:", req.metadata)
     if not req.sections:
         raise HTTPException(status_code=400, detail="No sections provided.")
 

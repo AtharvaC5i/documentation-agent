@@ -5,5 +5,6 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8001,
-        reload=False,   # disable reload entirely — saves and restarts manually
+        reload=False,
+        reload_excludes=["storage/*", "*.pyc", "__pycache__", "venv/*"],
     )

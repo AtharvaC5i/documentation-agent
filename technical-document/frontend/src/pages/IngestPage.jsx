@@ -547,9 +547,9 @@ export default function IngestPage() {
         payload: {
           projectId: data.project_id,
           metadata: {
-            projectname: ghName.trim(),
-            clientname: ghClient.trim(),
-            teammembers: teamMembers,
+            project_name: ghName.trim(),
+            client_name: ghClient.trim(),
+            team_members: teamMembers,
             description: ghDesc.trim(),
           },
           analysis: data.analysis,
@@ -591,9 +591,9 @@ export default function IngestPage() {
         payload: {
           projectId: data.project_id,
           metadata: {
-            projectname: zipName.trim(),
-            clientname: zipClient.trim(),
-            teammembers: teamMembers,
+            project_name: zipName.trim(),
+            client_name: zipClient.trim(),
+            team_members: teamMembers,
             description: zipDesc.trim(),
           },
           analysis: data.analysis,
@@ -1012,10 +1012,10 @@ export default function IngestPage() {
             </p>
             <Card variant="blue">
               <div className="text-sm font-semibold text-blue-800 mb-0.5">
-                {state.metadata?.projectname}
+                {state.metadata?.project_name}
               </div>
               <div className="text-xs text-blue-600/70 mb-1">
-                Client: {state.metadata?.clientname}
+                Client: {state.metadata?.client_name}
               </div>
               <div className="font-mono text-[10px] text-blue-400 mt-1.5 break-all">
                 {state.projectId}
