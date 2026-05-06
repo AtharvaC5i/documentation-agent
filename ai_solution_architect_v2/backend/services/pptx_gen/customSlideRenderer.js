@@ -3,8 +3,17 @@
 const fs = require("fs");
 const path = require("path");
 
-const imageLogo = path.join(__dirname, "logo.png");
-const imageLogoWhite = path.join(__dirname, "logo_white.png");
+// Pre-read logo as base64 data URI for reliable embedding
+function _readLogoDataUri(filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      return "data:image/png;base64," + fs.readFileSync(filePath).toString("base64");
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
+const _LOGO_DATA = _readLogoDataUri(path.join(__dirname, "logo_white.png"))
+               || _readLogoDataUri(path.join(__dirname, "logo.png"));
 
 const C = {
   purple: "3D35C9",
@@ -60,14 +69,9 @@ function clampH(h, min = 0.2) {
 
 function addLogo(slide, x, y, w, h) {
   try {
-    const logoPath = fs.existsSync(imageLogoWhite)
-      ? imageLogoWhite
-      : fs.existsSync(imageLogo)
-        ? imageLogo
-        : null;
-    if (logoPath) {
+    if (_LOGO_DATA) {
       slide.addImage({
-        path: logoPath,
+        data: _LOGO_DATA,
         x,
         y,
         w,
@@ -88,12 +92,17 @@ function contentChrome(slide, title, DATA) {
     line: { color: C.purple },
   });
 
-  addLogo(slide, W - 1.22, 0.1, 1.14, 0.54);
+  // Purple background box at top-right so logo_white is visible
+  R(slide, W - 1.3, 0, 1.3, HDRH, {
+    fill: { color: C.purple },
+    line: { color: C.purple },
+  });
+  addLogo(slide, W - 1.2, 0.12, 1.08, 0.52);
 
   slide.addText(sanitize(title), {
     x: 0.18,
     y: 0.12,
-    w: W - 1.48,
+    w: W - 1.60,
     h: 0.52,
     fontSize: 20,
     bold: true,

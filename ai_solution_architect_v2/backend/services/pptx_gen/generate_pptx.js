@@ -6,7 +6,7 @@ const { generateDrawioXml } = require("./drawioGenerator");
 const { renderDrawioToPng } = require("./drawioRenderer");
 const { addCustomSlide } = require("./customSlideRenderer");
 const path = require("path");
-const { execSync } = require("child_process");
+
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
 const [, , inputPath, outputPath] = process.argv;
@@ -16,12 +16,21 @@ if (!inputPath || !outputPath) {
 }
 
 const DATA = JSON.parse(fs.readFileSync(inputPath, "utf8"));
-const imageLogo = path.join(__dirname, "logo.png");
-const imageLogoWhite = path.join(__dirname, "logo_white.png");
 
-// ── Template file paths ───────────────────────────────────────────────────────
-const titleSlidesPath = path.join(__dirname, "title_slides.pptx");
-const closingSlidesPath = path.join(__dirname, "closing_slides.pptx");
+// Pre-read logos as base64 data URIs so pptxgenjs embeds them (not file references)
+function _readLogoDataUri(filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      return "data:image/png;base64," + fs.readFileSync(filePath).toString("base64");
+    }
+  } catch (e) {
+    log(`[pptx-gen] Could not read logo ${filePath}: ${e.message}`);
+  }
+  return null;
+}
+const imageLogoWhiteData = _readLogoDataUri(path.join(__dirname, "logo_white.png"));
+const imageLogoData      = _readLogoDataUri(path.join(__dirname, "logo.png"));
+const LOGO_DATA = imageLogoWhiteData || imageLogoData;  // prefer white version
 
 // ── Brand colors ─────────────────────────────────────────────────────────────
 const C = {
@@ -99,14 +108,9 @@ function clampH(h, min) {
 
 function addLogo(slide, x, y, w, h) {
   try {
-    const logoPath = fs.existsSync(imageLogoWhite)
-      ? imageLogoWhite
-      : fs.existsSync(imageLogo)
-        ? imageLogo
-        : null;
-    if (logoPath) {
+    if (LOGO_DATA) {
       slide.addImage({
-        path: logoPath,
+        data: LOGO_DATA,
         x,
         y,
         w,
@@ -125,113 +129,8 @@ const BODY_Y = 0.86;
 const BODY_H = H - BODY_Y - 0.36;
 
 // ── Merge helper ─────────────────────────────────────────────────────────────
-function mergeWithTemplates(contentPath, finalOutputPath) {
-  const hasTitleFile = fs.existsSync(titleSlidesPath);
-  const hasClosingFile = fs.existsSync(closingSlidesPath);
-
-  if (!hasTitleFile) {
-    log(`[pptx-gen] NOTE: title template not found at ${titleSlidesPath}`);
-  }
-  if (!hasClosingFile) {
-    log(`[pptx-gen] NOTE: closing template not found at ${closingSlidesPath}`);
-  }
-
-  if (!hasTitleFile && !hasClosingFile) {
-    log("[pptx-gen] No template files found — using content-only output.");
-    try {
-      fs.renameSync(contentPath, finalOutputPath);
-    } catch (_) {
-      fs.copyFileSync(contentPath, finalOutputPath);
-      try {
-        fs.unlinkSync(contentPath);
-      } catch (_) {}
-    }
-    return;
-  }
-
-  const files = [
-    hasTitleFile ? titleSlidesPath : null,
-    contentPath,
-    hasClosingFile ? closingSlidesPath : null,
-  ].filter(Boolean);
-
-  log(`[pptx-gen] Merging: ${files.join(" + ")}`);
-
-  const pyScriptPath = contentPath + "_merge.py";
-
-  const pyScript = `
-import sys, copy
-from pptx import Presentation
-
-files = ${JSON.stringify(files)}
-out   = ${JSON.stringify(finalOutputPath)}
-
-try:
-    merged = Presentation()
-    ref = Presentation(files[0])
-    merged.slide_width  = ref.slide_width
-    merged.slide_height = ref.slide_height
-
-    def copy_slide(src_prs, src_slide, dest_prs):
-        blank_layout = dest_prs.slide_layouts[6]
-        dest_slide = dest_prs.slides.add_slide(blank_layout)
-        for ph in list(dest_slide.placeholders):
-            ph._element.getparent().remove(ph._element)
-        for shape in src_slide.shapes:
-            dest_slide.shapes._spTree.append(copy.deepcopy(shape.element))
-        try:
-            bg = src_slide.background
-            dest_bg = dest_slide.background
-            src_bg_elem = bg.element
-            dest_bg_elem = dest_bg.element
-            for child in list(dest_bg_elem):
-                dest_bg_elem.remove(child)
-            for child in src_bg_elem:
-                dest_bg_elem.append(copy.deepcopy(child))
-        except Exception:
-            pass
-        return dest_slide
-
-    for fp in files:
-        prs = Presentation(fp)
-        for slide in prs.slides:
-            copy_slide(prs, slide, merged)
-
-    merged.save(out)
-    print("MERGE_OK")
-except Exception as e:
-    print("ERROR: " + str(e), file=sys.stderr)
-    sys.exit(1)
-`.trimStart();
-
-  fs.writeFileSync(pyScriptPath, pyScript, "utf8");
-
-  try {
-    // 2>&1 captures Python stderr into stdout so Node can log it on failure
-    const result = execSync(`python3 "${pyScriptPath}" 2>&1`, {
-      encoding: "utf8",
-      timeout: 60000,
-    });
-    if (!result.includes("MERGE_OK")) {
-      throw new Error(`MERGE_OK not in output. Python said:\n${result}`);
-    }
-    log(`[pptx-gen] Merge complete → ${finalOutputPath}`);
-  } catch (err) {
-    log(
-      `[pptx-gen] WARNING: merge failed — ${err.message}\nFalling back to content-only output.`,
-    );
-    try {
-      fs.copyFileSync(contentPath, finalOutputPath);
-    } catch (_) {}
-  } finally {
-    try {
-      fs.unlinkSync(pyScriptPath);
-    } catch (_) {}
-    try {
-      fs.unlinkSync(contentPath);
-    } catch (_) {}
-  }
-}
+// NOTE: Template merging (title + content + closing) is handled by pptx_service.py
+// using python-pptx directly — no Node→Python subprocess needed here.
 
 // ════════════════════════════════════════════════════════════════════════════
 // CONTENT CHROME
@@ -244,12 +143,17 @@ function contentChrome(slide, title) {
     line: { color: C.purple },
   });
 
-  addLogo(slide, W - 1.18, 0.1, 1.1, 0.52);
+  // Purple background box at top-right so logo_white is visible
+  R(slide, W - 1.3, 0, 1.3, HDR_H, {
+    fill: { color: C.purple },
+    line: { color: C.purple },
+  });
+  addLogo(slide, W - 1.2, 0.12, 1.08, 0.52);
 
   slide.addText(sanitize(title), {
     x: 0.18,
     y: 0.12,
-    w: W - 1.42,
+    w: W - 1.60,
     h: 0.52,
     fontSize: 20,
     bold: true,
@@ -611,8 +515,10 @@ function addSolutionSlide(pres) {
 function addDiagramSlide(pres, rawBase64) {
   const slide = pres.addSlide();
   contentChrome(slide, "High-Level Architecture Diagram");
+  // Ensure proper data URI prefix for pptxgenjs image embedding
+  const dataUri = rawBase64.startsWith("data:") ? rawBase64 : "data:image/png;base64," + rawBase64;
   slide.addImage({
-    data: rawBase64,
+    data: dataUri,
     x: 0.18,
     y: BODY_Y,
     w: W - 0.28,
@@ -1261,27 +1167,26 @@ function addRisksSlide(pres) {
     process.exit(1);
   }
 
-  // STEP 2 — Render PNG via Puppeteer
+  // STEP 2 — Render PNG via Puppeteer (non-fatal: diagram slide skipped on failure)
   log("\n[pptx-gen] STEP 2: Rendering PNG...");
-  let pngBuffer;
+  let diagramRawB64 = null;
   try {
-    pngBuffer = await renderDrawioToPng(drawioXml, {
+    const pngBuffer = await renderDrawioToPng(drawioXml, {
       width: 1400,
       height: 850,
     });
     if (!pngBuffer || pngBuffer.length < 1000) {
-      throw new Error(
-        `PNG buffer too small (${pngBuffer ? pngBuffer.length : 0} bytes) — likely corrupt render`,
+      log(
+        `[pptx-gen] WARNING: PNG buffer too small (${pngBuffer ? pngBuffer.length : 0} bytes) — diagram slide will be skipped`,
       );
+    } else {
+      diagramRawB64 = pngBuffer.toString("base64");
+      log(`[pptx-gen] PNG: ${pngBuffer.length} bytes — OK`);
+      log(`[pptx-gen] Diagram base64 length: ${diagramRawB64.length}`);
     }
-    log(`[pptx-gen] PNG: ${pngBuffer.length} bytes — OK`);
   } catch (err) {
-    console.error(`[pptx-gen] FATAL: PNG render failed: ${err.message}`);
-    process.exit(1);
+    log(`[pptx-gen] WARNING: PNG render failed: ${err.message} — diagram slide will be skipped`);
   }
-
-  const diagramRawB64 = pngBuffer.toString("base64");
-  log(`[pptx-gen] Diagram base64 length: ${diagramRawB64.length}`);
 
   // STEP 3 — Build content-only PPTX
   log("\n[pptx-gen] STEP 3: Building content PPTX...");
@@ -1295,7 +1200,7 @@ function addRisksSlide(pres) {
   if (shouldInclude("ExecSummary")) addExecSummarySlide(pres);
   if (shouldInclude("Problem")) addProblemSlide(pres);
   if (shouldInclude("Solution")) addSolutionSlide(pres);
-  if (shouldInclude("Diagram")) addDiagramSlide(pres, diagramRawB64);
+  if (shouldInclude("Diagram") && diagramRawB64) addDiagramSlide(pres, diagramRawB64);
   if (shouldInclude("Components")) addComponentsSlide(pres);
   if (shouldInclude("DataFlow")) addDataFlowSlide(pres);
   if (shouldInclude("TechStack")) addTechStackSlide(pres);
@@ -1363,16 +1268,9 @@ function addRisksSlide(pres) {
     log(`[pptx-gen] custom slides block failed: ${err.message}`);
   }
 
-  // STEP 4 — Write content temp file
-  const contentTempPath = outputPath.replace(/\.pptx$/i, "_content_tmp.pptx");
-  log(`\n[pptx-gen] STEP 4: Writing content temp file → ${contentTempPath}`);
-  await pres.writeFile({ fileName: contentTempPath });
-
-  // STEP 5 — Merge title + content + closing
-  log(
-    "\n[pptx-gen] STEP 5: Merging title_slides.pptx + content + closing_slides.pptx...",
-  );
-  mergeWithTemplates(contentTempPath, outputPath);
+  // STEP 4 — Write content PPTX (template merge done by pptx_service.py)
+  log(`\n[pptx-gen] STEP 4: Writing content PPTX → ${outputPath}`);
+  await pres.writeFile({ fileName: outputPath });
 
   log(`\n[pptx-gen] Done → ${outputPath}`);
   process.exit(0);

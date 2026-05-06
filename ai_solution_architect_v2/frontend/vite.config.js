@@ -12,6 +12,8 @@ export default defineConfig({
         target: "http://localhost:8002",
         changeOrigin: true,
         // No rewrite needed — /api/v1/generate-pptx stays as-is
+        proxyTimeout: 420000,  // 7 min — longer than axios 360s timeout
+        timeout: 420000,       // socket idle timeout
       },
     },
   },

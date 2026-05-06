@@ -24,7 +24,7 @@ async function renderDrawioToPng(drawioXml, opts = {}) {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: "new",
+      headless: true,
       args: ["--no-sandbox","--disable-setuid-sandbox","--disable-dev-shm-usage","--disable-gpu"],
     });
     const page = await browser.newPage();
@@ -93,7 +93,9 @@ async function renderDrawioToPng(drawioXml, opts = {}) {
     const boundingBox = await el.boundingBox();
     console.error("[drawioRenderer] Bounding box:", boundingBox);
     
-    const buf = await el.screenshot({ type: "png", omitBackground: true });
+    const screenshotData = await el.screenshot({ type: "png", omitBackground: true });
+    // Puppeteer >= 22 returns Uint8Array; convert to Buffer so .toString("base64") works correctly
+    const buf = Buffer.isBuffer(screenshotData) ? screenshotData : Buffer.from(screenshotData);
     console.error("[drawioRenderer] Screenshot taken, size:", buf?.length, "bytes");
     
     // EMERGENCY DEBUG: Save PNG to OS temp directory for inspection (non-fatal)

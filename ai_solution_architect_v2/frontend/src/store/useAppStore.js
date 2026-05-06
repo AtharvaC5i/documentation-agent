@@ -3,7 +3,6 @@ import { create } from "zustand";
 
 const DEFAULT_SLIDES = [
   "Title",
-  "ExecSummary",
   "Problem",
   "Solution",
   "Diagram",
