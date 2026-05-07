@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@xmldom/xmldom": "^0.9.9",
-    "pptxgenjs": "^4.0.1",
+    "pptxgenjs": "^3.12.0",
     "puppeteer": "^24.40.0"
   },
   "name": "pptx_gen",

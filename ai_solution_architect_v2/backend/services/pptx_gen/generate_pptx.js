@@ -7,7 +7,6 @@ const { renderDrawioToPng } = require("./drawioRenderer");
 const { addCustomSlide } = require("./customSlideRenderer");
 const path = require("path");
 
-
 // ── CLI ──────────────────────────────────────────────────────────────────────
 const [, , inputPath, outputPath] = process.argv;
 if (!inputPath || !outputPath) {
@@ -21,16 +20,20 @@ const DATA = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 function _readLogoDataUri(filePath) {
   try {
     if (fs.existsSync(filePath)) {
-      return "data:image/png;base64," + fs.readFileSync(filePath).toString("base64");
+      return (
+        "data:image/png;base64," + fs.readFileSync(filePath).toString("base64")
+      );
     }
   } catch (e) {
     log(`[pptx-gen] Could not read logo ${filePath}: ${e.message}`);
   }
   return null;
 }
-const imageLogoWhiteData = _readLogoDataUri(path.join(__dirname, "logo_white.png"));
-const imageLogoData      = _readLogoDataUri(path.join(__dirname, "logo.png"));
-const LOGO_DATA = imageLogoWhiteData || imageLogoData;  // prefer white version
+const imageLogoWhiteData = _readLogoDataUri(
+  path.join(__dirname, "logo_white.png"),
+);
+const imageLogoData = _readLogoDataUri(path.join(__dirname, "logo.png"));
+const LOGO_DATA = imageLogoWhiteData || imageLogoData; // prefer white version
 
 // ── Brand colors ─────────────────────────────────────────────────────────────
 const C = {
@@ -89,8 +92,10 @@ function hasCustomExecSummary() {
 
 function sanitize(val) {
   if (val === null || val === undefined) return "";
+
   return String(val)
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, "")
+    .replace(/[\uD800-\uDFFF]/g, "") // remove invalid unicode surrogates
     .trim();
 }
 
@@ -153,7 +158,7 @@ function contentChrome(slide, title) {
   slide.addText(sanitize(title), {
     x: 0.18,
     y: 0.12,
-    w: W - 1.60,
+    w: W - 1.6,
     h: 0.52,
     fontSize: 20,
     bold: true,
@@ -516,7 +521,9 @@ function addDiagramSlide(pres, rawBase64) {
   const slide = pres.addSlide();
   contentChrome(slide, "High-Level Architecture Diagram");
   // Ensure proper data URI prefix for pptxgenjs image embedding
-  const dataUri = rawBase64.startsWith("data:") ? rawBase64 : "data:image/png;base64," + rawBase64;
+  const dataUri = rawBase64.startsWith("data:")
+    ? rawBase64
+    : "data:image/png;base64," + rawBase64;
   slide.addImage({
     data: dataUri,
     x: 0.18,
@@ -1185,7 +1192,9 @@ function addRisksSlide(pres) {
       log(`[pptx-gen] Diagram base64 length: ${diagramRawB64.length}`);
     }
   } catch (err) {
-    log(`[pptx-gen] WARNING: PNG render failed: ${err.message} — diagram slide will be skipped`);
+    log(
+      `[pptx-gen] WARNING: PNG render failed: ${err.message} — diagram slide will be skipped`,
+    );
   }
 
   // STEP 3 — Build content-only PPTX
@@ -1200,7 +1209,8 @@ function addRisksSlide(pres) {
   if (shouldInclude("ExecSummary")) addExecSummarySlide(pres);
   if (shouldInclude("Problem")) addProblemSlide(pres);
   if (shouldInclude("Solution")) addSolutionSlide(pres);
-  if (shouldInclude("Diagram") && diagramRawB64) addDiagramSlide(pres, diagramRawB64);
+  if (shouldInclude("Diagram") && diagramRawB64)
+    addDiagramSlide(pres, diagramRawB64);
   if (shouldInclude("Components")) addComponentsSlide(pres);
   if (shouldInclude("DataFlow")) addDataFlowSlide(pres);
   if (shouldInclude("TechStack")) addTechStackSlide(pres);
