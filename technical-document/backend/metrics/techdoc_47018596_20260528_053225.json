@@ -1,0 +1,143 @@
+{
+  "run_id": "d50f4bde",
+  "project_id": "47018596-b474-4c60-893b-9585116132a8",
+  "agent": "technical-document",
+  "environment": "development",
+  "app_version": "1.0.0",
+  "triggered_by": "api",
+  "timestamp": "2026-05-28T05:32:25.182226+00:00",
+  "completed_at": "2026-05-28T05:37:34.586987+00:00",
+  "status": "success",
+  "error_stage": null,
+  "errors": {
+    "total_errors": 0,
+    "error_categories": {},
+    "errors": []
+  },
+  "system": {
+    "platform": "windows",
+    "python_version": "3.14.3",
+    "peak_memory_mb": 995.2,
+    "avg_memory_mb": 683.6,
+    "cpu_percent_avg": 10.6,
+    "cpu_percent_peak": 374.3,
+    "sampling_interval_seconds": 0.5
+  },
+  "llm_usage": {
+    "total_prompt_tokens": 11708,
+    "total_completion_tokens": 2318,
+    "total_tokens": 14026,
+    "estimated_cost_usd": 0.016344,
+    "tokens_per_section": {
+      "Executive Summary": 6999,
+      "AI/ML Pipeline": 7027
+    }
+  },
+  "ingestion": {
+    "source_type": "zip",
+    "total_files_found": 4,
+    "files_after_filter": 4,
+    "filter_rate_percent": 100.0,
+    "ingestion_duration_seconds": 0.1,
+    "ingestion_success": true,
+    "input_profile": {
+      "total_loc": 1011,
+      "primary_language": "JavaScript",
+      "language_breakdown": {
+        "JavaScript": 1,
+        "Python": 1
+      },
+      "repo_size_kb": 83.6
+    }
+  },
+  "context_building": {
+    "strategy": "flat",
+    "total_chunks": 49,
+    "embedding_duration_seconds": 4.04,
+    "context_building_duration_seconds": 4.04,
+    "vector_store_size_mb": 1.36,
+    "raptor_summary_nodes": 0
+  },
+  "section_selection": {
+    "total_sections_available": 18,
+    "sections_selected": 2,
+    "selection_method": "ai_suggested"
+  },
+  "generation": {
+    "sections_attempted": 2,
+    "sections_succeeded": 2,
+    "sections_failed": 0,
+    "section_success_rate_percent": 100.0,
+    "avg_quality_score": 0.95,
+    "min_quality_score": 0.9,
+    "max_quality_score": 1.0,
+    "per_section_scores": {
+      "Executive Summary": 0.9,
+      "AI/ML Pipeline": 1.0
+    },
+    "total_generation_duration_seconds": 48.9,
+    "llm_retries": 0,
+    "per_section_word_counts": {
+      "Executive Summary": 336,
+      "AI/ML Pipeline": 762
+    },
+    "empty_sections": [],
+    "quality_scoring_method": "heuristic_length_structure_keyword",
+    "quality_score_scale": "0_to_1"
+  },
+  "assembly": {
+    "output_file": "output.docx",
+    "output_size_bytes": 52666,
+    "output_size_kb": 51.4,
+    "word_count": 1098,
+    "page_estimate": 4,
+    "section_count": 2,
+    "assembly_duration_seconds": 0.42,
+    "assembly_success": true,
+    "output_validation_success": true,
+    "output_validation_error": null
+  },
+  "review": {
+    "review_cycles": 2,
+    "review_cycle_source": "manual",
+    "review_duration_seconds": 0.0
+  },
+  "quality_metrics": {
+    "codebase_coverage": {
+      "discovered_apis": 3,
+      "documented_apis": 2,
+      "discovered_classes": 0,
+      "documented_classes": 1,
+      "discovered_functions": 112,
+      "documented_functions": 1,
+      "discovered_total": 115,
+      "documented_total": 4,
+      "covered_total": 4,
+      "overall_coverage_percent": 3.5
+    },
+    "tech_stack": {
+      "detected": {
+        "has_dockerfile": false,
+        "has_cicd": false,
+        "has_kubernetes": false,
+        "has_terraform": false,
+        "has_ansible": false
+      },
+      "actual": {},
+      "correct_matches": [],
+      "missed_items": [],
+      "false_positives": [],
+      "accuracy_score": 0.0
+    },
+    "code_examples": {
+      "total_examples": 8,
+      "valid_examples": 8,
+      "invalid_examples": 0,
+      "validation_method": "fenced_block_presence",
+      "errors": [],
+      "validity_score_percent": 100.0
+    },
+    "acceptance_flag": "not_reviewed"
+  },
+  "end_to_end_duration_seconds": 309.4
+}

@@ -1,0 +1,84 @@
+{
+  "run_id": "94b64ae0",
+  "project_id": "c1667ecb-1789-41da-8768-9ea0f5857902",
+  "agent": "technical-document",
+  "environment": "development",
+  "app_version": "1.0.0",
+  "triggered_by": "api",
+  "timestamp": "2026-05-15T16:40:52.125160+00:00",
+  "completed_at": "2026-05-15T16:43:40.900778+00:00",
+  "status": "success",
+  "error_stage": null,
+  "errors": [],
+  "system": {
+    "platform": "windows",
+    "python_version": "3.14.3",
+    "peak_memory_mb": 0.0,
+    "cpu_percent_avg": null
+  },
+  "llm_usage": {
+    "total_prompt_tokens": 11744,
+    "total_completion_tokens": 3118,
+    "total_tokens": 14862,
+    "estimated_cost_usd": 0.01798,
+    "tokens_per_section": {
+      "Executive Summary": 7131,
+      "AI/ML Pipeline": 7731
+    }
+  },
+  "ingestion": {
+    "source_type": "zip",
+    "total_files_found": 4,
+    "files_after_filter": 4,
+    "filter_rate_percent": 100.0,
+    "ingestion_duration_seconds": 0.09,
+    "ingestion_success": true,
+    "input_profile": {}
+  },
+  "context_building": {
+    "strategy": "ContextStrategy.FLAT",
+    "total_chunks": 49,
+    "embedding_duration_seconds": 4.02,
+    "vector_store_size_mb": 1.36,
+    "raptor_summary_nodes": 0
+  },
+  "section_selection": {
+    "total_sections_available": 18,
+    "sections_selected": 2,
+    "selection_method": "ai_suggested"
+  },
+  "generation": {
+    "sections_attempted": 2,
+    "sections_succeeded": 2,
+    "sections_failed": 0,
+    "section_success_rate_percent": 100.0,
+    "avg_quality_score": 0.95,
+    "min_quality_score": 0.9,
+    "max_quality_score": 1.0,
+    "per_section_scores": {
+      "Executive Summary": 0.9,
+      "AI/ML Pipeline": 1.0
+    },
+    "total_generation_duration_seconds": 61.45,
+    "llm_retries": 0,
+    "per_section_word_counts": {
+      "Executive Summary": 383,
+      "AI/ML Pipeline": 942
+    },
+    "empty_sections": []
+  },
+  "assembly": {
+    "output_file": "output.docx",
+    "output_size_bytes": 53810,
+    "output_size_kb": 52.5,
+    "word_count": 1325,
+    "page_estimate": 4,
+    "section_count": 2,
+    "assembly_duration_seconds": 0.32,
+    "assembly_success": true
+  },
+  "review": {
+    "review_cycles": 2
+  },
+  "end_to_end_duration_seconds": 168.78
+}

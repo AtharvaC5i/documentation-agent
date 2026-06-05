@@ -1,0 +1,92 @@
+{
+  "run_id": "a031de26-fc35-4ae3-a310-ad23687dc114",
+  "timestamp_start": "2026-05-31T14:40:36.106593",
+  "timestamp_end": "2026-05-31T14:41:47.041356",
+  "run_success": true,
+  "error_details": {
+    "occurred": false,
+    "stage": "unknown",
+    "category": "unknown_error",
+    "message": "",
+    "recovery_attempted": false,
+    "recovery_successful": false
+  },
+  "duration": {
+    "total_seconds": 70.93,
+    "summarization_seconds": 0.0,
+    "core_generation_seconds": 61.14,
+    "diagram_generation_seconds": 0.0,
+    "diagram_rendering_seconds": 0.0,
+    "pptx_generation_seconds": 9.64,
+    "pptx_assembly_seconds": 0.0,
+    "validation_seconds": 0.0
+  },
+  "llm_tokens": {
+    "summarization": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "core_generation": {
+      "prompt_tokens": 1784,
+      "completion_tokens": 3774,
+      "total_tokens": 5558
+    },
+    "diagram_generation": {
+      "prompt_tokens": 2055,
+      "completion_tokens": 470,
+      "total_tokens": 2525
+    },
+    "total": {
+      "prompt_tokens": 3839,
+      "completion_tokens": 4244,
+      "total_tokens": 8083
+    }
+  },
+  "estimated_cost_usd": 0.0123,
+  "slides": {
+    "attempted": 10,
+    "successful": 10,
+    "failed": 0,
+    "retry_count": 0,
+    "success_rate": 1.0
+  },
+  "diagram": {
+    "attempted": true,
+    "success": true,
+    "components_count": 8,
+    "connections_count": 8,
+    "expected_components": 8,
+    "expected_connections": 8,
+    "component_coverage": 1.0,
+    "connection_coverage": 1.0,
+    "correctness_score": 1.0
+  },
+  "quality": {
+    "content_quality": 1.0,
+    "diagram_quality": 0.92,
+    "architecture_alignment": 1.0,
+    "output_validity": 1.0,
+    "overall_score": 0.98
+  },
+  "pptx_validation": {
+    "file_created": true,
+    "file_size_bytes": 7151336,
+    "valid_xml": true,
+    "valid_relationships": true,
+    "opens_without_repair": true,
+    "all_slides_present": true,
+    "all_media_present": true,
+    "health_score": 1.0
+  },
+  "architecture_justification": {
+    "decisions_identified": 6,
+    "decisions_justified": 6,
+    "brd_citations": 5,
+    "constraint_references": 5,
+    "justification_score": 1.0
+  },
+  "review_cycle_count": 0,
+  "acceptance_status": "pending_review",
+  "total_retry_count": 0
+}

@@ -96,12 +96,25 @@ class GenerateResponse(BaseModel):
         # Holds the raw architecture dict (with id/label components + connections)
         # so generate.py can forward it to the JS generator for draw.io rendering.
         object.__setattr__(self, "_raw_arch", {})
+        # Token usage from LLM calls (prompt/completion tokens)
+        object.__setattr__(self, "_token_usage", {})
 
     def set_raw_architecture(self, arch: dict) -> None:
         object.__setattr__(self, "_raw_arch", arch)
 
     def get_raw_architecture(self) -> dict:
         return object.__getattribute__(self, "_raw_arch")
+    
+    def set_token_usage(self, usage: dict) -> None:
+        """Store token usage from LLM calls"""
+        object.__setattr__(self, "_token_usage", usage)
+    
+    def get_token_usage(self) -> dict:
+        """Get token usage from LLM calls"""
+        try:
+            return object.__getattribute__(self, "_token_usage")
+        except AttributeError:
+            return {}
 
 
 # ── Request model ─────────────────────────────────────────────

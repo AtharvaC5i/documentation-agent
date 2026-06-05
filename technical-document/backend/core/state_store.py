@@ -1,14 +1,29 @@
-import os
 import json
+import os
 from dotenv import load_dotenv
+
+from core.metrics_collector import MetricsCollector
 
 load_dotenv()
 
 STORAGE_DIR = os.getenv("STORAGE_DIR", os.path.join(os.path.dirname(__file__), "..", "..", "storage"))
-STORE_PATH  = os.path.join(STORAGE_DIR, "project_store.json")
+STORE_PATH = os.path.join(STORAGE_DIR, "project_store.json")
 os.makedirs(STORAGE_DIR, exist_ok=True)
 
 _store: dict = {}
+_collectors: dict[str, MetricsCollector] = {}
+
+
+def get_collector(project_id: str) -> MetricsCollector:
+    if project_id not in _collectors:
+        _collectors[project_id] = MetricsCollector(project_id)
+    return _collectors[project_id]
+
+
+def reset_collector(project_id: str) -> MetricsCollector:
+    _collectors[project_id] = MetricsCollector(project_id)
+    return _collectors[project_id]
+
 
 def _load_from_disk():
     global _store
@@ -19,18 +34,24 @@ def _load_from_disk():
         except Exception:
             _store = {}
 
+
 def _save_to_disk():
+    os.makedirs(STORAGE_DIR, exist_ok=True)
     with open(STORE_PATH, "w", encoding="utf-8") as f:
         json.dump(_store, f, indent=2)
 
+
 _load_from_disk()
+
 
 def set_project(project_id: str, data: dict):
     _store[project_id] = data
     _save_to_disk()
 
+
 def get_project(project_id: str) -> dict | None:
     return _store.get(project_id)
+
 
 def update_project(project_id: str, key: str, value):
     if project_id not in _store:

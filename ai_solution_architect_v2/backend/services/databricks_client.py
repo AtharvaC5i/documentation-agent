@@ -34,10 +34,13 @@ class DatabricksClient:
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
         }
+        # Track last usage for metrics collection
+        self.last_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
     # ── Low-level call ────────────────────────────────────────
 
-    async def _call(self, system_prompt: str, user_message: str, max_tokens: int = 1500) -> str:
+    async def _call(self, system_prompt: str, user_message: str, max_tokens: int = 1500) -> tuple:
+        """Call Databricks API and return (content, usage_dict)"""
         payload = {
             "messages": [
                 {"role": "system",  "content": system_prompt},
@@ -66,7 +69,44 @@ class DatabricksClient:
         if "choices" not in data or not data["choices"]:
             raise Exception("Unexpected response format: missing 'choices'")
 
-        return data["choices"][0]["message"]["content"]
+        content = data["choices"][0]["message"]["content"]
+        
+        # ← DEBUG: Log response structure to identify usage field
+        logger.info(f"[DatabricksClient] Response keys: {list(data.keys())}")
+        if "usage" in data:
+            logger.info(f"[DatabricksClient] Found 'usage': {data['usage']}")
+        else:
+            logger.info(f"[DatabricksClient] No 'usage' key found in response. Available keys: {list(data.keys())}")
+        
+        # Extract usage info (Databricks API includes this in response)
+        usage = {
+            "prompt_tokens": data.get("usage", {}).get("prompt_tokens", 0),
+            "completion_tokens": data.get("usage", {}).get("completion_tokens", 0),
+            "total_tokens": data.get("usage", {}).get("total_tokens", 0),
+        }
+        
+        # ← FALLBACK: If no usage in response, estimate from prompt/completion length
+        # (1 token ≈ 4 characters is a common approximation)
+        logger.info(f"[DatabricksClient] BEFORE FALLBACK - prompt_tokens: {usage['prompt_tokens']}, completion_tokens: {usage['completion_tokens']}")
+        
+        if usage["prompt_tokens"] == 0:
+            estimated_prompt_tokens = max(1, len(system_prompt + user_message) // 4)
+            logger.info(f"[DatabricksClient] APPLYING FALLBACK - prompt length: {len(system_prompt + user_message)}, estimated tokens: {estimated_prompt_tokens}")
+            usage["prompt_tokens"] = estimated_prompt_tokens
+        
+        if usage["completion_tokens"] == 0:
+            estimated_completion_tokens = max(1, len(content) // 4)
+            logger.info(f"[DatabricksClient] APPLYING FALLBACK - content length: {len(content)}, estimated tokens: {estimated_completion_tokens}")
+            usage["completion_tokens"] = estimated_completion_tokens
+        
+        usage["total_tokens"] = usage["prompt_tokens"] + usage["completion_tokens"]
+        
+        logger.info(f"[DatabricksClient] AFTER FALLBACK - total_tokens: {usage['total_tokens']} (prompt: {usage['prompt_tokens']}, completion: {usage['completion_tokens']})")
+        
+        # Store for later retrieval
+        self.last_usage = usage
+        
+        return content, usage
 
     # ── Public: returns parsed dict ───────────────────────────
     # FIX: max_tokens raised from 1500 to 4000.
@@ -76,7 +116,8 @@ class DatabricksClient:
     # _fallback_response() — resulting in all-empty slides.
 
     async def invoke(self, system_prompt: str, user_message: str) -> dict:
-        raw = await self._call(system_prompt, user_message, max_tokens=4000)
+        """Call API and return parsed JSON (usage stored in self.last_usage)"""
+        raw, usage = await self._call(system_prompt, user_message, max_tokens=4000)
         cleaned = _strip_markdown_fences(raw)
         parsed  = _try_parse_json(cleaned)
         if parsed is not None:
@@ -93,8 +134,13 @@ class DatabricksClient:
     # ── Public: returns raw text ──────────────────────────────
 
     async def invoke_raw(self, system_prompt: str, user_message: str) -> str:
-        raw = await self._call(system_prompt, user_message, max_tokens=800)
+        """Call API and return raw text (usage stored in self.last_usage)"""
+        raw, usage = await self._call(system_prompt, user_message, max_tokens=800)
         return _strip_markdown_fences(raw).strip()
+    
+    def get_last_usage(self) -> dict:
+        """Get token usage from last API call"""
+        return self.last_usage.copy()
 
     # ── Fallback ──────────────────────────────────────────────
 

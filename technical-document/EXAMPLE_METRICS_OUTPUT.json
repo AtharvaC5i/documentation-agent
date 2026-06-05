@@ -1,0 +1,140 @@
+{
+  "run_id": "abc12345",
+  "project_id": "c1667ecb-1789-41da-8768-9ea0f5857902",
+  "agent": "technical-document",
+  "environment": "development",
+  "app_version": "1.0.0",
+  "triggered_by": "api",
+  "timestamp": "2026-05-26T14:30:00.000000+00:00",
+  "completed_at": "2026-05-26T14:35:15.500000+00:00",
+  "status": "success",
+  "error_stage": null,
+  "errors": {
+    "total_errors": 1,
+    "error_categories": {
+      "api": 1
+    },
+    "errors": [
+      {
+        "stage": "context_building",
+        "error_type": "api_error",
+        "error_category": "api",
+        "message": "Failed to reach embedding service",
+        "timestamp": "2026-05-26T14:31:15.250000+00:00"
+      }
+    ]
+  },
+  "system": {
+    "platform": "windows",
+    "python_version": "3.10.12",
+    "peak_memory_mb": 512.5,
+    "cpu_percent_avg": 22.3
+  },
+  "llm_usage": {
+    "total_prompt_tokens": 15420,
+    "total_completion_tokens": 4580,
+    "total_tokens": 20000,
+    "estimated_cost_usd": 0.0238,
+    "tokens_per_section": {
+      "Executive Summary": 8500,
+      "Architecture Overview": 6200,
+      "API Reference": 5300
+    }
+  },
+  "ingestion": {
+    "source_type": "zip",
+    "total_files_found": 342,
+    "files_after_filter": 156,
+    "filter_rate_percent": 45.6,
+    "ingestion_duration_seconds": 2.45,
+    "ingestion_success": true,
+    "input_profile": {
+      "total_loc": 45230,
+      "primary_language": "Python",
+      "language_breakdown": {
+        "Python": 28500,
+        "JavaScript": 12000,
+        "YAML": 4730
+      },
+      "repo_size_kb": 2840.5
+    }
+  },
+  "context_building": {
+    "strategy": "FLAT",
+    "total_chunks": 234,
+    "embedding_duration_seconds": 8.92,
+    "vector_store_size_mb": 45.2,
+    "raptor_summary_nodes": 0
+  },
+  "section_selection": {
+    "total_sections_available": 18,
+    "sections_selected": 3,
+    "selection_method": "ai_suggested"
+  },
+  "generation": {
+    "sections_attempted": 3,
+    "sections_succeeded": 3,
+    "sections_failed": 0,
+    "section_success_rate_percent": 100.0,
+    "avg_quality_score": 0.94,
+    "min_quality_score": 0.89,
+    "max_quality_score": 0.98,
+    "per_section_scores": {
+      "Executive Summary": 0.92,
+      "Architecture Overview": 0.96,
+      "API Reference": 0.94
+    },
+    "total_generation_duration_seconds": 125.3,
+    "llm_retries": 1,
+    "per_section_word_counts": {
+      "Executive Summary": 850,
+      "Architecture Overview": 1200,
+      "API Reference": 950
+    },
+    "empty_sections": []
+  },
+  "assembly": {
+    "output_file": "documentation.docx",
+    "output_size_bytes": 256420,
+    "output_size_kb": 250.4,
+    "word_count": 3000,
+    "page_estimate": 8,
+    "section_count": 3,
+    "assembly_duration_seconds": 3.15,
+    "assembly_success": true
+  },
+  "review": {
+    "review_cycles": 0
+  },
+  "quality_metrics": {
+    "codebase_coverage": {
+      "total_apis": 45,
+      "documented_apis": 42,
+      "coverage_apis_percent": 93.3,
+      "total_classes": 28,
+      "documented_classes": 26,
+      "coverage_classes_percent": 92.9,
+      "total_functions": 156,
+      "documented_functions": 148,
+      "coverage_functions_percent": 94.9,
+      "overall_coverage_percent": 94.0
+    },
+    "tech_stack": {
+      "detected": {
+        "has_dockerfile": true,
+        "has_cicd": true,
+        "has_kubernetes": false,
+        "has_terraform": true,
+        "has_ansible": false
+      },
+      "accuracy_score": 0.85
+    },
+    "code_examples": {
+      "total": 18,
+      "valid": 17,
+      "validity_percent": 94.4
+    },
+    "acceptance_flag": "minor_edits"
+  },
+  "end_to_end_duration_seconds": 315.2
+}

@@ -36,6 +36,12 @@ class OrchestratorService:
         self.client = DatabricksClient()
 
     async def run(self, request: GenerateRequest) -> GenerateResponse:
+        # ← NEW: Track token usage across all LLM calls
+        token_usage = {
+            "summarization": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+            "core_generation": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+            "diagram_generation": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+        }
 
         # ── STEP 0: Summarise tech doc ──────────────────────────
         tech_summary = []
@@ -45,6 +51,9 @@ class OrchestratorService:
                 request.tech_doc_text[:8000],
             )
             tech_summary = summary_result.get("summary", [])
+            # ← NEW: Capture token usage from summarization
+            token_usage["summarization"] = self.client.get_last_usage()
+            print(f"[Orchestrator] Summarization tokens: {token_usage['summarization']}")
 
         # ── STEP 1: Core architecture ───────────────────────────
         core_input = (
@@ -54,6 +63,9 @@ class OrchestratorService:
         core = await self.client.invoke(CORE_PROMPT, core_input)
         if not isinstance(core, dict):
             raise ValueError(f"Invalid core response type: {type(core)}")
+        # ← NEW: Capture token usage from core generation
+        token_usage["core_generation"] = self.client.get_last_usage()
+        print(f"[Orchestrator] Core generation tokens: {token_usage['core_generation']}")
 
         # ── STEP 2: Structured diagram JSON ────────────────────
         # Pass only the architecture sub-section to keep the prompt focused.
@@ -69,6 +81,10 @@ class OrchestratorService:
             DIAGRAM_PROMPT,
             json.dumps(arch_subset),
         )
+        # ← NEW: Capture token usage from diagram generation
+        token_usage["diagram_generation"] = self.client.get_last_usage()
+        print(f"[Orchestrator] Diagram generation tokens: {token_usage['diagram_generation']}")
+        print(f"[Orchestrator] TOTAL token_usage dict: {token_usage}")
 
         # Store diagram graph under separate keys so we DON'T overwrite the rich
         # component data (name/role/technology) from the core step.
@@ -110,7 +126,10 @@ class OrchestratorService:
             if not arch.get("diagram_connections"):
                 arch["diagram_connections"] = arch.get("connections", [])
 
-        return self._parse_response(core)
+        response = self._parse_response(core)
+        # ← NEW: Store token usage for metrics
+        response.set_token_usage(token_usage)
+        return response
 
     # ── Response parser ─────────────────────────────────────────
     def _parse_response(self, raw: dict) -> GenerateResponse:

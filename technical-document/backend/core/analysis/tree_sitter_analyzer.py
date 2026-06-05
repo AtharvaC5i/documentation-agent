@@ -1,27 +1,21 @@
-import os
 import json
+import os
 from typing import List
 
 from core.analysis.analysis_models import AnalysisResult
-from core.analysis.tech_stack_detector import detect_tech_stack
+from core.analysis.tech_stack_detector import detect_tech_stack, build_tech_stack_comparison
 
-
-# ── Extension → display language ─────────────────────────────────────────
 EXTENSION_TO_LANGUAGE = {
     ".py": "Python", ".pyw": "Python", ".pyx": "Python", ".wsgi": "Python",
-    ".js": "JavaScript", ".mjs": "JavaScript", ".cjs": "JavaScript",
-    ".jsx": "JavaScript",
+    ".js": "JavaScript", ".mjs": "JavaScript", ".cjs": "JavaScript", ".jsx": "JavaScript",
     ".ts": "TypeScript", ".tsx": "TypeScript", ".mts": "TypeScript",
     ".html": "HTML", ".htm": "HTML",
     ".css": "CSS", ".scss": "CSS", ".sass": "CSS", ".less": "CSS",
     ".vue": "Vue", ".svelte": "Svelte",
-    ".java": "Java",
-    ".kt": "Kotlin", ".kts": "Kotlin",
-    ".groovy": "Groovy", ".scala": "Scala",
+    ".java": "Java", ".kt": "Kotlin", ".kts": "Kotlin", ".groovy": "Groovy", ".scala": "Scala",
     ".clj": "Clojure", ".cljs": "Clojure",
     ".cs": "C#", ".vb": "VB.NET", ".fs": "F#", ".fsx": "F#", ".razor": "C#",
-    ".c": "C", ".h": "C",
-    ".cpp": "C++", ".cc": "C++", ".cxx": "C++", ".hpp": "C++",
+    ".c": "C", ".h": "C", ".cpp": "C++", ".cc": "C++", ".cxx": "C++", ".hpp": "C++",
     ".rs": "Rust", ".go": "Go", ".zig": "Zig",
     ".swift": "Swift", ".m": "Objective-C", ".dart": "Dart",
     ".rb": "Ruby", ".rake": "Ruby", ".gemspec": "Ruby", ".erb": "Ruby",
@@ -67,179 +61,141 @@ SOURCE_EXTENSIONS = {
     ".hs", ".lua", ".pl", ".sol",
 }
 
-# ── Framework signatures (content-based) ─────────────────────────────────
 FRAMEWORK_SIGNATURES = {
-    # Python web
-    "fastapi":       ["fastapi", "APIRouter(", "FastAPI(", "from fastapi"],
-    "django":        ["from django", "django.db", "DJANGO_SETTINGS",
-                      "django.contrib", "models.Model"],
-    "flask":         ["from flask", "Flask(__name__)", "@app.route",
-                      "flask import", "Blueprint(", "flask_restful"],
-    "tornado":       ["import tornado", "tornado.web", "tornado.ioloop"],
-    "aiohttp":       ["import aiohttp", "aiohttp.web", "web.Application()"],
-    "starlette":     ["from starlette", "starlette.applications"],
-    "litestar":      ["from litestar", "Litestar("],
-    "sanic":         ["from sanic", "Sanic("],
-    # Python ML/AI
-    "tensorflow":    ["import tensorflow", "from tensorflow", "tf.keras"],
-    "pytorch":       ["import torch", "from torch", "torch.nn"],
-    "sklearn":       ["from sklearn", "import sklearn"],
-    "pandas":        ["import pandas", "from pandas", "pd.DataFrame"],
-    "numpy":         ["import numpy", "import numpy as np"],
-    "langchain":     ["from langchain", "import langchain"],
-    "langgraph":     ["from langgraph", "import langgraph"],
-    "openai":        ["from openai", "import openai", "openai.ChatCompletion",
-                      "OpenAI("],
-    "huggingface":   ["from transformers", "from datasets", "AutoModel"],
-    "celery":        ["from celery", "import celery", "Celery("],
-    # JavaScript / Node
-    "express":       ["require('express')", 'require("express")',
-                      "express()", "Router()", "app.listen("],
-    "nextjs":        ["from 'next'", 'from "next"', "getServerSideProps",
-                      "getStaticProps", "next/router", "NextPage"],
-    "nuxtjs":        ["defineNuxtConfig", "useNuxtApp", "from 'nuxt'"],
-    "react":         ["from 'react'", 'from "react"', "React.Component",
-                      "useState(", "useEffect(", "useContext(",
-                      "ReactDOM.render", "createRoot("],
-    "vue":           ["from 'vue'", 'from "vue"', "createApp(",
-                      "defineComponent(", "ref(", "reactive("],
-    "angular":       ["@NgModule", "@Component", "@Injectable",
-                      "from '@angular/", "platformBrowserDynamic"],
-    "svelte":        ["from 'svelte'", "svelte/store", "svelte/transition"],
-    "nestjs":        ["@Module(", "@Controller(", "@Injectable()",
-                      "from '@nestjs/", "NestFactory"],
-    "koa":           ["require('koa')", "new Koa()", "from 'koa'"],
-    "hapi":          ["require('@hapi/hapi')", "Hapi.server("],
-    "fastify":       ["require('fastify')", "Fastify()", "from 'fastify'"],
-    "remix":         ["from '@remix-run/", "loader(", "action("],
-    "astro":         ["from 'astro'", "defineConfig", ".astro"],
-    "gatsby":        ["from 'gatsby'", "gatsby-config", "graphql`"],
-    "vite":          ["vite.config", "defineConfig", "from 'vite'", "vite"],
-    "webpack":       ["webpack.config", "require('webpack')"],
-    "electron":      ["require('electron')", "app.whenReady"],
-    "graphql_js":    ["apollo-server", "ApolloServer(",
-                      "typeDefs", "resolvers", "graphql-yoga"],
-    "trpc":          ["from '@trpc/", "initTRPC", "createTRPCRouter"],
-    "tailwind":      ["tailwind.config", "tailwindcss", "@tailwind base"],
-    "prisma_js":     ["@prisma/client", "PrismaClient("],
-    # Java / JVM
-    "spring":        ["@SpringBootApplication", "@RestController",
-                      "@RequestMapping", "springframework",
-                      "@Service", "@Repository", "@Autowired"],
-    "quarkus":       ["@QuarkusApplication", "import io.quarkus"],
-    "micronaut":     ["@MicronautApplication", "import io.micronaut"],
-    "ktor":          ["import io.ktor", "embeddedServer(", "routing {"],
-    "android":       ["import android.", "AppCompatActivity", "import androidx."],
-    # .NET
-    "dotnet_mvc":    ["Microsoft.AspNetCore.Mvc", "IActionResult",
-                      "[HttpGet]", "[HttpPost]", "ControllerBase"],
+    "fastapi": ["fastapi", "APIRouter(", "FastAPI(", "from fastapi"],
+    "django": ["from django", "django.db", "DJANGO_SETTINGS", "django.contrib", "models.Model"],
+    "flask": ["from flask", "Flask(__name__)", "@app.route", "flask import", "Blueprint(", "flask_restful"],
+    "tornado": ["import tornado", "tornado.web", "tornado.ioloop"],
+    "aiohttp": ["import aiohttp", "aiohttp.web", "web.Application()"],
+    "starlette": ["from starlette", "starlette.applications"],
+    "litestar": ["from litestar", "Litestar("],
+    "sanic": ["from sanic", "Sanic("],
+    "tensorflow": ["import tensorflow", "from tensorflow", "tf.keras"],
+    "pytorch": ["import torch", "from torch", "torch.nn"],
+    "sklearn": ["from sklearn", "import sklearn"],
+    "pandas": ["import pandas", "from pandas", "pd.DataFrame"],
+    "numpy": ["import numpy", "import numpy as np"],
+    "langchain": ["from langchain", "import langchain"],
+    "langgraph": ["from langgraph", "import langgraph"],
+    "openai": ["from openai", "import openai", "openai.ChatCompletion", "OpenAI("],
+    "huggingface": ["from transformers", "from datasets", "AutoModel"],
+    "celery": ["from celery", "import celery", "Celery("],
+    "express": ["require('express')", 'require("express")', "express()", "Router()", "app.listen("],
+    "nextjs": ["from 'next'", 'from "next"', "getServerSideProps", "getStaticProps", "next/router", "NextPage"],
+    "nuxtjs": ["defineNuxtConfig", "useNuxtApp", "from 'nuxt'"],
+    "react": ["from 'react'", 'from "react"', "React.Component", "useState(", "useEffect(", "useContext(", "ReactDOM.render", "createRoot("],
+    "vue": ["from 'vue'", 'from "vue"', "createApp(", "defineComponent(", "ref(", "reactive("],
+    "angular": ["@NgModule", "@Component", "@Injectable", "from '@angular/", "platformBrowserDynamic"],
+    "svelte": ["from 'svelte'", "svelte/store", "svelte/transition"],
+    "nestjs": ["@Module(", "@Controller(", "@Injectable()", "from '@nestjs/", "NestFactory"],
+    "koa": ["require('koa')", "new Koa()", "from 'koa'"],
+    "hapi": ["require('@hapi/hapi')", "Hapi.server("],
+    "fastify": ["require('fastify')", "Fastify()", "from 'fastify'"],
+    "remix": ["from '@remix-run/", "loader(", "action("],
+    "astro": ["from 'astro'", "defineConfig", ".astro"],
+    "gatsby": ["from 'gatsby'", "gatsby-config", "graphql`"],
+    "vite": ["vite.config", "defineConfig", "from 'vite'", "vite"],
+    "webpack": ["webpack.config", "require('webpack')"],
+    "electron": ["require('electron')", "app.whenReady"],
+    "graphql_js": ["apollo-server", "ApolloServer(", "typeDefs", "resolvers", "graphql-yoga"],
+    "trpc": ["from '@trpc/", "initTRPC", "createTRPCRouter"],
+    "tailwind": ["tailwind.config", "tailwindcss", "@tailwind base"],
+    "prisma_js": ["@prisma/client", "PrismaClient("],
+    "spring": ["@SpringBootApplication", "@RestController", "@RequestMapping", "springframework", "@Service", "@Repository", "@Autowired"],
+    "quarkus": ["@QuarkusApplication", "import io.quarkus"],
+    "micronaut": ["@MicronautApplication", "import io.micronaut"],
+    "ktor": ["import io.ktor", "embeddedServer(", "routing {"],
+    "android": ["import android.", "AppCompatActivity", "import androidx."],
+    "dotnet_mvc": ["Microsoft.AspNetCore.Mvc", "IActionResult", "[HttpGet]", "[HttpPost]", "ControllerBase"],
     "dotnet_blazor": ["Microsoft.AspNetCore.Components", "RenderFragment"],
-    "dotnet_ef":     ["DbContext", "DbSet<", "OnModelCreating"],
-    # Ruby
-    "rails":         ["ActionController", "ActiveRecord", "ApplicationRecord",
-                      "Rails.application"],
-    "sinatra":       ["require 'sinatra'", "Sinatra::Base"],
-    # PHP
-    "laravel":       ["Illuminate\\", "artisan", "Route::get(", "Eloquent"],
-    "symfony":       ["Symfony\\Component", "AbstractController"],
-    "wordpress":     ["wp_enqueue_script", "add_action(", "get_permalink("],
-    # Go
-    "gin":           ['"github.com/gin-gonic/gin"', "gin.Default()", "gin.New()"],
-    "echo_go":       ['"github.com/labstack/echo"', "echo.New()"],
-    "fiber":         ['"github.com/gofiber/fiber"', "fiber.New()"],
-    "grpc":          ["google.golang.org/grpc", "grpc.NewServer("],
-    # Rust
-    "actix":         ["actix_web", "HttpServer::new", "App::new()"],
-    "axum":          ["use axum", "Router::new()", "axum::routing"],
-    "rocket":        ["rocket::build()", "extern crate rocket"],
-    # Mobile
-    "react_native":  ["react-native", "from 'react-native'", "StyleSheet.create"],
-    "flutter":       ["import 'package:flutter/", "StatelessWidget",
-                      "StatefulWidget", "MaterialApp("],
-    "ionic":         ["from '@ionic/", "IonContent", "IonPage"],
-    "expo":          ["from 'expo'", "expo-", "Expo."],
-    # Desktop
-    "tauri":         ["from '@tauri-apps/", "tauri::Builder"],
-    "qt":            ["#include <QApplication>", "QMainWindow", "import PyQt"],
-    "tkinter":       ["import tkinter", "from tkinter", "Tk()"],
-    # Cloud / IaC
-    "aws_cdk":       ["from aws_cdk", "aws-cdk-lib", "Stack("],
-    "pulumi":        ["import pulumi", "pulumi.export"],
+    "dotnet_ef": ["DbContext", "DbSet<", "OnModelCreating"],
+    "rails": ["ActionController", "ActiveRecord", "ApplicationRecord", "Rails.application"],
+    "sinatra": ["require 'sinatra'", "Sinatra::Base"],
+    "laravel": ["Illuminate\\", "artisan", "Route::get(", "Eloquent"],
+    "symfony": ["Symfony\\Component", "AbstractController"],
+    "wordpress": ["wp_enqueue_script", "add_action(", "get_permalink("],
+    "gin": ['"github.com/gin-gonic/gin"', "gin.Default()", "gin.New()"],
+    "echo_go": ['"github.com/labstack/echo"', "echo.New()"],
+    "fiber": ['"github.com/gofiber/fiber"', "fiber.New()"],
+    "grpc": ["google.golang.org/grpc", "grpc.NewServer("],
+    "actix": ["actix_web", "HttpServer::new", "App::new()"],
+    "axum": ["use axum", "Router::new()", "axum::routing"],
+    "rocket": ["rocket::build()", "extern crate rocket"],
+    "react_native": ["react-native", "from 'react-native'", "StyleSheet.create"],
+    "flutter": ["import 'package:flutter/", "StatelessWidget", "StatefulWidget", "MaterialApp("],
+    "ionic": ["from '@ionic/", "IonContent", "IonPage"],
+    "expo": ["from 'expo'", "expo-", "Expo."],
+    "tauri": ["from '@tauri-apps/", "tauri::Builder"],
+    "qt": ["#include <QApplication>", "QMainWindow", "import PyQt"],
+    "tkinter": ["import tkinter", "from tkinter", "Tk()"],
+    "aws_cdk": ["from aws_cdk", "aws-cdk-lib", "Stack("],
+    "pulumi": ["import pulumi", "pulumi.export"],
 }
 
-# ── Database signatures ───────────────────────────────────────────────────
 DATABASE_SIGNATURES = {
-    "PostgreSQL":    ["psycopg2", "asyncpg", "postgresql", "pg.Pool",
-                      "pg.Client", "postgres://", "dialect=postgresql"],
-    "MySQL":         ["pymysql", "mysql-connector", "mysql2",
-                      "mysql://", "dialect=mysql"],
-    "SQLite":        ["sqlite3", "SQLite", "sqlite://", ":memory:"],
-    "MongoDB":       ["pymongo", "mongoose", "MongoClient",
-                      "mongodb://", "mongodb+srv://", "from motor", "beanie"],
-    "Redis":         ["redis", "Redis(", "aioredis", "ioredis", "redis://"],
+    "PostgreSQL": ["psycopg2", "asyncpg", "postgresql", "pg.Pool", "pg.Client", "postgres://", "dialect=postgresql"],
+    "MySQL": ["pymysql", "mysql-connector", "mysql2", "mysql://", "dialect=mysql"],
+    "SQLite": ["sqlite3", "SQLite", "sqlite://", ":memory:"],
+    "MongoDB": ["pymongo", "mongoose", "MongoClient", "mongodb://", "mongodb+srv://", "from motor", "beanie"],
+    "Redis": ["redis", "Redis(", "aioredis", "ioredis", "redis://"],
     "Elasticsearch": ["elasticsearch", "ElasticSearch(", "elastic.co"],
-    "Cassandra":     ["cassandra", "CassandraDriver"],
-    "DynamoDB":      ["boto3.resource('dynamodb')", "DynamoDB", "aws_dynamodb"],
-    "Firestore":     ["firestore", "google.cloud.firestore"],
-    "Supabase":      ["supabase", "from '@supabase/", "createClient"],
-    "PlanetScale":   ["planetscale", "@planetscale/"],
-    "CockroachDB":   ["cockroachdb", "cockroach://"],
-    "Neo4j":         ["neo4j", "GraphDatabase", "bolt://"],
-    "InfluxDB":      ["influxdb", "InfluxDBClient"],
-    "Snowflake":     ["snowflake.connector", "snowflake-sqlalchemy"],
-    "BigQuery":      ["google.cloud.bigquery", "from google.cloud import bigquery"],
-    "SQLAlchemy":    ["sqlalchemy", "SQLAlchemy(", "create_engine(",
-                      "declarative_base", "sessionmaker("],
-    "Prisma":        ["PrismaClient", "@prisma/client"],
-    "TypeORM":       ["typeorm", "DataSource(", "@Entity("],
-    "Drizzle":       ["drizzle-orm", "from 'drizzle-orm'"],
-    "Sequelize":     ["sequelize", "new Sequelize("],
-    "Mongoose":      ["mongoose.model", "mongoose.Schema", "mongoose.connect"],
+    "Cassandra": ["cassandra", "CassandraDriver"],
+    "DynamoDB": ["boto3.resource('dynamodb')", "DynamoDB", "aws_dynamodb"],
+    "Firestore": ["firestore", "google.cloud.firestore"],
+    "Supabase": ["supabase", "from '@supabase/", "createClient"],
+    "PlanetScale": ["planetscale", "@planetscale/"],
+    "CockroachDB": ["cockroachdb", "cockroach://"],
+    "Neo4j": ["neo4j", "GraphDatabase", "bolt://"],
+    "InfluxDB": ["influxdb", "InfluxDBClient"],
+    "Snowflake": ["snowflake.connector", "snowflake-sqlalchemy"],
+    "BigQuery": ["google.cloud.bigquery", "from google.cloud import bigquery"],
+    "SQLAlchemy": ["sqlalchemy", "SQLAlchemy(", "create_engine(", "declarative_base", "sessionmaker("],
+    "Prisma": ["PrismaClient", "@prisma/client"],
+    "TypeORM": ["typeorm", "DataSource(", "@Entity("],
+    "Drizzle": ["drizzle-orm", "from 'drizzle-orm'"],
+    "Sequelize": ["sequelize", "new Sequelize("],
+    "Mongoose": ["mongoose.model", "mongoose.Schema", "mongoose.connect"],
 }
 
-# ── Test framework signatures ─────────────────────────────────────────────
 TEST_FRAMEWORK_SIGNATURES = {
-    "pytest":      ["import pytest", "from pytest", "pytest.fixture",
-                    "def test_", "pytest.mark"],
-    "unittest":    ["import unittest", "TestCase", "self.assertEqual"],
-    "hypothesis":  ["from hypothesis", "@given"],
-    "jest":        ["describe(", "it(", "expect(", "jest.mock", "jest.config"],
-    "vitest":      ["from 'vitest'", "vitest.config"],
-    "mocha":       ["require('mocha')", "mocha.opts"],
-    "cypress":     ["cy.", "cypress/", "Cypress."],
-    "playwright":  ["@playwright/test", "test.describe", "page.goto("],
-    "jasmine":     ["jasmine", "beforeAll("],
-    "junit":       ["@Test", "import org.junit", "Assertions."],
-    "testng":      ["import org.testng"],
-    "rspec":       ["RSpec.describe", "expect(", ".to eq("],
-    "gotest":      ["func Test", "testing.T", "t.Error("],
-    "rust_test":   ["#[test]", "assert_eq!", "assert!("],
-    "xunit":       ["[Fact]", "[Theory]", "Assert.Equal"],
-    "nunit":       ["[Test]", "[TestFixture]", "Assert.That"],
+    "pytest": ["import pytest", "from pytest", "pytest.fixture", "def test_", "pytest.mark"],
+    "unittest": ["import unittest", "TestCase", "self.assertEqual"],
+    "hypothesis": ["from hypothesis", "@given"],
+    "jest": ["describe(", "it(", "expect(", "jest.mock", "jest.config"],
+    "vitest": ["from 'vitest'", "vitest.config"],
+    "mocha": ["require('mocha')", "mocha.opts"],
+    "cypress": ["cy.", "cypress/", "Cypress."],
+    "playwright": ["@playwright/test", "test.describe", "page.goto("],
+    "jasmine": ["jasmine", "beforeAll("],
+    "junit": ["@Test", "import org.junit", "Assertions."],
+    "testng": ["import org.testng"],
+    "rspec": ["RSpec.describe", "expect(", ".to eq("],
+    "gotest": ["func Test", "testing.T", "t.Error("],
+    "rust_test": ["#[test]", "assert_eq!", "assert!("],
+    "xunit": ["[Fact]", "[Theory]", "Assert.Equal"],
+    "nunit": ["[Test]", "[TestFixture]", "Assert.That"],
 }
 
-# ── API endpoint patterns ─────────────────────────────────────────────────
 API_PATTERNS = [
     "@app.get(", "@app.post(", "@app.put(", "@app.delete(", "@app.patch(",
     "@app.options(", "@app.route(",
     "@router.get(", "@router.post(", "@router.put(", "@router.delete(",
     "@router.patch(",
     "@blueprint.route(", "@bp.route(", "@api.route(", "@ns.route(",
-    "path(\"",  "path('",
+    'path("', "path('",
     "router.get(", "router.post(", "router.put(", "router.delete(",
     "router.patch(", "router.all(",
-    "app.get(\"", "app.post(\"", "app.put(\"",
-    "app.delete(\"", "app.patch(\"",
+    'app.get("', 'app.post("', 'app.put("',
+    'app.delete("', 'app.patch("',
     "@GetMapping", "@PostMapping", "@PutMapping",
     "@DeleteMapping", "@PatchMapping", "@RequestMapping(",
     "[HttpGet]", "[HttpPost]", "[HttpPut]", "[HttpDelete]", "[HttpPatch]",
-    ".GET(\"", ".POST(\"", ".PUT(\"", ".DELETE(\"", ".PATCH(\"",
+    '.GET("', '.POST("', '.PUT("', '.DELETE("', '.PATCH("',
     "@Get(", "@Post(", "@Put(", "@Delete(", "@Patch(",
     "#[get(", "#[post(", "#[put(", "#[delete(",
     "get {", "post {", "put {", "delete {",
 ]
 
-# ── Manifest-based detection maps ────────────────────────────────────────
 MANIFEST_FRAMEWORK_MAP = {
     "express": "express", "react": "react", "react-dom": "react",
     "next": "nextjs", "nuxt": "nuxtjs", "@angular/core": "angular",
@@ -295,7 +251,6 @@ PYTHON_MANIFEST_DB_MAP = {
 }
 
 
-# ── File readers ──────────────────────────────────────────────────────────
 def _read_safe(filepath: str) -> str:
     try:
         with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
@@ -304,7 +259,7 @@ def _read_safe(filepath: str) -> str:
         return ""
 
 
-def _parse_package_json(filepath: str) -> tuple:
+def _parse_package_json(filepath: str):
     frameworks, databases = set(), set()
     try:
         data = json.loads(_read_safe(filepath))
@@ -321,7 +276,7 @@ def _parse_package_json(filepath: str) -> tuple:
     return frameworks, databases
 
 
-def _parse_python_manifest(filepath: str) -> tuple:
+def _parse_python_manifest(filepath: str):
     frameworks, databases = set(), set()
     content = _read_safe(filepath).lower()
     for pkg, fw in PYTHON_MANIFEST_FRAMEWORK_MAP.items():
@@ -333,7 +288,7 @@ def _parse_python_manifest(filepath: str) -> tuple:
     return frameworks, databases
 
 
-def _parse_go_mod(filepath: str) -> set:
+def _parse_go_mod(filepath: str):
     frameworks = set()
     content = _read_safe(filepath)
     go_map = {
@@ -346,7 +301,7 @@ def _parse_go_mod(filepath: str) -> set:
     return frameworks
 
 
-def _parse_pubspec(filepath: str) -> tuple:
+def _parse_pubspec(filepath: str):
     frameworks, databases = set(), set()
     content = _read_safe(filepath).lower()
     if "flutter" in content:
@@ -356,7 +311,7 @@ def _parse_pubspec(filepath: str) -> tuple:
     return frameworks, databases
 
 
-def _parse_pom_xml(filepath: str) -> set:
+def _parse_pom_xml(filepath: str):
     frameworks = set()
     content = _read_safe(filepath)
     if "spring-boot" in content or "springframework" in content:
@@ -368,7 +323,7 @@ def _parse_pom_xml(filepath: str) -> set:
     return frameworks
 
 
-def _parse_build_gradle(filepath: str) -> set:
+def _parse_build_gradle(filepath: str):
     frameworks = set()
     content = _read_safe(filepath)
     if "spring" in content:
@@ -380,7 +335,7 @@ def _parse_build_gradle(filepath: str) -> set:
     return frameworks
 
 
-def _parse_csproj(filepath: str) -> set:
+def _parse_csproj(filepath: str):
     frameworks = set()
     content = _read_safe(filepath)
     if "AspNetCore" in content:
@@ -392,35 +347,31 @@ def _parse_csproj(filepath: str) -> set:
     return frameworks
 
 
-# ── MAIN ANALYZER ─────────────────────────────────────────────────────────
 def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
-    languages_found:       set = set()
-    frameworks_found:      set = set()
-    databases_found:       set = set()
-    test_frameworks_found: set = set()
-    api_count                  = 0
-    total_loc                  = 0
+    languages_found = set()
+    frameworks_found = set()
+    databases_found = set()
+    test_frameworks_found = set()
+    api_count = 0
+    total_loc = 0
+    discovered_apis = 0
+    discovered_classes = 0
+    discovered_functions = 0
 
     for filepath in filtered_files:
-        filename  = os.path.basename(filepath).lower()
-        _, ext    = os.path.splitext(filepath)
+        filename = os.path.basename(filepath).lower()
+        _, ext = os.path.splitext(filepath)
         ext_lower = ext.lower()
 
-        # Language from extension
         lang = EXTENSION_TO_LANGUAGE.get(ext_lower)
         if lang:
             languages_found.add(lang)
 
-        # LOC for source files
-        # AFTER
         content = _read_safe(filepath)
         if ext_lower in SOURCE_EXTENSIONS and content:
             for line in content.splitlines():
                 stripped = line.strip()
-                if stripped and not stripped.startswith((
-                    "#", "//", "/*", "*", "*/", "--", "'''", '"""',
-                    "rem ", "REM ",
-                )):
+                if stripped and not stripped.startswith(("#", "//", "/*", "*", "*/", "--", "'''", '"""', "rem ", "REM ")):
                     total_loc += 1
 
         if not content:
@@ -428,36 +379,27 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
 
         content_lower = content.lower()
 
-        # ── Manifest parsing (highest confidence) ─────────────────────────
         if filename == "package.json":
             fw, db = _parse_package_json(filepath)
             frameworks_found |= fw
-            databases_found  |= db
-
-        elif filename in ("requirements.txt", "pipfile", "pyproject.toml",
-                          "setup.cfg", "setup.py", "poetry.lock"):
+            databases_found |= db
+        elif filename in ("requirements.txt", "pipfile", "pyproject.toml", "setup.cfg", "setup.py", "poetry.lock"):
             fw, db = _parse_python_manifest(filepath)
             frameworks_found |= fw
-            databases_found  |= db
-
+            databases_found |= db
         elif filename == "go.mod":
             frameworks_found |= _parse_go_mod(filepath)
-
         elif filename == "pubspec.yaml":
             fw, db = _parse_pubspec(filepath)
             frameworks_found |= fw
-            databases_found  |= db
-
+            databases_found |= db
         elif filename == "pom.xml":
             frameworks_found |= _parse_pom_xml(filepath)
-
         elif filename in ("build.gradle", "build.gradle.kts"):
             frameworks_found |= _parse_build_gradle(filepath)
-
         elif ext_lower == ".csproj":
             frameworks_found |= _parse_csproj(filepath)
 
-        # ── Content-based detection ────────────────────────────────────────
         for framework, sigs in FRAMEWORK_SIGNATURES.items():
             if any(sig.lower() in content_lower for sig in sigs):
                 frameworks_found.add(framework)
@@ -470,9 +412,6 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
             if any(sig.lower() in content_lower for sig in sigs):
                 test_frameworks_found.add(tf)
 
-        # AFTER
-
-        # Skip test files entirely for endpoint counting
         _fp_lower = filepath.replace("\\", "/").lower()
         _is_test = any(seg in _fp_lower for seg in (
             "/test/", "/tests/", "/spec/", "/specs/",
@@ -483,39 +422,70 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
         if not _is_test and ext_lower in SOURCE_EXTENSIONS:
             for line in content.splitlines():
                 line_stripped = line.strip()
-                # One endpoint max per line — stops double-counting
                 for pattern in API_PATTERNS:
                     if pattern in line_stripped:
                         api_count += 1
-                        break  # ← this is the key fix: first match wins, move on
+                        discovered_apis += 1
+                        break
+                if line_stripped.startswith(("class ", "export class ", "interface ", "struct ", "enum ")):
+                    discovered_classes += 1
+                if line_stripped.startswith(("def ", "function ", "async def ", "fn ", "public ", "private ", "protected ")):
+                    discovered_functions += 1
+                elif line_stripped.startswith(("const ", "let ", "var ")) and ("=" in line_stripped and ("=>" in line_stripped or "function" in line_stripped)):
+                    discovered_functions += 1
 
-    # ── DevOps/infra detection ─────────────────────────────────────────────
     tech = detect_tech_stack(filtered_files)
 
-    # ── Move test frameworks out of main frameworks list ───────────────────
-    pure_test = {"jest", "vitest", "mocha", "cypress", "playwright",
-                 "jasmine", "pytest", "hypothesis", "unittest",
-                 "junit", "testng", "rspec", "gotest", "rust_test",
-                 "xunit", "nunit"}
+    pure_test = {"jest", "vitest", "mocha", "cypress", "playwright", "jasmine", "pytest", "hypothesis", "unittest", "junit", "testng", "rspec", "gotest", "rust_test", "xunit", "nunit"}
     test_frameworks_found |= (frameworks_found & pure_test)
-    frameworks_found      -= pure_test
+    frameworks_found -= pure_test
 
-    # ── Drop config-only languages if real code exists ────────────────────
     config_only = {"YAML", "JSON", "TOML", "HTML", "CSS"}
-    real_langs  = languages_found - config_only
+    real_langs = languages_found - config_only
     if real_langs:
         languages_found = real_langs
 
-    return AnalysisResult(
-        languages           = sorted(languages_found),
-        frameworks          = sorted(frameworks_found),
-        databases           = sorted(databases_found),
-        test_frameworks     = sorted(test_frameworks_found),
-        has_dockerfile      = tech["has_dockerfile"],
-        has_cicd            = tech["has_cicd"],
-        has_kubernetes      = tech["has_kubernetes"],
-        has_terraform       = tech["has_terraform"],
-        has_ansible         = tech["has_ansible"],
-        api_endpoints_count = api_count,
-        total_loc           = total_loc,
+    tech["detected_language_hints"] = sorted(languages_found)
+    tech["detected_framework_hints"] = sorted(frameworks_found)
+    tech["detected_database_hints"] = sorted(databases_found)
+    tech["detected_test_hints"] = sorted(test_frameworks_found)
+
+    actual_stack = {
+        "languages": sorted(languages_found),
+        "frameworks": sorted(frameworks_found),
+        "databases": sorted(databases_found),
+        "test_frameworks": sorted(test_frameworks_found),
+        "has_dockerfile": tech["has_dockerfile"],
+        "has_cicd": tech["has_cicd"],
+        "has_kubernetes": tech["has_kubernetes"],
+        "has_terraform": tech["has_terraform"],
+        "has_ansible": tech["has_ansible"],
+    }
+
+    detected_stack = tech
+    tech_stack_comparison = build_tech_stack_comparison(detected_stack, actual_stack)
+
+    analysis = AnalysisResult(
+        languages=sorted(languages_found),
+        frameworks=sorted(frameworks_found),
+        databases=sorted(databases_found),
+        test_frameworks=sorted(test_frameworks_found),
+        has_dockerfile=tech["has_dockerfile"],
+        has_cicd=tech["has_cicd"],
+        has_kubernetes=tech["has_kubernetes"],
+        has_terraform=tech["has_terraform"],
+        has_ansible=tech["has_ansible"],
+        api_endpoints_count=api_count,
+        total_loc=total_loc,
+        discovered_apis=discovered_apis,
+        discovered_classes=discovered_classes,
+        discovered_functions=discovered_functions,
+        detected_stack=detected_stack,
+        actual_stack=actual_stack,
+        tech_stack_comparison=tech_stack_comparison,
+        correct_matches=tech_stack_comparison["correct_matches"],
+        missed_items=tech_stack_comparison["missed_items"],
+        false_positives=tech_stack_comparison["false_positives"],
+        tech_stack_accuracy_score=tech_stack_comparison["accuracy_score"],
     )
+    return analysis

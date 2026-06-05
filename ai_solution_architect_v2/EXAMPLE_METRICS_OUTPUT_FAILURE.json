@@ -1,0 +1,92 @@
+{
+  "run_id": "f9e2d1c3-7a5b-4c8d-9e1f-2b6a8c4d7e9f",
+  "timestamp_start": "2026-05-31T15:42:30.234567",
+  "timestamp_end": "2026-05-31T15:45:18.789012",
+  "run_success": false,
+  "error_details": {
+    "occurred": true,
+    "stage": "diagram_rendering",
+    "category": "rendering_error",
+    "message": "Failed to render diagram PNG: drawio timeout after 30 seconds",
+    "recovery_attempted": true,
+    "recovery_successful": false
+  },
+  "duration": {
+    "total_seconds": 168.55,
+    "summarization_seconds": 7.23,
+    "core_generation_seconds": 38.45,
+    "diagram_generation_seconds": 16.78,
+    "diagram_rendering_seconds": 45.32,
+    "pptx_generation_seconds": 0.0,
+    "pptx_assembly_seconds": 0.0,
+    "validation_seconds": 0.0
+  },
+  "llm_tokens": {
+    "summarization": {
+      "prompt_tokens": 2200,
+      "completion_tokens": 810,
+      "total_tokens": 3010
+    },
+    "core_generation": {
+      "prompt_tokens": 8450,
+      "completion_tokens": 4920,
+      "total_tokens": 13370
+    },
+    "diagram_generation": {
+      "prompt_tokens": 3800,
+      "completion_tokens": 1890,
+      "total_tokens": 5690
+    },
+    "total": {
+      "prompt_tokens": 14450,
+      "completion_tokens": 7620,
+      "total_tokens": 22070
+    }
+  },
+  "estimated_cost_usd": 0.0188,
+  "slides": {
+    "attempted": 12,
+    "successful": 0,
+    "failed": 12,
+    "retry_count": 0,
+    "success_rate": 0.0
+  },
+  "diagram": {
+    "attempted": true,
+    "success": false,
+    "components_count": 7,
+    "connections_count": 0,
+    "expected_components": 8,
+    "expected_connections": 10,
+    "component_coverage": 0.875,
+    "connection_coverage": 0.0,
+    "correctness_score": 0.0
+  },
+  "quality": {
+    "content_quality": 0.78,
+    "diagram_quality": 0.0,
+    "architecture_alignment": 0.82,
+    "output_validity": 0.0,
+    "overall_score": 0.4
+  },
+  "pptx_validation": {
+    "file_created": false,
+    "file_size_bytes": 0,
+    "valid_xml": false,
+    "valid_relationships": false,
+    "opens_without_repair": false,
+    "all_slides_present": false,
+    "all_media_present": false,
+    "health_score": 0.0
+  },
+  "architecture_justification": {
+    "decisions_identified": 5,
+    "decisions_justified": 4,
+    "brd_citations": 8,
+    "constraint_references": 5,
+    "justification_score": 0.8
+  },
+  "review_cycle_count": 1,
+  "acceptance_status": "rejected",
+  "total_retry_count": 1
+}

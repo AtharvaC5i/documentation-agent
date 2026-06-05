@@ -1,0 +1,57 @@
+{
+  "run_id": "550b712f",
+  "project_id": "a5ac56ce-e500-49f6-a369-32b939045c2f",
+  "agent": "technical-document",
+  "timestamp": "2026-05-15T13:42:48.257384+00:00",
+  "completed_at": "2026-05-15T13:45:00.048662+00:00",
+  "status": "success",
+  "ingestion": {
+    "source_type": "zip",
+    "total_files_found": 4,
+    "files_after_filter": 4,
+    "filter_rate_percent": 100.0,
+    "ingestion_duration_seconds": 0.09,
+    "ingestion_success": true
+  },
+  "context_building": {
+    "strategy": "ContextStrategy.FLAT",
+    "total_chunks": 49,
+    "embedding_duration_seconds": 4.94,
+    "vector_store_size_mb": 1.36,
+    "raptor_summary_nodes": 0
+  },
+  "section_selection": {
+    "total_sections_available": 2,
+    "sections_selected": 2,
+    "selection_method": "ai_suggested"
+  },
+  "generation": {
+    "sections_attempted": 2,
+    "sections_succeeded": 2,
+    "sections_failed": 0,
+    "section_success_rate_percent": 100.0,
+    "avg_quality_score": 0.95,
+    "min_quality_score": 0.9,
+    "max_quality_score": 1.0,
+    "per_section_scores": {
+      "Executive Summary": 0.9,
+      "AI/ML Pipeline": 1.0
+    },
+    "total_generation_duration_seconds": 61.48,
+    "llm_retries": 0
+  },
+  "assembly": {
+    "output_file": "output.docx",
+    "output_size_bytes": 54093,
+    "output_size_kb": 52.8,
+    "word_count": 1423,
+    "page_estimate": 5,
+    "section_count": 2,
+    "assembly_duration_seconds": 0.58,
+    "assembly_success": true
+  },
+  "review": {
+    "review_cycles": 2
+  },
+  "end_to_end_duration_seconds": 131.79
+}

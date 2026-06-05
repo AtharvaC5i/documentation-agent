@@ -1,0 +1,103 @@
+{
+  "run_id": "f67132ea",
+  "project_id": "c727a3f5-b37b-48da-ac19-194e9896847e",
+  "agent": "technical-document",
+  "environment": "development",
+  "app_version": "1.0.0",
+  "triggered_by": "api",
+  "timestamp": "2026-05-26T07:41:17.790315+00:00",
+  "completed_at": "2026-05-26T07:45:00.885746+00:00",
+  "status": "success",
+  "error_stage": null,
+  "errors": {
+    "total_errors": 0,
+    "error_categories": {},
+    "errors": []
+  },
+  "system": {
+    "platform": "windows",
+    "python_version": "3.14.3",
+    "peak_memory_mb": 770.3,
+    "cpu_percent_avg": 6.5
+  },
+  "llm_usage": {
+    "total_prompt_tokens": 11762,
+    "total_completion_tokens": 3012,
+    "total_tokens": 14774,
+    "estimated_cost_usd": 0.017786,
+    "tokens_per_section": {
+      "Executive Summary": 7139,
+      "AI/ML Pipeline": 7635
+    }
+  },
+  "ingestion": {
+    "source_type": "zip",
+    "total_files_found": 4,
+    "files_after_filter": 4,
+    "filter_rate_percent": 100.0,
+    "ingestion_duration_seconds": 0.1,
+    "ingestion_success": true,
+    "input_profile": {}
+  },
+  "context_building": {
+    "strategy": "ContextStrategy.FLAT",
+    "total_chunks": 49,
+    "embedding_duration_seconds": 4.51,
+    "vector_store_size_mb": 1.36,
+    "raptor_summary_nodes": 0
+  },
+  "section_selection": {
+    "total_sections_available": 18,
+    "sections_selected": 2,
+    "selection_method": "ai_suggested"
+  },
+  "generation": {
+    "sections_attempted": 2,
+    "sections_succeeded": 2,
+    "sections_failed": 0,
+    "section_success_rate_percent": 100.0,
+    "avg_quality_score": 0.95,
+    "min_quality_score": 0.9,
+    "max_quality_score": 1.0,
+    "per_section_scores": {
+      "Executive Summary": 0.9,
+      "AI/ML Pipeline": 1.0
+    },
+    "total_generation_duration_seconds": 64.45,
+    "llm_retries": 0,
+    "per_section_word_counts": {
+      "Executive Summary": 406,
+      "AI/ML Pipeline": 959
+    },
+    "empty_sections": []
+  },
+  "assembly": {
+    "output_file": "output.docx",
+    "output_size_bytes": 53614,
+    "output_size_kb": 52.4,
+    "word_count": 1365,
+    "page_estimate": 5,
+    "section_count": 2,
+    "assembly_duration_seconds": 0.37,
+    "assembly_success": true
+  },
+  "review": {
+    "review_cycles": 2
+  },
+  "quality_metrics": {
+    "codebase_coverage": null,
+    "tech_stack": {
+      "detected": {
+        "has_dockerfile": false,
+        "has_cicd": false,
+        "has_kubernetes": false,
+        "has_terraform": false,
+        "has_ansible": false
+      },
+      "accuracy_score": 0.85
+    },
+    "code_examples": null,
+    "acceptance_flag": null
+  },
+  "end_to_end_duration_seconds": 223.1
+}

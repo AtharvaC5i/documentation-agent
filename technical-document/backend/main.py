@@ -1,10 +1,10 @@
 from fastapi import FastAPI
-from api.routes import ingest, sections, context, generation, assembly
-from api.routes.review  import router as review_router
-from api.routes.publish import router as publish_router
-from api.routes.report  import router as report_router
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.routes import ingest, sections, context, generation, assembly
+from api.routes.review import router as review_router
+from api.routes.publish import router as publish_router
+from api.routes.report import router as report_router
 
 app = FastAPI(
     title="Documentation Agent",
@@ -20,16 +20,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-app.include_router(ingest.router,      prefix="/ingest",     tags=["1. Ingestion"])
-app.include_router(sections.router,    prefix="/sections",   tags=["2. Section Selection"])
-app.include_router(context.router,     prefix="/context",    tags=["3. Context Building"])
-app.include_router(generation.router,  prefix="/generate",   tags=["4. Generation"])
+app.include_router(ingest.router, prefix="/ingest", tags=["1. Ingestion"])
+app.include_router(sections.router, prefix="/sections", tags=["2. Section Selection"])
+app.include_router(context.router, prefix="/context", tags=["3. Context Building"])
+app.include_router(generation.router, prefix="/generate", tags=["4. Generation"])
 app.include_router(assembly.router, prefix="/api", tags=["assembly"])
 app.include_router(review_router)
 app.include_router(publish_router)
 app.include_router(report_router)
-
 
 
 @app.get("/health", tags=["Health"])

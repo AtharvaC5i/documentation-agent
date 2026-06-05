@@ -6,5 +6,5 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8001,
         reload=False,
-        reload_excludes=["storage/*", "*.pyc", "__pycache__", "venv/*"],
+        
     )
