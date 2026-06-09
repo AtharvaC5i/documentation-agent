@@ -6,7 +6,10 @@ Handles all API calls to Databricks served models
 import os
 import httpx
 import json
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from metrics.collector import MetricsCollector
 
 
 DATABRICKS_HOST = os.getenv("DATABRICKS_HOST", "")
@@ -19,7 +22,9 @@ async def call_databricks_llm(
     user_prompt: str,
     max_tokens: int = 4000,
     temperature: float = 0.2,
-    json_mode: bool = False
+    json_mode: bool = False,
+    _metrics_collector: Optional["MetricsCollector"] = None,
+    _metrics_stage: str = "unknown",
 ) -> str:
     """
     Call Databricks served model via OpenAI-compatible API.
@@ -30,6 +35,10 @@ async def call_databricks_llm(
         max_tokens: Maximum tokens to generate
         temperature: Sampling temperature (lower = more deterministic)
         json_mode: If True, instructs model to return only valid JSON
+        _metrics_collector: Optional MetricsCollector; when provided, token
+            usage from the API response is recorded automatically.
+        _metrics_stage: Label used when recording to the collector
+            (e.g. 'extraction', 'generation', 'conflicts').
 
     Returns:
         Generated text string
@@ -69,6 +78,21 @@ async def call_databricks_llm(
             )
 
         data = response.json()
+
+        # Record token usage from the API response when a collector is provided.
+        # The OpenAI-compatible endpoint returns a "usage" object; fall back to
+        # character-based estimation when the field is absent.
+        if _metrics_collector is not None:
+            usage = data.get("usage", {})
+            prompt_tokens     = usage.get("prompt_tokens",     0)
+            completion_tokens = usage.get("completion_tokens", 0)
+            # Estimation fallback: ~4 chars per token
+            if prompt_tokens == 0 and completion_tokens == 0:
+                prompt_tokens     = (len(system_prompt) + len(user_prompt)) // 4
+                completion_tokens = max_tokens // 4
+            _metrics_collector.record_llm_call(
+                _metrics_stage, prompt_tokens, completion_tokens
+            )
 
         # Handle both OpenAI-compatible and Databricks native response formats
         if "choices" in data:

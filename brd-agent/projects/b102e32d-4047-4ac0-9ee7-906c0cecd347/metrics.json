@@ -1,0 +1,137 @@
+{
+  "run_id": "23195ef4-c481-4126-88f6-a1a606a38f9a",
+  "project_id": "b102e32d-4047-4ac0-9ee7-906c0cecd347",
+  "project_name": "ShopEasy",
+  "recorded_at": "2026-06-09T14:40:11.588389",
+  "run_outcome": {
+    "success": true,
+    "error_stage": null,
+    "error_category": null,
+    "error_message": null
+  },
+  "timing": {
+    "run_started_at": "2026-06-09T14:30:55.958729",
+    "run_ended_at": "2026-06-09T14:40:11.588389",
+    "total_duration_seconds": 555.63,
+    "extraction_duration_seconds": 141.3,
+    "generation_duration_seconds": 73.52,
+    "document_duration_seconds": 0.5
+  },
+  "llm_usage": {
+    "total_calls": 7,
+    "prompt_tokens": 15040,
+    "completion_tokens": 16230,
+    "total_tokens": 31270,
+    "by_stage": {
+      "extraction": {
+        "calls": 3,
+        "prompt_tokens": 4942,
+        "completion_tokens": 11536,
+        "total_tokens": 16478
+      },
+      "conflicts": {
+        "calls": 1,
+        "prompt_tokens": 1890,
+        "completion_tokens": 1433,
+        "total_tokens": 3323
+      },
+      "generation": {
+        "calls": 3,
+        "prompt_tokens": 8208,
+        "completion_tokens": 3261,
+        "total_tokens": 11469
+      }
+    }
+  },
+  "cost": {
+    "model_name": "databricks-claude-sonnet-4-6",
+    "prompt_cost_usd": 0.013536,
+    "completion_cost_usd": 0.043821,
+    "total_cost_usd": 0.057357,
+    "currency": "USD"
+  },
+  "sections": {
+    "attempted": 3,
+    "succeeded": 3,
+    "failed": 0,
+    "success_rate_pct": 100.0,
+    "review_cycles": {
+      "total_regenerations": 0,
+      "sections_with_rework": [],
+      "per_section": {
+        "af683879-4372-4ee4-b243-5b6c20bd3fd7": {
+          "name": "Executive Summary",
+          "cycles": 0
+        },
+        "b2bc9ce3-96fb-43ed-9132-c742642f497e": {
+          "name": "Business Rules",
+          "cycles": 0
+        },
+        "ef5217d8-01f4-4149-ac04-82b4b84ca5de": {
+          "name": "Glossary",
+          "cycles": 0
+        }
+      }
+    }
+  },
+  "quality": {
+    "requirement_quality": {
+      "total_evaluated": 75,
+      "smart_scores": {
+        "avg_score": 0.675,
+        "specific_pct": 89.3,
+        "measurable_pct": 9.3,
+        "achievable_pct": 100.0,
+        "relevant_pct": 100.0,
+        "time_bound_pct": 33.3
+      },
+      "high_quality_count": 26,
+      "medium_quality_count": 41,
+      "low_quality_count": 8
+    },
+    "section_completeness": {
+      "overall_pct": 93.3,
+      "by_section": {
+        "Executive Summary": {
+          "required_items": 5,
+          "present_items": 4,
+          "completeness_pct": 80.0
+        },
+        "Business Rules": {
+          "required_items": 2,
+          "present_items": 2,
+          "completeness_pct": 100.0
+        },
+        "Glossary": {
+          "required_items": 2,
+          "present_items": 2,
+          "completeness_pct": 100.0
+        }
+      }
+    }
+  },
+  "conflicts": {
+    "detected_count": 9,
+    "resolved_count": 9,
+    "unresolved_count": 0,
+    "high_impact_count": 6,
+    "medium_impact_count": 2,
+    "low_impact_count": 1,
+    "resolution_rate_pct": 100.0,
+    "accuracy_feedback": null
+  },
+  "output": {
+    "file_generated": true,
+    "filename": "BRD_ShopEasy_v1.docx",
+    "file_size_bytes": 37391,
+    "output_path": "D:\\Abhishek\\Projects\\documentation-agent\\brd-agent\\backend\\pipelines\\../../outputs\\BRD_ShopEasy_v1.docx",
+    "sections_included": 3,
+    "word_count_estimate": 1860
+  },
+  "acceptance": {
+    "status": "pending",
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": null
+  }
+}

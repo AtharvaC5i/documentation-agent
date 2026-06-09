@@ -1,0 +1,83 @@
+{
+  "sections": [
+    {
+      "id": "0dab5dcb-32a3-48f0-8ee4-384a551a15c0",
+      "name": "Executive Summary",
+      "content": "## Executive Summary\n\nRetailCorp India Pvt. Ltd. is embarking on a significant digital transformation initiative to establish a robust online retail presence that complements its network of 200 physical stores across India. As consumer purchasing behavior continues to shift toward digital channels, RetailCorp requires a purpose-built e-commerce platform — ShopEase — to capture this growing market opportunity and serve both its existing customer base and new digital-first shoppers. This project represents a strategic investment in RetailCorp's long-term competitiveness within the Indian retail landscape.\n\n### Business Problem\n\nRetailCorp currently lacks a unified digital commerce channel, leaving the organization unable to serve customers who prefer to shop online and limiting the company's revenue potential beyond its physical store footprint. Without a centralized platform, vendor partners, store managers, and the central admin team operate in disconnected systems, creating inefficiencies in inventory management, pricing control, and order fulfillment. The absence of digital sales capabilities also means RetailCorp has no visibility into customer behavior data — such as which products are browsed but not purchased — making it impossible to optimize promotions or respond to demand signals in real time.\n\n### Proposed Solution\n\nShopEase will be a fully integrated e-commerce platform available on web and mobile, enabling customers across India and the NRI community to browse, purchase, and track orders with ease. The platform will connect directly with RetailCorp's existing SAP system to ensure accurate, real-time inventory and product data, while offering flexible payment options including credit card EMI and no-cost financing through Bajaj Finance. ShopEase will also provide dedicated portals for vendor partners and store managers, giving each stakeholder the right level of access and control to perform their role efficiently.\n\n### Key Objectives\n\n- Launch the ShopEase platform within six months of project commencement, fully accessible to customers.\n- Support a product catalog of up to 25,000 SKUs, migrating the existing 8,000 SAP product records at go-live.\n- Ensure platform stability and performance for a minimum of 50,000 concurrent users during peak sale events, with all pages loading within three seconds.\n- Achieve full compliance with GDPR regulations for NRI customer data and the Indian Information Technology Act within the launch timeline.\n- Enable the central admin team to generate sales reports and access cart abandonment analytics within 30 days of go-live to inform promotional decision-making.\n\n### Expected Outcomes\n\nSix months after launch, RetailCorp expects ShopEase to be generating measurable online revenue, with the central admin team actively using sales reporting and cart abandonment analytics to drive targeted promotions and improve conversion rates. Vendor partners will be self-managing their inventory and product listings through the platform, reducing the operational burden on RetailCorp's internal teams. With real-time SAP integration, flexible payment options, and a seamless mobile experience, ShopEase is expected to meaningfully expand RetailCorp's customer reach and establish a scalable digital foundation for continued catalog and revenue growth.",
+      "quality_score": 0.8,
+      "quality_pct": "80%",
+      "word_count": 474,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript",
+        "user_story"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008",
+        "TR-009",
+        "TR-010",
+        "TR-014",
+        "TR-015"
+      ],
+      "req_count": 74
+    },
+    {
+      "id": "223ec7db-a203-4bb4-a9af-f6b63d5689c9",
+      "name": "Stakeholder Register",
+      "content": "## Stakeholder Register\n\n### Introduction\n\nThe Education4All project engages a diverse set of internal and external stakeholders spanning client leadership, delivery team members, and end users of the platform. Effective stakeholder management is critical to ensuring alignment across business objectives, technical decisions, and operational requirements throughout the project lifecycle.\n\n---\n\n### Stakeholder Table\n\n| Name / Role | Role | Organisation | Key Responsibilities | Involvement Level |\n|---|---|---|---|---|\n| Sunita Agarwal | Client CEO | Client1 | Defines overall vision, drives key business decisions, and provides final approvals on deliverables and scope changes | High |\n| Rajesh Mehta | Client Project Manager | Client1 | Owns operational requirements, oversees integration decisions, and provides technical direction on behalf of the client | High |\n| Arjun Shah | Business Analyst | Delivery Team | Leads requirements elicitation, documents functional and non-functional requirements, and maintains traceability | High |\n| Priya Nair | Project Manager | Delivery Team | Manages end-to-end project delivery, coordinates integration planning, and ensures adherence to timelines and milestones | High |\n| End Customers | Platform Users | External | Browse, search, and purchase products on the platform; primary beneficiaries of the end-user experience | Medium |\n| Store Managers | Regional Operations | Client1 | View and manage regional orders and process product returns via the platform | Medium |\n| Central Admin Team | Platform Administrators | Client1 | Manage products, pricing, and promotions across the platform using Role-Based Access Control privileges | High |\n| Vendor Partners | External Vendors | Third-Party | Manage their own inventory and product listings through a dedicated vendor login portal | Medium |\n\n---\n\n### Communication Plan\n\nKey stakeholders — including Sunita Agarwal, Rajesh Mehta, Priya Nair, and Arjun Shah — will participate in weekly project status meetings to review progress, surface risks, and align on priorities. Formal deliverable reviews and sign-offs will follow a structured approval cycle, with Sunita Agarwal serving as the final approving authority for all major milestones and scope changes. Operational stakeholders such as Store Managers and the Central Admin Team will be engaged during User Acceptance Testing phases and onboarding sessions to validate platform functionality against their day-to-day workflows. Primary communication channels will include email for formal documentation and approvals, a shared project management tool for task tracking and updates, and video conferencing for scheduled meetings and ad hoc discussions.",
+      "quality_score": 0.79,
+      "quality_pct": "79%",
+      "word_count": 399,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-001",
+        "TR-002",
+        "TR-003",
+        "TR-004",
+        "TR-005",
+        "TR-006",
+        "TR-007",
+        "TR-008"
+      ],
+      "req_count": 8
+    },
+    {
+      "id": "48f7e5c2-2509-4832-bf92-108fdb40980b",
+      "name": "Risks",
+      "content": "## Risks\n\n### Introduction\n\nEducation4All presents a moderate-to-high risk profile, driven primarily by its dependency on multiple third-party integrations, a fixed six-month delivery constraint, and regulatory obligations around data residency. The convergence of tight timelines, external partner dependencies, and large-scale data migration creates compounding risk exposure that requires proactive monitoring throughout the project lifecycle. The mitigation strategies outlined below are designed to reduce the likelihood and impact of these risks before they affect platform delivery or client outcomes.\n\n---\n\n### Risk Register\n\n| Risk ID | Risk Description | Probability | Impact | Risk Level | Mitigation Strategy |\n|---|---|---|---|---|---|\n| RSK-001 | Six-month go-live deadline cannot be met due to scope complexity or delays | High | High | **Critical** | Enforce phased delivery milestones; conduct weekly schedule reviews; define MVP scope to protect launch date |\n| RSK-002 | ZestMoney partnership agreement not finalised before go-live | High | High | **Critical** | Establish a contractual deadline for agreement sign-off; design payment module to function without ZestMoney if needed |\n| RSK-003 | SAP ERP API credentials or documentation not provided by client in time | High | High | **Critical** | Agree a formal handover date in project kick-off; escalate to steering committee if delayed; use mock APIs for parallel development |\n| RSK-004 | Bajaj Finance API integration proves technically infeasible or incompatible | Medium | High | **High** | Conduct a technical feasibility spike in Sprint 1; identify a fallback EMI provider as contingency |\n| RSK-005 | Delhivery or BlueDart APIs are inaccessible, deprecated, or poorly documented | Medium | High | **High** | Validate API availability and documentation quality during discovery; maintain manual fulfilment fallback for launch |\n| RSK-006 | Migration of 8,000 SAP SKUs results in data quality issues or launch delays | Medium | High | **High** | Run data profiling and cleansing prior to migration; conduct parallel validation testing before cutover |\n| RSK-007 | Customer data stored outside India, breaching data residency constraint | Low | High | **High** | Mandate Indian data centre selection during infrastructure design; include residency clause in cloud provider contracts; conduct pre-launch audit |\n| RSK-008 | Platform fails to scale adequately across 200 physical stores at launch | Medium | High | **High** | Conduct load and performance testing simulating multi-store traffic; implement auto-scaling infrastructure |\n| RSK-009 | Marketing tool or third-party integration for email/SMS campaigns not procured in time | Medium | Medium | **Medium** | Identify and onboard the marketing tool by project midpoint; include procurement lead time in project plan |\n| RSK-010 | High average order value (INR 15,000) leads to cart abandonment if EMI options are unavailable at launch | Medium | Medium | **Medium** | Prioritise at least one EMI option (Bajaj Finance) for go-live; communicate payment options prominently in UX |\n| RSK-011 | Scope creep from client stakeholders delays delivery of must-have features | Medium | Medium | **Medium** | Enforce formal change control process; maintain a prioritised backlog with client sign-off at each sprint |\n| RSK-012 | Key project team members unavailable due to attrition or resourcing conflicts | Low | Medium | **Medium** | Maintain knowledge documentation; cross-train team members on critical integration workstreams |\n\n---\n\n### Top 3 Risks — Detailed Analysis\n\n**RSK-001 — Six-Month Go-Live Deadline**\nThe platform is contractually required to be live and accessible to customers within six months of project start, leaving no buffer for significant delays. Given the breadth of integrations required — SAP ERP, two financing partners, two logistics APIs, and a multi-store architecture — the cumulative risk of timeline slippage is substantial. A single blocked dependency, such as delayed API credentials or a failed feasibility spike, can create a cascade effect across dependent workstreams.",
+      "quality_score": 0.65,
+      "quality_pct": "65%",
+      "word_count": 632,
+      "approved": true,
+      "status": "approved",
+      "sources": [
+        "transcript"
+      ],
+      "source_req_ids": [
+        "TR-009",
+        "TR-017",
+        "TR-018",
+        "TR-029",
+        "TR-040",
+        "TR-048",
+        "TR-049",
+        "TR-050",
+        "TR-055",
+        "TR-056"
+      ],
+      "req_count": 10
+    }
+  ]
+}

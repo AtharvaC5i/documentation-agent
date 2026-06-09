@@ -1,0 +1,240 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "Real-time inventory sync vs. daily batch sync for product information from SAP — two requirements specify conflicting sync strategies for SAP data.",
+      "version_a": {
+        "req_id": "TR-027",
+        "text": "Inventory levels must sync with SAP in real time to prevent overselling."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync from SAP via batch process once daily."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-002",
+      "description": "Vendor pricing control vs. central admin pricing control — vendors are given a portal to manage product information, but a business rule explicitly prohibits vendors from setting prices, while US-016 implies vendors manage their listings (which typically includes pricing).",
+      "version_a": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only central admin controls all pricing."
+      },
+      "version_b": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to create, update, and manage their product listings."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-003",
+      "description": "Vendor pricing control vs. central admin pricing control — TR-008 states vendors manage their own product listings via dedicated login, implying full listing management including price, while TR-021 prohibits vendors from setting prices.",
+      "version_a": {
+        "req_id": "TR-008",
+        "text": "Vendor partners manage their own product listings and inventory via dedicated login."
+      },
+      "version_b": {
+        "req_id": "TR-021",
+        "text": "Vendors cannot set product prices; only central admin controls all pricing."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-004",
+      "description": "Data localization constraint requiring servers physically in India conflicts with GDPR compliance, which is a European regulation with its own data residency and processing requirements that may conflict with strict India-only storage.",
+      "version_a": {
+        "req_id": "TR-037",
+        "text": "All customer data must be stored on servers physically located within India."
+      },
+      "version_b": {
+        "req_id": "TR-038",
+        "text": "Platform must comply with GDPR regulations for NRI customer data handling."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-005",
+      "description": "SAP as system of record with real-time sync conflicts with batch daily sync — TR-050 mandates SAP as the authoritative source requiring up-to-date data, while TR-028 allows product information to be stale by up to 24 hours via batch.",
+      "version_a": {
+        "req_id": "TR-050",
+        "text": "Platform must use SAP as the system of record for product and inventory data."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync from SAP via batch process once daily."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-006",
+      "description": "Admin manages products and pricing per TR-007 and US-014, but TR-026/TR-050 designate SAP as the system of record for product data, creating a conflict over who or what is the authoritative source for product and pricing updates.",
+      "version_a": {
+        "req_id": "US-014",
+        "text": "The system shall allow central admin to set and update product prices and discounts."
+      },
+      "version_b": {
+        "req_id": "TR-050",
+        "text": "Platform must use SAP as the system of record for product and inventory data."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-007",
+      "description": "Admin manages and adds products per US-013, but SAP is the system of record per TR-050 and TR-026 — it is contradictory whether products are created/managed in the platform or in SAP and synced.",
+      "version_a": {
+        "req_id": "US-013",
+        "text": "The system shall allow central admin to add, edit, and deactivate products in the catalog."
+      },
+      "version_b": {
+        "req_id": "TR-026",
+        "text": "System must integrate with SAP ERP to migrate and sync product data."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-008",
+      "description": "Peak load assumption may be underestimated — TR-049 flags that the 50,000 concurrent user figure may underestimate online traffic, directly contradicting the sufficiency of TR-040 as a performance requirement.",
+      "version_a": {
+        "req_id": "TR-040",
+        "text": "Platform must handle at least 50,000 concurrent users during peak sale events."
+      },
+      "version_b": {
+        "req_id": "TR-049",
+        "text": "50,000 peak users is based on physical store footfall and may underestimate online traffic."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-009",
+      "description": "TR-053 requires a marketing tool or integration for email/SMS campaigns, while TR-045 requires the system itself to support sending promotional emails and SMS — these conflict on whether the capability is native or via integration.",
+      "version_a": {
+        "req_id": "TR-045",
+        "text": "System must support sending promotional emails and SMS to customers."
+      },
+      "version_b": {
+        "req_id": "TR-053",
+        "text": "System must support a marketing tool or integration for email and SMS campaigns."
+      },
+      "impact": "low",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "User Journeys and Use Cases",
+      "coverage_level": "weak",
+      "message": "'User Journeys and Use Cases' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-010",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "weak",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}

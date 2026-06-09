@@ -207,9 +207,10 @@ def get_word_limit(section_name: str) -> int:
 
 class ExtractionPipeline:
 
-    def __init__(self, project: Project, store: ProjectStore):
+    def __init__(self, project: Project, store: ProjectStore, metrics_collector=None):
         self.project = project
         self.store = store
+        self._mc = metrics_collector  # Optional[MetricsCollector]
 
     def _update_progress(self, pct: int, message: str):
         self.project.progress = pct
@@ -218,6 +219,8 @@ class ExtractionPipeline:
 
     async def run(self):
         divider(f"EXTRACTION PIPELINE — {self.project.project_name}")
+        if self._mc:
+            self._mc.start_phase("extraction")
         try:
             # ── Step 1: Clean transcript (Python, no LLM) ─────────────────
             self._update_progress(5, "Cleaning transcript...")
@@ -322,6 +325,15 @@ class ExtractionPipeline:
             suggested_count = sum(1 for s in suggested if s.get("suggested"))
             success("SECTIONS", f"{suggested_count}/{len(suggested)} sections pre-selected")
 
+            # ── Step 8: Record metrics from extraction ─────────────────────
+            if self._mc:
+                from metrics.smart_scorer import evaluate_requirements
+                quality_data = evaluate_requirements(unique_requirements)
+                self._mc.record_requirement_quality(quality_data)
+                self._mc.record_conflicts(self.project.conflicts)
+                self._mc.end_phase("extraction")
+                info("METRICS", "Extraction metrics recorded")
+
             self.project.status = "extracted"
             self._update_progress(100, "Extraction complete.")
             divider("EXTRACTION COMPLETE — 4 API calls used")
@@ -333,6 +345,8 @@ class ExtractionPipeline:
             print("FULL TRACEBACK:")
             print(full_error)
             print("=" * 60 + "\n")
+            if self._mc:
+                self._mc.end_phase("extraction")
             self.project.status = "error"
             self.project.progress_message = f"Extraction failed: {str(e)}"
             self.store.save(self.project)
@@ -370,7 +384,10 @@ RULES:
 
         user_prompt = f"Extract all requirements:\n\n{transcript[:5000]}"
         llm_call("EXTRACT", "Transcript extraction", len(user_prompt))
-        raw = await call_databricks_llm(system_prompt, user_prompt, max_tokens=8000, json_mode=True)
+        raw = await call_databricks_llm(
+            system_prompt, user_prompt, max_tokens=8000, json_mode=True,
+            _metrics_collector=self._mc, _metrics_stage="extraction",
+        )
         llm_response("EXTRACT", len(raw))
 
         data = parse_llm_json(raw)
@@ -415,7 +432,10 @@ Return ONLY the JSON array. Descriptions MAX 20 words each."""
 
         user_prompt = f"Convert to requirements:\n\n{summary}"
         llm_call("STORIES", "User story conversion", len(user_prompt))
-        raw = await call_databricks_llm(system_prompt, user_prompt, max_tokens=8000, json_mode=True)
+        raw = await call_databricks_llm(
+            system_prompt, user_prompt, max_tokens=8000, json_mode=True,
+            _metrics_collector=self._mc, _metrics_stage="extraction",
+        )
         llm_response("STORIES", len(raw))
 
         data = parse_llm_json(raw)
@@ -467,7 +487,10 @@ Return ONLY valid JSON. No other text."""
         user_prompt = f"Project text: {all_text[:1500]}\n\nRequirements:\n{req_summary}"
 
         llm_call("ANALYSIS", "Glossary + coverage", len(user_prompt))
-        raw = await call_databricks_llm(system_prompt, user_prompt, max_tokens=3000, json_mode=True)
+        raw = await call_databricks_llm(
+            system_prompt, user_prompt, max_tokens=3000, json_mode=True,
+            _metrics_collector=self._mc, _metrics_stage="extraction",
+        )
         llm_response("ANALYSIS", len(raw))
 
         data = parse_llm_json(raw)
@@ -505,7 +528,10 @@ Return [] if no conflicts. Return ONLY the JSON array."""
 
         user_prompt = f"Find conflicts:\n\n{req_summary}"
         llm_call("CONFLICTS", "Conflict detection", len(user_prompt))
-        raw = await call_databricks_llm(system_prompt, user_prompt, max_tokens=3000, json_mode=True)
+        raw = await call_databricks_llm(
+            system_prompt, user_prompt, max_tokens=3000, json_mode=True,
+            _metrics_collector=self._mc, _metrics_stage="conflicts",
+        )
         llm_response("CONFLICTS", len(raw))
 
         data = parse_llm_json(raw)

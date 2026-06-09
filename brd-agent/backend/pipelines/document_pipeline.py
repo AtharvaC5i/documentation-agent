@@ -65,15 +65,19 @@ def _build_sections_payload(sections: List[Dict[str, Any]]) -> List[Dict[str, An
 
 class DocumentPipeline:
 
-    def __init__(self, project: Project, store: ProjectStore):
+    def __init__(self, project: Project, store: ProjectStore, metrics_collector=None):
         self.project = project
         self.store   = store
+        self._mc     = metrics_collector  # Optional[MetricsCollector]
 
     async def run(self):
         self.project.status           = "generating_document"
         self.project.progress_message = "Generating Word document..."
         self.store.save(self.project)
         divider(f"DOCUMENT PIPELINE — {self.project.project_name}")
+
+        if self._mc:
+            self._mc.start_phase("document")
 
         # Decide which sections to include
         approved = [s for s in self.project.generated_sections if s.get("approved")]
@@ -84,6 +88,9 @@ class DocumentPipeline:
             self.project.status           = "error"
             self.project.progress_message = "No sections to include in document."
             self.store.save(self.project)
+            if self._mc:
+                self._mc.record_output_file(success=False)
+                self._mc.end_phase("document")
             return
 
         info("DOC", f"Assembling {len(approved)} sections via docx.js")
@@ -126,26 +133,49 @@ class DocumentPipeline:
             if not os.path.exists(output_path):
                 raise RuntimeError(f"Output file not created: {output_path}")
 
-            file_size_kb = os.path.getsize(output_path) // 1024
+            file_size_bytes = os.path.getsize(output_path)
+            file_size_kb    = file_size_bytes // 1024
             success("DOC", f"Document created — {file_size_kb}KB → {output_path}")
+
+            # Estimate total word count from sections
+            word_count_estimate = sum(s.get("word_count", 0) for s in approved)
+
+            safe_name = self.project.project_name.replace(" ", "_").replace("/", "_")
+            filename  = f"BRD_{safe_name}_v{self.project.version}.docx"
 
             self.project.document_path    = output_path
             self.project.status           = "complete"
             self.project.progress_message = "Document ready for download."
 
+            if self._mc:
+                self._mc.record_output_file(
+                    success=True,
+                    filename=filename,
+                    file_path=output_path,
+                    file_size_bytes=file_size_bytes,
+                    sections_included=len(approved),
+                    word_count_estimate=word_count_estimate,
+                )
+
         except subprocess.TimeoutExpired:
             error("DOC", "Node.js builder timed out after 120 seconds")
             self.project.status           = "error"
             self.project.progress_message = "Document generation timed out."
+            if self._mc:
+                self._mc.record_output_file(success=False)
 
         except Exception as ex:
             error("DOC", f"Document generation failed: {ex}")
             self.project.status           = "error"
             self.project.progress_message = f"Document generation failed: {str(ex)[:200]}"
+            if self._mc:
+                self._mc.record_output_file(success=False)
 
         finally:
             # Always clean up temp JSON
             if os.path.exists(tmp_json):
                 os.remove(tmp_json)
+            if self._mc:
+                self._mc.end_phase("document")
 
         self.store.save(self.project)

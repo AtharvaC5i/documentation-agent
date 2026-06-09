@@ -23,9 +23,10 @@ QUALITY_THRESHOLD = 0.60
 
 class GenerationPipeline:
 
-    def __init__(self, project: Project, store: ProjectStore):
+    def __init__(self, project: Project, store: ProjectStore, metrics_collector=None):
         self.project = project
         self.store = store
+        self._mc = metrics_collector  # Optional[MetricsCollector]
 
     def _update_progress(self, pct: int, message: str):
         self.project.progress = pct
@@ -38,6 +39,9 @@ class GenerationPipeline:
         divider(f"GENERATION PIPELINE — {self.project.project_name}")
         info("GENERATE", f"{total} sections selected for generation")
 
+        if self._mc:
+            self._mc.start_phase("generation")
+
         self.project.generated_sections = []
         self.store.save(self.project)
 
@@ -46,11 +50,13 @@ class GenerationPipeline:
             self._update_progress(pct, f"Generating: {section_name} ({i+1}/{total})")
             step("GENERATE", i + 1, total, section_name)
 
+            section_succeeded = False
             try:
                 section_result = await self._generate_section(section_name)
                 q   = section_result.get("quality_pct", "?")
                 wc  = section_result.get("word_count", 0)
                 reqs = section_result.get("req_count", 0)
+                section_succeeded = section_result.get("status", "") != "failed"
 
                 if section_result.get("quality_score", 0) >= QUALITY_THRESHOLD:
                     success("GENERATE", f"{section_name} | quality: {q} | words: {wc} | reqs: {reqs}")
@@ -60,9 +66,16 @@ class GenerationPipeline:
             except Exception as ex:
                 error("GENERATE", f"Section '{section_name}' failed: {ex} — inserting placeholder")
                 section_result = self._placeholder_section(section_name)
+                section_succeeded = False
 
             self.project.generated_sections.append(section_result)
             self.store.save(self.project)
+
+            # Record section attempt in metrics
+            if self._mc:
+                self._mc.record_section_attempt(
+                    section_name, section_result["id"], section_succeeded
+                )
 
         self.project.status = "review"
         self._update_progress(100, "All sections generated. Ready for review.")
@@ -72,6 +85,10 @@ class GenerationPipeline:
         if valid_sections:
             avg = sum(s["quality_score"] for s in valid_sections) / len(valid_sections)
             info("GENERATE", f"Average quality: {round(avg * 100)}%")
+
+        if self._mc:
+            self._mc.end_phase("generation")
+            info("METRICS", "Generation metrics recorded")
 
     def _placeholder_section(self, section_name: str) -> Dict[str, Any]:
         """Fallback section when generation fails — never crashes the pipeline."""
@@ -100,6 +117,10 @@ class GenerationPipeline:
 
         target["status"] = "regenerating"
         self.store.save(self.project)
+
+        # Record review cycle in metrics
+        if self._mc:
+            self._mc.record_section_regeneration(target["name"], section_id)
 
         try:
             result = await self._generate_section(target["name"], feedback=feedback)
@@ -140,7 +161,10 @@ class GenerationPipeline:
         )
 
         llm_call("GENERATE", f"Section: {section_name}", len(req_context))
-        content = await call_databricks_llm(system_prompt, user_prompt, max_tokens=5000, temperature=0.2)
+        content = await call_databricks_llm(
+            system_prompt, user_prompt, max_tokens=5000, temperature=0.2,
+            _metrics_collector=self._mc, _metrics_stage="generation",
+        )
         llm_response("GENERATE", len(content))
 
         # Enforce word limit — Python truncation regardless of model compliance
@@ -154,7 +178,10 @@ class GenerationPipeline:
             warn("GENERATE", f"Quality {round(quality*100)}% — auto-regenerating {section_name}")
             improved = user_prompt + f"\n\nIMPORTANT: Previous attempt was low quality. Be specific, use tables where appropriate, reference actual requirements."
             llm_call("GENERATE", f"Re-generate: {section_name}")
-            content  = await call_databricks_llm(system_prompt, improved, max_tokens=5000, temperature=0.3)
+            content  = await call_databricks_llm(
+                system_prompt, improved, max_tokens=5000, temperature=0.3,
+                _metrics_collector=self._mc, _metrics_stage="generation",
+            )
             llm_response("GENERATE", len(content))
             content  = _truncate_section_content(content, word_limit)
             quality  = _meaningful_quality_score(content, section_name, len(relevant_reqs))

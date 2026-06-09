@@ -1,0 +1,185 @@
+{
+  "conflicts": [
+    {
+      "id": "CONF-001",
+      "description": "Inventory sync with SAP ERP is specified as both real-time and daily batch process",
+      "version_a": {
+        "req_id": "TR-027",
+        "text": "Inventory levels must sync with SAP ERP in real time."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync with SAP ERP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-002",
+      "description": "Vendor pricing control contradicts vendor product listing management — TR-008 and TR-022 imply vendors manage product information, but TR-020 prohibits vendors from setting prices, while US-016 broadly allows vendors to manage their own product listings without clarifying the pricing exclusion",
+      "version_a": {
+        "req_id": "TR-020",
+        "text": "Vendors cannot set product prices; only RetailCorp central admin controls pricing."
+      },
+      "version_b": {
+        "req_id": "US-016",
+        "text": "The system shall allow vendors to manage their own product listings on the platform."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-003",
+      "description": "GDPR compliance requires data handling rules that may conflict with the constraint that all customer data must be stored on servers physically located within India, as GDPR applies to EU/NRI data subjects and may require data portability or deletion mechanisms that conflict with a strict India-only storage mandate",
+      "version_a": {
+        "req_id": "TR-038",
+        "text": "Platform must comply with GDPR regulations for NRI customer data handling."
+      },
+      "version_b": {
+        "req_id": "TR-040",
+        "text": "All customer data must be stored on servers physically located within India."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-004",
+      "description": "Real-time inventory sync with SAP conflicts with the business rule requiring zero-inventory products to be hidden — if real-time sync has any latency or the batch process (TR-028) is used instead, products could incorrectly appear available",
+      "version_a": {
+        "req_id": "TR-052",
+        "text": "Products must not be shown as available if inventory is zero in SAP."
+      },
+      "version_b": {
+        "req_id": "TR-028",
+        "text": "Product information must sync with SAP ERP via daily batch process."
+      },
+      "impact": "high",
+      "resolved": true,
+      "chosen": "b",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-005",
+      "description": "ZestMoney partnership is assumed to be finalized before go-live, but no corresponding functional requirement exists for ZestMoney integration, while Bajaj Finance EMI is explicitly required — creating ambiguity about whether ZestMoney EMI must also be supported at launch within the 6-month constraint",
+      "version_a": {
+        "req_id": "TR-018",
+        "text": "ZestMoney partnership agreement will be finalized before platform go-live."
+      },
+      "version_b": {
+        "req_id": "TR-009",
+        "text": "Platform must go live within 6 months maximum from project start."
+      },
+      "impact": "medium",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    },
+    {
+      "id": "CONF-006",
+      "description": "Central admin is stated as the sole controller of pricing, but store managers are given authority to manage returns — TR-006 implies store managers have operational authority that may conflict with centralized admin control described in TR-007 and TR-053",
+      "version_a": {
+        "req_id": "TR-007",
+        "text": "Central admin team manages products, pricing, and promotions across the platform."
+      },
+      "version_b": {
+        "req_id": "TR-024",
+        "text": "Store managers must be able to manage product returns from their region."
+      },
+      "impact": "low",
+      "resolved": true,
+      "chosen": "a",
+      "custom_text": null
+    }
+  ],
+  "gaps": [
+    {
+      "id": "GAP-001",
+      "section": "Executive Summary",
+      "coverage_level": "weak",
+      "message": "'Executive Summary' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-002",
+      "section": "Business Context and Background",
+      "coverage_level": "weak",
+      "message": "'Business Context and Background' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-003",
+      "section": "Project Objectives and Success Criteria",
+      "coverage_level": "weak",
+      "message": "'Project Objectives and Success Criteria' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-004",
+      "section": "Scope",
+      "coverage_level": "weak",
+      "message": "'Scope' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-005",
+      "section": "Data Requirements",
+      "coverage_level": "weak",
+      "message": "'Data Requirements' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-006",
+      "section": "Dependencies",
+      "coverage_level": "weak",
+      "message": "'Dependencies' has limited coverage.",
+      "suggested_action": "Review and confirm with client"
+    },
+    {
+      "id": "GAP-007",
+      "section": "Risks",
+      "coverage_level": "none",
+      "message": "'Risks' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-008",
+      "section": "Glossary",
+      "coverage_level": "none",
+      "message": "'Glossary' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    },
+    {
+      "id": "GAP-009",
+      "section": "Appendices",
+      "coverage_level": "none",
+      "message": "'Appendices' has no coverage.",
+      "suggested_action": "Fill via follow-up questions"
+    }
+  ],
+  "coverage": {
+    "Executive Summary": "weak",
+    "Business Context and Background": "weak",
+    "Project Objectives and Success Criteria": "weak",
+    "Scope": "weak",
+    "Stakeholder Register": "strong",
+    "Functional Requirements": "strong",
+    "Non-Functional Requirements": "strong",
+    "Business Rules": "strong",
+    "User Roles and Permissions": "strong",
+    "User Journeys and Use Cases": "strong",
+    "Data Requirements": "weak",
+    "Integration Requirements": "strong",
+    "Assumptions": "strong",
+    "Constraints": "strong",
+    "Dependencies": "weak",
+    "Risks": "none",
+    "Glossary": "none",
+    "Appendices": "none"
+  }
+}
