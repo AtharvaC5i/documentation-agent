@@ -21,8 +21,9 @@ from fastapi.responses import Response
 
 
 from models.response_models import GenerateRequest
+from models.request_models import ReviewRequest
 from services.orchestrator import OrchestratorService
-from agents.prompt_builder import CUSTOM_SLIDE_PROMPT, build_user_message
+from agents.prompt_builder import CUSTOM_SLIDE_VISUAL_PROMPT, build_user_message
 from services.pptx_service import PptxService
 from services.file_extractor import extract_text
 from services.metrics_tracker import MetricsTracker, classify_error
@@ -38,6 +39,23 @@ from services.metrics_helpers import (
 
 
 router = APIRouter()
+
+
+def get_metrics_file_path(run_id: str) -> Path:
+    """Get the path to the metrics file, falling back to local backend/metrics if D: is not writable."""
+    try:
+        metrics_dir = Path(r"D:\documentation_agent_metrics_json\ppt-agent")
+        metrics_dir.mkdir(parents=True, exist_ok=True)
+        # Test write permission
+        test_file = metrics_dir / f".test_{run_id}"
+        test_file.touch()
+        test_file.unlink()
+        return metrics_dir / f"{run_id}.json"
+    except Exception:
+        # Fallback to local directory inside backend
+        local_dir = Path(__file__).parent.parent / "metrics"
+        local_dir.mkdir(parents=True, exist_ok=True)
+        return local_dir / f"{run_id}.json"
 
 
 
@@ -101,9 +119,8 @@ async def generate_pptx(
 
         payload = GenerateRequest(brd_text=brd_text, tech_doc_text=tech_doc_text)
         
-        # ← NEW: Track core generation phase
-        with tracker.phase("core_generation"):
-            result  = await orchestrator.run(payload)
+        # Track core generation phase via orchestrator
+        result = await orchestrator.run(payload, tracker=tracker)
         
         print(f"[generate.py] Orchestrator completed, generating PPTX...")
 
@@ -172,21 +189,57 @@ async def generate_pptx(
                     "\n\n=== CUSTOM SLIDE TOPIC ===\n"
                     f"{title}\n\n"
                     "INSTRUCTIONS:\n"
-                    "- Generate EXACTLY 3 to 6 bullet points for this slide topic.\n"
-                    "- Each bullet must be 10-20 words, specific to the BRD and technical documentation above.\n"
-                    "- Do NOT write generic bullets. Reference actual details from the BRD/tech doc.\n"
-                    "- Return ONLY valid JSON in this exact format:\n"
-                    '  {"title": "<slide title>", "bullets": ["bullet 1", "bullet 2", ...]}\n'
-                    "- The bullets array MUST have at least 3 items."
+                    "- Select the visual layout that best explains this topic, then use its exact schema.\n"
+                    "- Return 3 to 5 concise, evidence-based items; do not return a bullets array.\n"
+                    "- Do NOT write generic content. Reference actual details from the BRD/tech doc.\n"
+                    "- Return ONLY the JSON object required by the system prompt."
                 )
 
 
                 try:
                     print(f"[generate.py] Enriching slide {idx + 1}/{len(cs_list)}: '{title}'")
-                    generated_obj = await orchestrator.client.invoke(CUSTOM_SLIDE_PROMPT, user_msg)
-
+                    generated_obj = await orchestrator.client.invoke(CUSTOM_SLIDE_VISUAL_PROMPT, user_msg)
+                    
+                    # Accumulate token usage for custom slide enrichment under core_generation
+                    try:
+                        custom_usage = orchestrator.client.get_last_usage()
+                        if custom_usage:
+                            tracker.add_token_usage("core_generation", custom_usage)
+                    except Exception as tok_err:
+                        print(f"[Metrics] Warning: failed to accumulate tokens: {tok_err}")
 
                     if isinstance(generated_obj, dict):
+                        if "content" in generated_obj or "layout" in generated_obj:
+                            gtitle = str(generated_obj.get("title") or title).strip()
+                            layout = str(generated_obj.get("layout") or "key_messages").strip().lower().replace(" ", "_")
+                            allowed_layouts = {"timeline", "comparison", "people", "metrics", "flow", "financials", "benefits", "key_messages"}
+                            if layout not in allowed_layouts:
+                                print(f"[generate.py] Warning: unsupported custom-slide layout '{layout}' for '{title}'; using key_messages")
+                                layout = "key_messages"
+
+                            content = generated_obj.get("content")
+                            if not isinstance(content, list):
+                                content = generated_obj.get("bullets") or []
+                            content = content[:5]
+                            structured_layouts = {"comparison", "people", "metrics", "financials"}
+                            if layout in structured_layouts and any(not isinstance(item, dict) for item in content):
+                                print(f"[generate.py] Warning: malformed {layout} content for '{title}'; using key_messages")
+                                layout = "key_messages"
+                            if len(content) < 3:
+                                print(f"[generate.py] Warning: LLM returned only {len(content)} content item(s) for '{title}'")
+
+                            expanded.append({
+                                "title": gtitle,
+                                "type": "llm-layout",
+                                "layout": layout,
+                                "subtitle": generated_obj.get("subtitle") or "",
+                                "content": content,
+                                "left_label": generated_obj.get("left_label") or "Current State",
+                                "right_label": generated_obj.get("right_label") or "Target State",
+                                "bullets": [str(item.get("description") or item.get("title") or item) if isinstance(item, dict) else str(item) for item in content],
+                            })
+                            continue
+
                         gtitle  = generated_obj.get("title") or title
                         bullets = generated_obj.get("bullets") or []
                         if not isinstance(bullets, list):
@@ -198,7 +251,6 @@ async def generate_pptx(
                     else:
                         print(f"[generate.py] Warning: LLM returned non-dict for '{title}': {type(generated_obj)} — {str(generated_obj)[:200]}")
                         expanded.append({"title": title, "bullets": [f"Content generation pending for: {title}"]})
-
 
                 except Exception as e:
                     print(f"[generate.py] ERROR: LLM enrichment failed for '{title}': {e}")
@@ -272,9 +324,15 @@ async def generate_pptx(
             traceback.print_exc()
 
 
-        # ← NEW: Track PPTX generation phase
+        # Record total retry count from Databricks client
+        try:
+            tracker.set_total_retry_count(orchestrator.client.retry_count)
+        except Exception as retry_err:
+            print(f"[Metrics] Warning: failed to record retry count: {retry_err}")
+
+        # Track PPTX generation phase
         with tracker.phase("pptx_generation"):
-            pptx_bytes = pptx_service.generate(result_dict)
+            pptx_bytes = pptx_service.generate(result_dict, tracker=tracker)
         
         print(f"[generate.py] ✓ PPTX generated: {len(pptx_bytes)} bytes")
         print("[generate.py] ════════════════════════════════════════════════════════════")
@@ -299,6 +357,8 @@ async def generate_pptx(
             
             # Extract diagram metrics only if diagram was selected
             diagram_metrics = extract_diagram_metrics(result, diagram_selected=diagram_selected)
+            diagram_success = diagram_metrics["success"]
+            
             tracker.update_diagram_metrics(
                 attempted=diagram_metrics["attempted"],
                 success=diagram_metrics["success"],
@@ -326,13 +386,17 @@ async def generate_pptx(
                 output_validity=quality_scores["output_validity"],
             )
             
-            # Extract slide metrics based on user selections
-            slide_metrics = extract_slide_metrics(result_dict, selected_slides=selected_slides_list)
+            # Extract slide metrics based on user selections and diagram success state
+            slide_metrics = extract_slide_metrics(
+                result_dict, 
+                selected_slides=selected_slides_list, 
+                diagram_success=diagram_success
+            )
             tracker.update_slide_metrics(
                 attempted=slide_metrics["attempted"],
                 successful=slide_metrics["successful"],
                 failed=slide_metrics["failed"],
-                retry_count=slide_metrics["retry_count"],
+                retry_count=orchestrator.client.retry_count,
             )
             
             # Extract architecture justification metrics
@@ -352,7 +416,10 @@ async def generate_pptx(
             temp_pptx_path = os.path.join(temp_dir, "architecture_temp.pptx")
             with open(temp_pptx_path, 'wb') as f:
                 f.write(pptx_bytes)
-            tracker.validate_pptx(temp_pptx_path)
+                
+            # Wrap validation in its own phase context manager
+            with tracker.phase("validation"):
+                tracker.validate_pptx(temp_pptx_path)
             
             # Update output validity based on PPTX validation
             if tracker.metrics.pptx_validation.health_score >= 1.0:
@@ -374,11 +441,7 @@ async def generate_pptx(
             tracker.finalize(success=True)
             metrics_dict = tracker.get_metrics_dict()
             
-            # Save to D:/documentation_agent_metrics_json/ppt-agent/
-            metrics_dir = Path(r"D:\documentation_agent_metrics_json\ppt-agent")
-            metrics_dir.mkdir(parents=True, exist_ok=True)
-            
-            metrics_file = metrics_dir / f"{tracker.run_id}.json"
+            metrics_file = get_metrics_file_path(tracker.run_id)
             with open(metrics_file, 'w') as f:
                 json.dump(metrics_dict, f, indent=2)
             print(f"[Metrics] Saved to {metrics_file}")
@@ -389,10 +452,12 @@ async def generate_pptx(
 
 
     except Exception as e:
-        # ← NEW: Record error in metrics (safely)
+        # Record error in metrics (safely)
         try:
-            stage, category = classify_error(e, context="generate_pptx")
-            tracker.set_error(stage, category, str(e), traceback.format_exc())
+            if not tracker.metrics.error_details.occurred:
+                active_phase = getattr(tracker, "active_phase", None) or "generate_pptx"
+                stage, category = classify_error(e, context=active_phase)
+                tracker.set_error(stage, category, str(e), traceback.format_exc())
             
             # Try to extract partial metrics even on error
             try:
@@ -410,11 +475,7 @@ async def generate_pptx(
             tracker.finalize(success=False)
             metrics_dict = tracker.get_metrics_dict()
             
-            # Save to D:/documentation_agent_metrics_json/ppt-agent/
-            metrics_dir = Path(r"D:\documentation_agent_metrics_json\ppt-agent")
-            metrics_dir.mkdir(parents=True, exist_ok=True)
-            
-            metrics_file = metrics_dir / f"{tracker.run_id}.json"
+            metrics_file = get_metrics_file_path(tracker.run_id)
             with open(metrics_file, 'w') as f:
                 json.dump(metrics_dict, f, indent=2)
             print(f"[Metrics] Error metrics saved to {metrics_file}")
@@ -475,3 +536,45 @@ async def extract_text_from_file(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Extraction failed: {str(e)}")
+
+
+@router.post(
+    "/review",
+    summary="Submit review feedback / acceptance status for a generated presentation",
+)
+def submit_review(body: ReviewRequest):
+    """
+    Load a run's saved metrics, update the acceptance status, increment the review cycle count,
+    and save the metrics payload back to disk.
+    """
+    metrics_file = get_metrics_file_path(body.run_id)
+    
+    if not metrics_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"No metrics payload found for run_id {body.run_id}"
+        )
+        
+    try:
+        with open(metrics_file, 'r') as f:
+            metrics_dict = json.load(f)
+            
+        # Update fields
+        metrics_dict["acceptance_status"] = body.acceptance_status.value
+        metrics_dict["review_cycle_count"] = metrics_dict.get("review_cycle_count", 0) + 1
+        
+        # Write back
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics_dict, f, indent=2)
+            
+        return {
+            "status": "success",
+            "run_id": body.run_id,
+            "acceptance_status": metrics_dict["acceptance_status"],
+            "review_cycle_count": metrics_dict["review_cycle_count"]
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update review metrics: {str(e)}"
+        )

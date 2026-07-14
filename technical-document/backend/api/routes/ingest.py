@@ -62,33 +62,38 @@ async def ingest_github(request: GithubIngestRequest):
         collector.record_ingestion("github", 0, 0, time.perf_counter() - t_start, False)
         raise HTTPException(status_code=500, detail=f"Clone failed: {str(e)}")
 
-    filtered_files = filter_codebase(repo_path)
-    analysis = analyze_codebase(filtered_files)
-    duration = time.perf_counter() - t_start
-    total_files_found = sum(len(files) for _, _, files in os.walk(repo_path))
+    try:
+        filtered_files = filter_codebase(repo_path)
+        analysis = analyze_codebase(filtered_files)
+        duration = time.perf_counter() - t_start
+        total_files_found = sum(len(files) for _, _, files in os.walk(repo_path))
 
-    collector.record_ingestion(
-        source_type="github",
-        total_files_found=total_files_found,
-        files_after_filter=len(filtered_files),
-        duration_seconds=duration,
-        success=True,
-    )
-    _record_input_profile(collector, analysis.model_dump(), repo_path)
+        collector.record_ingestion(
+            source_type="github",
+            total_files_found=total_files_found,
+            files_after_filter=len(filtered_files),
+            duration_seconds=duration,
+            success=True,
+        )
+        _record_input_profile(collector, analysis.model_dump(), repo_path)
 
-    tech_stack = detect_tech_stack(filtered_files)
-    tech_comparison = build_tech_stack_comparison(
-        detected=tech_stack,
-        actual={},
-    )
-    collector.record_tech_stack(
-        detected_stack=tech_stack,
-        actual_stack=tech_comparison["actual"],
-        correct_matches=tech_comparison["correct_matches"],
-        missed_items=tech_comparison["missed_items"],
-        false_positives=tech_comparison["false_positives"],
-        accuracy_score=tech_comparison["accuracy_score"],
-    )
+        collector.record_tech_stack(
+            detected_stack=analysis.detected_stack,
+            actual_stack=analysis.actual_stack,
+            correct_matches=analysis.correct_matches,
+            missed_items=analysis.missed_items,
+            false_positives=analysis.false_positives,
+            accuracy_score=analysis.tech_stack_accuracy_score,
+        )
+    except Exception as e:
+        collector.record_error(
+            stage="ingestion",
+            message=str(e),
+            error_type="ingestion" if "filter" in str(e).lower() or "find" in str(e).lower() else "parsing",
+            exception_type=type(e).__name__,
+        )
+        collector.record_ingestion("github", 0, 0, time.perf_counter() - t_start, False)
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
     set_project(project_id, {
         "metadata": request.metadata.model_dump(),
@@ -136,33 +141,38 @@ async def ingest_zip(
         collector.record_ingestion("zip", 0, 0, time.perf_counter() - t_start, False)
         raise HTTPException(status_code=500, detail=f"Extraction failed: {str(e)}")
 
-    filtered_files = filter_codebase(repo_path)
-    analysis = analyze_codebase(filtered_files)
-    duration = time.perf_counter() - t_start
-    total_files_found = sum(len(files) for _, _, files in os.walk(repo_path))
+    try:
+        filtered_files = filter_codebase(repo_path)
+        analysis = analyze_codebase(filtered_files)
+        duration = time.perf_counter() - t_start
+        total_files_found = sum(len(files) for _, _, files in os.walk(repo_path))
 
-    collector.record_ingestion(
-        source_type="zip",
-        total_files_found=total_files_found,
-        files_after_filter=len(filtered_files),
-        duration_seconds=duration,
-        success=True,
-    )
-    _record_input_profile(collector, analysis.model_dump(), repo_path)
+        collector.record_ingestion(
+            source_type="zip",
+            total_files_found=total_files_found,
+            files_after_filter=len(filtered_files),
+            duration_seconds=duration,
+            success=True,
+        )
+        _record_input_profile(collector, analysis.model_dump(), repo_path)
 
-    tech_stack = detect_tech_stack(filtered_files)
-    tech_comparison = build_tech_stack_comparison(
-        detected=tech_stack,
-        actual={},
-    )
-    collector.record_tech_stack(
-        detected_stack=tech_stack,
-        actual_stack=tech_comparison["actual"],
-        correct_matches=tech_comparison["correct_matches"],
-        missed_items=tech_comparison["missed_items"],
-        false_positives=tech_comparison["false_positives"],
-        accuracy_score=tech_comparison["accuracy_score"],
-    )
+        collector.record_tech_stack(
+            detected_stack=analysis.detected_stack,
+            actual_stack=analysis.actual_stack,
+            correct_matches=analysis.correct_matches,
+            missed_items=analysis.missed_items,
+            false_positives=analysis.false_positives,
+            accuracy_score=analysis.tech_stack_accuracy_score,
+        )
+    except Exception as e:
+        collector.record_error(
+            stage="ingestion",
+            message=str(e),
+            error_type="ingestion" if "filter" in str(e).lower() or "find" in str(e).lower() else "parsing",
+            exception_type=type(e).__name__,
+        )
+        collector.record_ingestion("zip", 0, 0, time.perf_counter() - t_start, False)
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
     set_project(project_id, {
         "metadata": {

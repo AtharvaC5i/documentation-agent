@@ -254,6 +254,134 @@ function card(slide, x, y, w, h, label, value) {
     });
 }
 
+function field(item, key, fallback = "") {
+  if (item && typeof item === "object") return sanitize(item[key] || fallback);
+  return key === "description" ? sanitize(item) : "";
+}
+
+function addBodyText(slide, text, x, y, w, h, opts = {}) {
+  slide.addText(sanitize(text), {
+    x, y, w, h,
+    fontSize: opts.fontSize || 10.5,
+    bold: !!opts.bold,
+    color: opts.color || C.textDark,
+    fontFace: FONT_BODY,
+    align: opts.align || "left",
+    valign: opts.valign || "top",
+    margin: 0,
+    breakLine: false,
+    wrap: true,
+  });
+}
+
+function addLayoutSubtitle(slide, subtitle) {
+  if (!subtitle) return 0;
+  R(slide, 0.18, BODY_Y, W - 0.36, 0.42, {
+    fill: { color: C.purpleFaint }, line: { color: C.border, width: 0.5 },
+  });
+  addBodyText(slide, subtitle, 0.34, BODY_Y + 0.08, W - 0.68, 0.24, {
+    fontSize: 10.5, bold: true, color: C.text, align: "center", valign: "middle",
+  });
+  return 0.56;
+}
+
+function renderLlmLayout(slide, cs) {
+  const layout = sanitize(cs.layout).toLowerCase();
+  const items = Array.isArray(cs.content) ? cs.content.slice(0, 5) : [];
+  if (!items.length) return false;
+
+  const subtitleOffset = addLayoutSubtitle(slide, cs.subtitle);
+  const y = BODY_Y + subtitleOffset;
+  const h = BODY_H - subtitleOffset;
+
+  if (layout === "timeline" || layout === "flow") {
+    const count = Math.min(items.length, 5);
+    const gap = 0.12;
+    const itemW = (W - 0.36 - gap * (count - 1)) / count;
+    const lineY = y + 0.46;
+    if (count > 1) R(slide, 0.18 + itemW / 2, lineY, (itemW + gap) * (count - 1), 0.03, {
+      fill: { color: C.purpleLight }, line: { color: C.purpleLight },
+    });
+    items.slice(0, count).forEach((item, i) => {
+      const x = 0.18 + i * (itemW + gap);
+      E(slide, x + itemW / 2 - 0.14, lineY - 0.13, 0.28, 0.28, {
+        fill: { color: C.purple }, line: { color: C.white, width: 1 },
+      });
+      addBodyText(slide, String(i + 1), x + itemW / 2 - 0.08, lineY - 0.075, 0.16, 0.12, {
+        fontSize: 8, bold: true, color: C.white, align: "center", valign: "middle",
+      });
+      const label = layout === "timeline" ? field(item, "phase", `Phase ${i + 1}`) : field(item, "step", `Step ${i + 1}`);
+      const meta = layout === "timeline" ? field(item, "duration") : "";
+      const cardY = y + 0.72;
+      const cardH = Math.max(1.5, h - 0.78);
+      R(slide, x, cardY, itemW, cardH, { fill: { color: C.white }, line: { color: C.border, width: 0.75 } });
+      R(slide, x, cardY, itemW, 0.05, { fill: { color: C.purple }, line: { color: C.purple } });
+      addBodyText(slide, label.toUpperCase(), x + 0.14, cardY + 0.12, itemW - 0.28, 0.16, {
+        fontSize: 7.5, bold: true, color: C.purple,
+      });
+      if (meta) addBodyText(slide, meta, x + 0.14, cardY + 0.36, itemW - 0.28, 0.16, {
+        fontSize: 8.5, bold: true, color: C.purple,
+      });
+      addBodyText(slide, field(item, "description"), x + 0.14, cardY + (meta ? 0.62 : 0.4), itemW - 0.28, cardH - (meta ? 0.74 : 0.52), {
+        fontSize: 11,
+      });
+    });
+    return true;
+  }
+
+  if (layout === "comparison") {
+    const leftX = 0.18, colW = (W - 0.54) / 2, rightX = leftX + colW + 0.18;
+    [
+      [leftX, cs.left_label || "Current State", C.textMuted],
+      [rightX, cs.right_label || "Target State", C.purple],
+    ].forEach(([x, label, color]) => {
+      R(slide, x, y, colW, 0.4, { fill: { color }, line: { color } });
+      addBodyText(slide, label, x + 0.1, y + 0.09, colW - 0.2, 0.18, {
+        fontSize: 10, bold: true, color: C.white, align: "center", valign: "middle",
+      });
+    });
+    const rowH = Math.min(0.72, (h - 0.52) / items.length);
+    items.forEach((item, i) => {
+      const rowY = y + 0.5 + i * rowH;
+      const dimension = field(item, "dimension", `Comparison ${i + 1}`);
+      R(slide, leftX, rowY, colW, rowH - 0.05, { fill: { color: i % 2 ? C.purpleFaint : C.white }, line: { color: C.border, width: 0.5 } });
+      R(slide, rightX, rowY, colW, rowH - 0.05, { fill: { color: i % 2 ? "F7F5FF" : C.white }, line: { color: C.border, width: 0.5 } });
+      addBodyText(slide, dimension, leftX + 0.1, rowY + 0.05, colW - 0.2, 0.14, { fontSize: 7.5, bold: true, color: C.purple });
+      addBodyText(slide, field(item, "left"), leftX + 0.1, rowY + 0.22, colW - 0.2, rowH - 0.28, { fontSize: 9.5 });
+      addBodyText(slide, field(item, "right"), rightX + 0.1, rowY + 0.12, colW - 0.2, rowH - 0.18, { fontSize: 9.5 });
+    });
+    return true;
+  }
+
+  const count = Math.min(items.length, layout === "metrics" || layout === "financials" ? 4 : 5);
+  const perRow = count <= 3 ? count : 3;
+  const rows = Math.ceil(count / perRow);
+  const gap = 0.14;
+  const cardW = (W - 0.36 - gap * (perRow - 1)) / perRow;
+  const cardH = (h - gap * (rows - 1)) / rows;
+  items.slice(0, count).forEach((item, i) => {
+    const x = 0.18 + (i % perRow) * (cardW + gap);
+    const cardY = y + Math.floor(i / perRow) * (cardH + gap);
+    let label = field(item, "title") || field(item, "name") || field(item, "label") || `Insight ${i + 1}`;
+    let value = field(item, "description") || field(item, "responsibility") || field(item, "note");
+    if (layout === "metrics" || layout === "financials") {
+      R(slide, x, cardY, cardW, cardH, { fill: { color: C.white }, line: { color: C.border, width: 0.75 } });
+      addBodyText(slide, field(item, "value"), x + 0.14, cardY + 0.14, cardW - 0.28, 0.34, { fontSize: 19, bold: true, color: C.purple, align: "center", valign: "middle" });
+      addBodyText(slide, label.toUpperCase(), x + 0.14, cardY + 0.55, cardW - 0.28, 0.18, { fontSize: 7.5, bold: true, color: C.textMuted, align: "center", valign: "middle" });
+      addBodyText(slide, value, x + 0.14, cardY + 0.82, cardW - 0.28, Math.max(0.3, cardH - 0.94), { fontSize: 9.5, align: "center" });
+    } else if (layout === "people") {
+      R(slide, x, cardY, cardW, cardH, { fill: { color: C.white }, line: { color: C.border, width: 0.75 } });
+      R(slide, x, cardY, cardW, 0.05, { fill: { color: C.purple }, line: { color: C.purple } });
+      addBodyText(slide, field(item, "role").toUpperCase(), x + 0.14, cardY + 0.12, cardW - 0.28, 0.16, { fontSize: 7.5, bold: true, color: C.purple });
+      addBodyText(slide, label, x + 0.14, cardY + 0.38, cardW - 0.28, 0.24, { fontSize: 12, bold: true, color: C.text });
+      addBodyText(slide, field(item, "responsibility"), x + 0.14, cardY + 0.76, cardW - 0.28, Math.max(0.3, cardH - 0.9), { fontSize: 10.5 });
+    } else {
+      card(slide, x, cardY, cardW, cardH, label, value);
+    }
+  });
+  return true;
+}
+
 function addCustomSlide(pres, cs, DATA, ctx = {}) {
   if (!cs || !cs.title) {
     log(`[custom-slide] skipped — missing title`);
@@ -270,6 +398,10 @@ function addCustomSlide(pres, cs, DATA, ctx = {}) {
   const items = Array.isArray(cs.items) ? cs.items : bullets;
   const columns = Array.isArray(cs.columns) ? cs.columns : null;
   const cards = Array.isArray(cs.cards) ? cs.cards : null;
+
+  // LLM-generated visual contracts take precedence; legacy types below remain
+  // supported for callers that already send their own slide structure.
+  if (type === "llm-layout" && renderLlmLayout(slide, cs)) return;
 
   // two-column
   if (type === "two-column" && columns && columns.length >= 2) {

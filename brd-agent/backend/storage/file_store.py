@@ -77,6 +77,7 @@ def _project_to_dict(project: Project) -> Dict[str, Any]:
         "document_path": project.document_path,
         "version": project.version,
         "previous_versions": project.previous_versions,
+        "clarification_questions": project.clarification_questions,
     }
 
 
@@ -97,6 +98,7 @@ def _project_from_dict(d: Dict[str, Any]) -> Project:
         document_path=d.get("document_path"),
         version=d.get("version", 1),
         previous_versions=d.get("previous_versions", []),
+        clarification_questions=d.get("clarification_questions", []),
     )
 
 

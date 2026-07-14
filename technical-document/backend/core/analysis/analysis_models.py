@@ -53,6 +53,10 @@ class AnalysisResult(BaseModel):
     discovered_classes: int = 0
     discovered_functions: int = 0
 
+    discovered_api_list: List[str] = Field(default_factory=list)
+    discovered_class_list: List[str] = Field(default_factory=list)
+    discovered_function_list: List[str] = Field(default_factory=list)
+
     documented_apis: int = 0
     documented_classes: int = 0
     documented_functions: int = 0

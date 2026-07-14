@@ -14,7 +14,7 @@ try:
 except ImportError:
     _PSUTIL_AVAILABLE = False
 
-METRICS_DIR = "D://documentation_agent_metrics_json//technical-agent//"
+METRICS_DIR = os.getenv("METRICS_DIR", "D://documentation_agent_metrics_json//technical-agent//")
 
 CONTROLLED_STATUS_VALUES = {"running", "success", "failure", "partial_success"}
 CONTROLLED_STAGES = {
@@ -44,8 +44,8 @@ CONTROLLED_ERROR_CATEGORIES = {
 CONTROLLED_REVIEW_SOURCES = {"manual", "automated", "mixed", "not_reviewed"}
 CONTROLLED_ACCEPTANCE_FLAGS = {"accepted", "minor_edits", "major_rework", "not_reviewed"}
 
-_COST_PER_1K_PROMPT_TOKENS = 0.0010
-_COST_PER_1K_COMPLETION_TOKENS = 0.0020
+_COST_PER_1K_PROMPT_TOKENS = 0.0030
+_COST_PER_1K_COMPLETION_TOKENS = 0.0150
 
 ERROR_CATEGORIES = {
     "api": ["api", "http", "request", "connection", "network", "client"],
@@ -286,15 +286,15 @@ class MetricsCollector:
     ):
         detected_stack = detected_stack or {}
         actual_stack = actual_stack or {}
-        correct_matches = correct_matches if correct_matches is not None else []
-        missed_items = missed_items if missed_items is not None else []
-        false_positives = false_positives if false_positives is not None else []
-        if accuracy_score is None:
-            actual_count = len(actual_stack) if actual_stack else 0
-            denom = max(len(correct_matches) + len(missed_items) + len(false_positives), 1)
-            accuracy_score = round(len(correct_matches) / denom, 3)
-            if actual_count == 0 and detected_stack:
-                accuracy_score = 0.85
+
+        if correct_matches is None or missed_items is None or false_positives is None or accuracy_score is None:
+            from core.analysis.tech_stack_detector import build_tech_stack_comparison
+            comp = build_tech_stack_comparison(detected_stack, actual_stack)
+            correct_matches = comp.get("correct_matches", [])
+            missed_items = comp.get("missed_items", [])
+            false_positives = comp.get("false_positives", [])
+            accuracy_score = comp.get("accuracy_score", 0.0)
+
         self._tech_stack = {
             "detected": detected_stack,
             "actual": actual_stack,
@@ -466,13 +466,22 @@ class MetricsCollector:
             raise ValueError("Invalid end-to-end duration")
         if payload["status"] == "failure" and not payload.get("error_stage"):
             raise ValueError("Failed runs must include error_stage")
-        if payload["llm_usage"]["total_tokens"] != payload["llm_usage"]["total_prompt_tokens"] + payload["llm_usage"]["total_completion_tokens"]:
+        
+        llm = payload.get("llm_usage") or {}
+        if llm and llm.get("total_tokens") != (llm.get("total_prompt_tokens", 0) + llm.get("total_completion_tokens", 0)):
             raise ValueError("Token totals mismatch")
-        if payload["generation"]["sections_attempted"] != payload["generation"]["sections_succeeded"] + payload["generation"]["sections_failed"]:
-            raise ValueError("Section totals mismatch")
-        if payload["assembly"]["output_size_bytes"] and abs(payload["assembly"]["output_size_kb"] - round(payload["assembly"]["output_size_bytes"] / 1024, 1)) > 0.1:
-            raise ValueError("Output size mismatch")
-        if payload["status"] == "failure" and not payload["errors"]["errors"]:
+            
+        gen = payload.get("generation") or {}
+        if gen and "sections_attempted" in gen:
+            if gen.get("sections_attempted") != (gen.get("sections_succeeded", 0) + gen.get("sections_failed", 0)):
+                raise ValueError("Section totals mismatch")
+                
+        assembly = payload.get("assembly") or {}
+        if assembly and assembly.get("output_size_bytes"):
+            if abs(assembly.get("output_size_kb", 0.0) - round(assembly.get("output_size_bytes", 0) / 1024, 1)) > 0.1:
+                raise ValueError("Output size mismatch")
+                
+        if payload["status"] == "failure" and not payload.get("errors", {}).get("errors"):
             raise ValueError("Failed runs must include error records")
 
     def save(self, status: str = "success") -> str:
@@ -547,12 +556,20 @@ class MetricsCollector:
 
         self._validate_payload(payload)
 
-        os.makedirs(METRICS_DIR, exist_ok=True)
         ts = self._start_time.strftime("%Y%m%d_%H%M%S")
         filename = f"technical_agent_run_{self.project_id}_{ts}.json"
-        filepath = os.path.join(METRICS_DIR, filename)
 
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2)
+        try:
+            os.makedirs(METRICS_DIR, exist_ok=True)
+            filepath = os.path.join(METRICS_DIR, filename)
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2)
+        except Exception as e:
+            # Fallback to local metrics folder in the workspace
+            local_metrics_dir = os.path.join(os.path.dirname(__file__), "..", "metrics")
+            os.makedirs(local_metrics_dir, exist_ok=True)
+            filepath = os.path.join(local_metrics_dir, filename)
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2)
 
         return filepath

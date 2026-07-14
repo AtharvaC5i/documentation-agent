@@ -59,6 +59,9 @@ class Project(BaseModel):
     # Output
     document_path: Optional[str] = None
 
+    # Clarification questions for user
+    clarification_questions: List[Dict[str, Any]] = []
+
     # Living BRD versioning
     version: int = 1
     previous_versions: List[Dict[str, Any]] = []

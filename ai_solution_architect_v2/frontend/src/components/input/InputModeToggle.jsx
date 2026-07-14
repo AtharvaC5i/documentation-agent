@@ -39,10 +39,9 @@ export default function InputModeToggle() {
               className={`
                 relative flex items-center gap-3 px-5 py-3 rounded-[10px]
                 transition-all duration-200 select-none group
-                ${
-                  isActive
-                    ? "bg-white shadow-[0_1px_8px_rgba(124,92,191,0.18)] border border-brand-border"
-                    : "hover:bg-white/50 border border-transparent"
+                ${isActive
+                  ? "bg-white shadow-[0_1px_8px_rgba(124,92,191,0.18)] border border-brand-border"
+                  : "hover:bg-white/50 border border-transparent"
                 }
               `}
             >
@@ -51,10 +50,9 @@ export default function InputModeToggle() {
                 className={`
                   flex items-center justify-center w-8 h-8 rounded-[8px]
                   shrink-0 transition-all duration-200
-                  ${
-                    isActive
-                      ? "bg-gradient-to-br from-brand-navy to-brand-purple text-white shadow-purple"
-                      : "bg-[#DDD4F5] text-brand-muted group-hover:bg-[#CEC3EF] group-hover:text-brand-navy"
+                  ${isActive
+                    ? "bg-gradient-to-br from-brand-navy to-brand-purple text-white shadow-purple"
+                    : "bg-[#DDD4F5] text-brand-muted group-hover:bg-[#CEC3EF] group-hover:text-brand-navy"
                   }
                 `}
               >

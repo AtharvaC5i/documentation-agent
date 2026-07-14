@@ -60,19 +60,23 @@ select {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #f7f5ff;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #d4cbf0;
   border-radius: 999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #9b93cc;
 }
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -90,14 +94,17 @@ textarea {
 
 /* ── Pulse animation for generating hint text ── */
 @keyframes pulse-text {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
 }
+
 .animate-pulse-text {
   animation: pulse-text 2s ease-in-out infinite;
 }

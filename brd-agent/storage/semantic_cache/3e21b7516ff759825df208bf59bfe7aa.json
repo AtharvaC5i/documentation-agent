@@ -1,0 +1,6 @@
+{
+  "hash": "3e21b7516ff759825df208bf59bfe7aa",
+  "system_prompt": "You are a professional requirements critic.",
+  "user_prompt": "Review this requirement: 'System must respond in 50ms'.",
+  "response": "{'valid': true, 'notes': 'Exceeds SLA requirements.'}"
+}

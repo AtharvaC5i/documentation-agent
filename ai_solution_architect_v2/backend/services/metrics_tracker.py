@@ -49,6 +49,7 @@ class MetricsTracker:
         self.metrics = GenerationMetricsModel(run_id=self.run_id)
         self._phase_timers: Dict[str, float] = {}
         self._phase_start_times: Dict[str, float] = {}
+        self.active_phase: Optional[str] = None
     
     @contextmanager
     def phase(self, phase_name: str):
@@ -61,6 +62,7 @@ class MetricsTracker:
         """
         start_time = time.time()
         self._phase_start_times[phase_name] = start_time
+        self.active_phase = phase_name
         
         try:
             yield
@@ -68,11 +70,20 @@ class MetricsTracker:
             duration = time.time() - start_time
             self._phase_timers[phase_name] = duration
             print(f"[Metrics] {phase_name}: {duration:.2f}s")
+            if getattr(self, "active_phase", None) == phase_name:
+                self.active_phase = None
         except Exception as e:
             # Phase failed
             duration = time.time() - start_time
             self._phase_timers[phase_name] = duration
             print(f"[Metrics] {phase_name}: FAILED after {duration:.2f}s")
+            # Classify and record error immediately
+            try:
+                import traceback
+                stage, category = classify_error(e, context=phase_name)
+                self.set_error(stage, category, str(e), traceback.format_exc())
+            except Exception as classify_err:
+                print(f"[Metrics] Warning: failed to record phase error details: {classify_err}")
             # Don't suppress the exception — let caller handle it
             raise
     
@@ -100,6 +111,28 @@ class MetricsTracker:
             self.metrics.token_usage_core = token_model
         elif phase == "diagram" or phase == "diagram_generation":
             self.metrics.token_usage_diagram = token_model
+            
+    def add_token_usage(self, phase: str, usage: Optional[Dict[str, int]]) -> None:
+        """
+        Add LLM token consumption to an existing phase.
+        """
+        if not usage:
+            return
+        
+        prompt_tokens = usage.get("prompt_tokens", 0)
+        completion_tokens = usage.get("completion_tokens", 0)
+        
+        if phase == "summarization":
+            target = self.metrics.token_usage_summarization
+        elif phase == "core" or phase == "core_generation":
+            target = self.metrics.token_usage_core
+        elif phase == "diagram" or phase == "diagram_generation":
+            target = self.metrics.token_usage_diagram
+        else:
+            return
+            
+        target.prompt_tokens += prompt_tokens
+        target.completion_tokens += completion_tokens
     
     def set_error(
         self,
@@ -223,7 +256,11 @@ class MetricsTracker:
                 
                 # Check slides
                 slide_files = [f for f in pptx_zip.namelist() if f.startswith('ppt/slides/slide') and f.endswith('.xml')]
-                validation.all_slides_present = len(slide_files) > 0
+                expected_slides = self.metrics.slide_metrics.successful
+                if expected_slides > 0:
+                    validation.all_slides_present = len(slide_files) == expected_slides
+                else:
+                    validation.all_slides_present = len(slide_files) > 0
                 
                 # Check media
                 media_files = [f for f in pptx_zip.namelist() if f.startswith('ppt/media/')]
@@ -384,46 +421,66 @@ def classify_error(error: Exception, context: str = "") -> tuple[ErrorStageEnum,
     """
     error_str = str(error).lower()
     error_type = type(error).__name__.lower()
+    context_str = str(context).lower()
     
     # Determine stage from context
     stage = ErrorStageEnum.UNKNOWN
-    if "summariz" in context:
+    if "summariz" in context_str:
         stage = ErrorStageEnum.SUMMARIZATION
-    elif "core" in context:
+    elif "core" in context_str:
         stage = ErrorStageEnum.CORE_GENERATION
-    elif "diagram" in context:
-        if "render" in context or "draw" in context or "image" in context:
-            stage = ErrorStageEnum.DIAGRAM_RENDERING
-        elif "build" in context or "struct" in context:
-            stage = ErrorStageEnum.DIAGRAM_BUILDING
-        else:
-            stage = ErrorStageEnum.DIAGRAM_GENERATION
-    elif "pptx" in context:
-        if "assem" in context or "merge" in context:
-            stage = ErrorStageEnum.PPTX_ASSEMBLY
-        else:
-            stage = ErrorStageEnum.PPTX_GENERATION
-    elif "valid" in context:
+    elif "diagram_generation" in context_str or "diagram-gen" in context_str:
+        stage = ErrorStageEnum.DIAGRAM_GENERATION
+    elif "diagram_building" in context_str:
+        stage = ErrorStageEnum.DIAGRAM_BUILDING
+    elif "diagram_rendering" in context_str or "rendering" in context_str or "drawio" in context_str:
+        stage = ErrorStageEnum.DIAGRAM_RENDERING
+    elif "pptx_generation" in context_str:
+        stage = ErrorStageEnum.PPTX_GENERATION
+    elif "pptx_assembly" in context_str or "merge" in context_str:
+        stage = ErrorStageEnum.PPTX_ASSEMBLY
+    elif "validation" in context_str or "valid" in context_str:
         stage = ErrorStageEnum.VALIDATION
+    else:
+        # Check substrings in error message or exception class as fallback
+        if "summarize" in error_str:
+            stage = ErrorStageEnum.SUMMARIZATION
+        elif "core" in error_str or "orchestrator" in error_str:
+            stage = ErrorStageEnum.CORE_GENERATION
+        elif "diagram" in error_str or "drawio" in error_str:
+            if "puppeteer" in error_str or "browser" in error_str or "render" in error_str:
+                stage = ErrorStageEnum.DIAGRAM_RENDERING
+            else:
+                stage = ErrorStageEnum.DIAGRAM_GENERATION
+        elif "pptx" in error_str:
+            if "merge" in error_str or "zip" in error_str or "content_types" in error_str:
+                stage = ErrorStageEnum.PPTX_ASSEMBLY
+            else:
+                stage = ErrorStageEnum.PPTX_GENERATION
+        elif "validation" in error_str:
+            stage = ErrorStageEnum.VALIDATION
     
     # Determine category from error characteristics
     category = ErrorCategoryEnum.UNKNOWN_ERROR
     
-    if "timeout" in error_str or "timed out" in error_str:
+    if "timeout" in error_str or "timed out" in error_str or isinstance(error, TimeoutError):
         category = ErrorCategoryEnum.TIMEOUT_ERROR
-    elif "memory" in error_str or "out of memory" in error_str:
+    elif "memory" in error_str or "out of memory" in error_str or "oom" in error_str:
         category = ErrorCategoryEnum.MEMORY_ERROR
-    elif "api" in error_str or "network" in error_str or "connection" in error_str:
+    elif "api" in error_str or "network" in error_str or "connection" in error_str or "httpx" in error_str or "http" in error_str:
         category = ErrorCategoryEnum.API_ERROR
-    elif "diagram" in error_str or "drawio" in error_str or "component" in error_str:
-        category = ErrorCategoryEnum.DIAGRAM_ERROR
-    elif "render" in error_str or "image" in error_str or "png" in error_str:
+    elif "diagram" in error_str or "drawio" in error_str or "components" in error_str:
+        if "render" in error_str or "puppeteer" in error_str or "png" in error_str or "image" in error_str:
+            category = ErrorCategoryEnum.RENDERING_ERROR
+        else:
+            category = ErrorCategoryEnum.DIAGRAM_ERROR
+    elif "render" in error_str or "puppeteer" in error_str or "png" in error_str or "image" in error_str:
         category = ErrorCategoryEnum.RENDERING_ERROR
-    elif "pptx" in error_str or "assembly" in error_str or "merge" in error_str or "zip" in error_str:
+    elif "pptx" in error_str or "assembly" in error_str or "merge" in error_str or "zip" in error_str or "xml" in error_str:
         category = ErrorCategoryEnum.ASSEMBLY_ERROR
-    elif "module" in error_type or "import" in error_str or "not found" in error_str:
+    elif "module" in error_type or "import" in error_str or "not found" in error_str or "node" in error_str:
         category = ErrorCategoryEnum.DEPENDENCY_ERROR
-    elif "validation" in context or "invalid" in error_str:
+    elif "validation" in error_str or "invalid" in error_str:
         category = ErrorCategoryEnum.VALIDATION_ERROR
     
     return stage, category

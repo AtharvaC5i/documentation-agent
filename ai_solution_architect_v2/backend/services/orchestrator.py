@@ -9,6 +9,9 @@ orchestrator.py
 """
 
 import json
+import re
+from contextlib import nullcontext
+from typing import Optional, Any, List, Dict
 from models.request_models import GenerateRequest
 from models.response_models import (
     GenerateResponse,
@@ -31,65 +34,162 @@ from agents.prompt_builder import (
 )
 
 
+def auto_fix_diagram_json(diagram_json: dict) -> dict:
+    """
+    Validates and auto-fixes the diagram JSON:
+    - Removes duplicate components.
+    - Validates that all connections link valid component IDs.
+    - Removes orphan connections.
+    """
+    if not isinstance(diagram_json, dict):
+        return {"components": [], "connections": []}
+        
+    components = diagram_json.get("components", [])
+    connections = diagram_json.get("connections", [])
+    
+    fixed_components = []
+    seen_ids = set()
+    
+    # 1. Deduplicate components
+    for comp in components:
+        if not isinstance(comp, dict) or "id" not in comp:
+            continue
+        comp_id = comp["id"]
+        if comp_id not in seen_ids:
+            seen_ids.add(comp_id)
+            fixed_components.append(comp)
+            
+    # 2. Filter connections to only those linking registered component IDs
+    fixed_connections = []
+    for conn in connections:
+        if not isinstance(conn, dict) or "from" not in conn or "to" not in conn:
+            continue
+        if conn["from"] in seen_ids and conn["to"] in seen_ids:
+            fixed_connections.append(conn)
+        else:
+            print(f"⚠️ [Diagram Auto-Fix] Removing orphan connection: {conn['from']} -> {conn['to']}")
+            
+    return {
+        "components": fixed_components,
+        "connections": fixed_connections
+    }
+
+
 class OrchestratorService:
     def __init__(self):
         self.client = DatabricksClient()
 
-    async def run(self, request: GenerateRequest) -> GenerateResponse:
-        # ← NEW: Track token usage across all LLM calls
+    async def run(self, request: GenerateRequest, tracker: Optional[Any] = None) -> GenerateResponse:
+        # Track token usage across all LLM calls
         token_usage = {
             "summarization": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+            "fact_sheet": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
             "core_generation": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+            "architecture_review": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
             "diagram_generation": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
         }
 
         # ── STEP 0: Summarise tech doc ──────────────────────────
         tech_summary = []
         if request.tech_doc_text and request.tech_doc_text.strip():
-            summary_result = await self.client.invoke(
-                SUMMARIZE_PROMPT,
-                request.tech_doc_text[:8000],
-            )
+            summarize_ctx = tracker.phase("summarization") if tracker else nullcontext()
+            with summarize_ctx:
+                summary_result = await self.client.invoke(
+                    SUMMARIZE_PROMPT,
+                    request.tech_doc_text[:8000],
+                )
             tech_summary = summary_result.get("summary", [])
-            # ← NEW: Capture token usage from summarization
             token_usage["summarization"] = self.client.get_last_usage()
             print(f"[Orchestrator] Summarization tokens: {token_usage['summarization']}")
 
+        # ── OPTIMIZATION: Fact-Sheet Context Compression ────────
+        # Unified summarization of inputs to prevent token duplication in Stage 1 & 2
+        fact_sheet_prompt = """You are a senior systems architect compiling a dense Architectural Fact Sheet from project documents.
+Compile:
+1. Core Business Goals (exactly 5 specific items)
+2. Primary User Personas & Entry Points
+3. Identified Pain Points & Constraints (exactly 5 specific items)
+4. Key Technology Stack preferences (Frontend, Backend, DB)
+5. Critical Security & Performance NFRs
+
+Return ONLY valid JSON with these fields. No explanations."""
+        
+        input_docs = f"BRD:\n{request.brd_text[:3500]}\n\nTECH SUMMARY:\n{json.dumps(tech_summary)}"
+        
+        fact_sheet_ctx = tracker.phase("fact_sheet") if tracker else nullcontext()
+        with fact_sheet_ctx:
+            fact_sheet_json = await self.client.invoke(fact_sheet_prompt, input_docs)
+        token_usage["fact_sheet"] = self.client.get_last_usage()
+        fact_sheet = json.dumps(fact_sheet_json)
+        print(f"[Orchestrator] Fact Sheet generated. Tokens: {token_usage['fact_sheet']}")
+
         # ── STEP 1: Core architecture ───────────────────────────
-        core_input = (
-            f"BRD:\n{request.brd_text[:3500]}\n\n"
-            f"TECH SUMMARY:\n{json.dumps(tech_summary)}"
-        )
-        core = await self.client.invoke(CORE_PROMPT, core_input)
+        core_input = f"ARCHITECTURAL FACT SHEET:\n{fact_sheet}"
+        
+        core_ctx = tracker.phase("core_generation") if tracker else nullcontext()
+        with core_ctx:
+            core = await self.client.invoke(CORE_PROMPT, core_input)
+            
         if not isinstance(core, dict):
             raise ValueError(f"Invalid core response type: {type(core)}")
-        # ← NEW: Capture token usage from core generation
         token_usage["core_generation"] = self.client.get_last_usage()
         print(f"[Orchestrator] Core generation tokens: {token_usage['core_generation']}")
 
+        # ── STEP 1.5: Architect-Reviewer Reflection Loop ────────
+        reviewer_system_prompt = """You are an Architecture Review Board critic.
+Review the proposed core architecture design JSON.
+Check for:
+1. Tech conflicts (e.g. backend doesn't support the data-flow requirements).
+2. Missing NFR considerations (e.g. scalability requested but single point of failure found).
+3. Missing components or goals compared to the fact sheet.
+
+Provide corrective edits in a structured JSON schema:
+{
+  "gaps_found": true,
+  "criticism": "detailed evaluation summary",
+  "corrections": {
+     "architecture": { ... corrected fields ... },
+     "technology_stack": { ... corrected stack layers ... }
+  }
+}
+Return valid JSON only."""
+        
+        reviewer_user_prompt = f"Fact Sheet:\n{fact_sheet}\n\nDraft Core Design:\n{json.dumps(core)}"
+        
+        review_ctx = tracker.phase("architecture_review") if tracker else nullcontext()
+        with review_ctx:
+            try:
+                review_res = await self.client.invoke(reviewer_system_prompt, reviewer_user_prompt)
+                token_usage["architecture_review"] = self.client.get_last_usage()
+                if isinstance(review_res, dict) and review_res.get("gaps_found"):
+                    corrections = review_res.get("corrections", {})
+                    print(f"[Orchestrator] ARB Critic found gaps: {review_res.get('criticism')}")
+                    if "architecture" in corrections and corrections["architecture"]:
+                        core.setdefault("architecture", {}).update(corrections["architecture"])
+                    if "technology_stack" in corrections and corrections["technology_stack"]:
+                        core.setdefault("technology_stack", {}).update(corrections["technology_stack"])
+            except Exception as rev_err:
+                print(f"[Orchestrator] Warning: ARB Critic loop failed: {rev_err} — continuing")
+
         # ── STEP 2: Structured diagram JSON ────────────────────
-        # Pass only the architecture sub-section to keep the prompt focused.
-        # The LLM returns { components: [...], connections: [...] } which is
-        # merged into architecture and later consumed by drawioGenerator.js.
         arch_subset = {
             "project":           core.get("project", {}),
             "architecture":      core.get("architecture", {}),
             "technology_stack":  core.get("technology_stack", {}),
             "data_flow":         core.get("data_flow", []),
         }
-        diagram_json = await self.client.invoke(
-            DIAGRAM_PROMPT,
-            json.dumps(arch_subset),
-        )
-        # ← NEW: Capture token usage from diagram generation
+        diagram_ctx = tracker.phase("diagram_generation") if tracker else nullcontext()
+        with diagram_ctx:
+            diagram_json = await self.client.invoke(
+                DIAGRAM_PROMPT,
+                json.dumps(arch_subset),
+            )
         token_usage["diagram_generation"] = self.client.get_last_usage()
         print(f"[Orchestrator] Diagram generation tokens: {token_usage['diagram_generation']}")
-        print(f"[Orchestrator] TOTAL token_usage dict: {token_usage}")
 
-        # Store diagram graph under separate keys so we DON'T overwrite the rich
-        # component data (name/role/technology) from the core step.
-        # generate.py will pass raw_architecture to JS which reads diagram_components/diagram_connections.
+        # ── STEP 2.5: Diagram Auto-Fix Loop ─────────────────────
         if isinstance(diagram_json, dict):
+            diagram_json = auto_fix_diagram_json(diagram_json)
             arch = core.setdefault("architecture", {})
             
             # If we got diagram components from the LLM, enrich them with technology from core
@@ -97,7 +197,6 @@ class OrchestratorService:
                 diagram_comps = diagram_json["components"]
                 core_comps = arch.get("components", [])
                 
-                # Build a map of core components by label for enrichment
                 core_by_label = {}
                 for cc in core_comps:
                     if isinstance(cc, dict):
@@ -105,12 +204,10 @@ class OrchestratorService:
                         if label:
                             core_by_label[label.lower()] = cc
                 
-                # Enrich diagram components with technology
                 for dc in diagram_comps:
                     if isinstance(dc, dict) and "technology" not in dc:
                         label = dc.get("label", "")
                         if label:
-                            # Try exact match first, then partial match
                             match = core_by_label.get(label.lower())
                             if match:
                                 dc["technology"] = match.get("technology", "")
@@ -120,14 +217,12 @@ class OrchestratorService:
             if "connections" in diagram_json and diagram_json["connections"]:
                 arch["diagram_connections"] = diagram_json["connections"]
             
-            # Fallback: if core step didn't produce diagram_components, use diagram output
             if not arch.get("diagram_components"):
                 arch["diagram_components"] = arch.get("components", [])
             if not arch.get("diagram_connections"):
                 arch["diagram_connections"] = arch.get("connections", [])
 
         response = self._parse_response(core)
-        # ← NEW: Store token usage for metrics
         response.set_token_usage(token_usage)
         return response
 

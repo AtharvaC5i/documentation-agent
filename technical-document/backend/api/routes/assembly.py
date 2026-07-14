@@ -27,24 +27,51 @@ class AssembleRequest(BaseModel):
     sections: List[SectionItem]
 
 
-def _scan_code_examples(sections: List[Dict[str, Any]]) -> Dict[str, int]:
+def _scan_code_examples(sections: List[Dict[str, Any]]) -> Dict[str, Any]:
+    import ast
+    import json
     total_examples = 0
     valid_examples = 0
+    errors = []
 
     for sec in sections:
+        sec_name = sec.get("name", "Unknown Section")
         content = sec.get("content", "") or ""
-        fenced_blocks = re.findall(r"```[\s\S]*?```", content)
-        total_examples += len(fenced_blocks)
-        valid_examples += sum(1 for block in fenced_blocks if len(block.strip("`\n ")) > 0)
+        blocks = re.findall(r"```(\w*)\n([\s\S]*?)```", content)
+        for lang, code in blocks:
+            total_examples += 1
+            lang_clean = lang.strip().lower()
+            err = None
+            if lang_clean in ("python", "py"):
+                try:
+                    ast.parse(code)
+                except SyntaxError as e:
+                    err = f"Python SyntaxError: {e.msg} on line {e.lineno}"
+            elif lang_clean in ("json",):
+                try:
+                    json.loads(code)
+                except json.JSONDecodeError as e:
+                    err = f"JSONDecodeError: {e.msg} at pos {e.pos}"
+            
+            if err:
+                errors.append({
+                    "section": sec_name,
+                    "language": lang,
+                    "error": err,
+                    "snippet_preview": code[:100] + "..." if len(code) > 100 else code
+                })
+            else:
+                valid_examples += 1
 
     invalid_examples = max(total_examples - valid_examples, 0)
-    validity_score = round((valid_examples / total_examples * 100) if total_examples > 0 else 0.0, 1)
+    validity_score = round((valid_examples / total_examples * 100) if total_examples > 0 else 100.0, 1)
 
     return {
         "total_examples": total_examples,
         "valid_examples": valid_examples,
         "invalid_examples": invalid_examples,
         "validity_score": validity_score,
+        "errors": errors,
     }
 
 
@@ -121,7 +148,8 @@ async def assemble_document(project_id: str, req: AssembleRequest):
         total_examples=code_example_stats["total_examples"],
         valid_examples=code_example_stats["valid_examples"],
         invalid_examples=code_example_stats["invalid_examples"],
-        validation_method="fenced_block_presence",
+        validation_method="syntax_and_lint",
+        errors=code_example_stats["errors"],
     )
 
     update_project(project_id, "assembled_file_path", result["file_path"])

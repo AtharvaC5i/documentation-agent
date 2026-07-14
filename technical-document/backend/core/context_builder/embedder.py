@@ -1,5 +1,4 @@
-from typing import List
-from sentence_transformers import SentenceTransformer
+from typing import List, Any
 import os
 
 
@@ -7,12 +6,13 @@ import os
 _MODEL_NAME = "all-MiniLM-L6-v2"
 _LOCAL_MODELS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "models")
 _MODEL_PATH = os.path.join(_LOCAL_MODELS_DIR, _MODEL_NAME)
-_model: SentenceTransformer = None
+_model = None
 
 
-def _get_model() -> SentenceTransformer:
+def _get_model():
     global _model
     if _model is None:
+        from sentence_transformers import SentenceTransformer
         _model = SentenceTransformer(_MODEL_PATH)
     return _model
 

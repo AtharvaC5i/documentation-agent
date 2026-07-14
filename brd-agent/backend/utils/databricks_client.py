@@ -59,6 +59,14 @@ async def call_databricks_llm(
     if json_mode:
         system_prompt += "\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no explanation, no code fences."
 
+    from utils.semantic_cache import get_cache, set_cache
+    cached_response = get_cache(system_prompt, user_prompt)
+    if cached_response is not None:
+        if _metrics_collector is not None:
+            # Cache hit consumes 0 tokens
+            _metrics_collector.record_llm_call(_metrics_stage, 0, 0)
+        return cached_response
+
     payload = {
         "messages": [
             {"role": "system", "content": system_prompt},
@@ -79,6 +87,14 @@ async def call_databricks_llm(
 
         data = response.json()
 
+        # Handle both OpenAI-compatible and Databricks native response formats
+        if "choices" in data:
+            content = data["choices"][0]["message"]["content"].strip()
+        elif "predictions" in data:
+            content = data["predictions"][0].strip()
+        else:
+            raise Exception(f"Unexpected response format: {data}")
+
         # Record token usage from the API response when a collector is provided.
         # The OpenAI-compatible endpoint returns a "usage" object; fall back to
         # character-based estimation when the field is absent.
@@ -89,18 +105,13 @@ async def call_databricks_llm(
             # Estimation fallback: ~4 chars per token
             if prompt_tokens == 0 and completion_tokens == 0:
                 prompt_tokens     = (len(system_prompt) + len(user_prompt)) // 4
-                completion_tokens = max_tokens // 4
+                completion_tokens = len(content) // 4
             _metrics_collector.record_llm_call(
                 _metrics_stage, prompt_tokens, completion_tokens
             )
 
-        # Handle both OpenAI-compatible and Databricks native response formats
-        if "choices" in data:
-            return data["choices"][0]["message"]["content"].strip()
-        elif "predictions" in data:
-            return data["predictions"][0].strip()
-        else:
-            raise Exception(f"Unexpected response format: {data}")
+        set_cache(system_prompt, user_prompt, content)
+        return content
 
 
 def parse_llm_json(text: str) -> dict:

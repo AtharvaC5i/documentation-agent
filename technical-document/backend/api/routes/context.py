@@ -32,35 +32,43 @@ def build_context(request: ContextBuildRequest):
     strategy = ContextStrategy.RAPTOR if total_loc > LOC_THRESHOLD else ContextStrategy.FLAT
 
     t_start = time.perf_counter()
+    try:
+        chunks = chunk_files(filtered_files, chunk_size=500, overlap=50)
+        raptor_nodes = 0
+        if strategy == ContextStrategy.RAPTOR:
+            chunks = build_raptor_tree(chunks, project_id=request.project_id)
+            raptor_nodes = max(0, len(chunks) - len(filtered_files))
 
-    chunks = chunk_files(filtered_files, chunk_size=500, overlap=50)
-    raptor_nodes = 0
-    if strategy == ContextStrategy.RAPTOR:
-        chunks = build_raptor_tree(chunks, project_id=request.project_id)
-        raptor_nodes = max(0, len(chunks) - len(filtered_files))
+        embedded_chunks = embed_chunks(chunks)
+        store_chunks(embedded_chunks, project_id=request.project_id)
 
-    embedded_chunks = embed_chunks(chunks)
-    store_chunks(embedded_chunks, project_id=request.project_id)
+        embedding_duration = time.perf_counter() - t_start
 
-    embedding_duration = time.perf_counter() - t_start
+        chroma_path = os.path.join(CHROMA_DIR, request.project_id)
+        db_size_mb = round(
+            sum(
+                os.path.getsize(os.path.join(dp, f))
+                for dp, _, filenames in os.walk(chroma_path)
+                for f in filenames
+            ) / (1024 * 1024), 2,
+        )
 
-    chroma_path = os.path.join(CHROMA_DIR, request.project_id)
-    db_size_mb = round(
-        sum(
-            os.path.getsize(os.path.join(dp, f))
-            for dp, _, filenames in os.walk(chroma_path)
-            for f in filenames
-        ) / (1024 * 1024), 2,
-    )
-
-    collector.record_context_building(
-        total_chunks=len(chunks),
-        strategy=strategy.value,              # ← fixed: was str(strategy)
-        embedding_duration_seconds=embedding_duration,
-        vector_store_size_mb=db_size_mb,
-        raptor_summary_nodes=raptor_nodes,
-        context_building_duration_seconds=embedding_duration,
-    )
+        collector.record_context_building(
+            total_chunks=len(chunks),
+            strategy=strategy.value,
+            embedding_duration_seconds=embedding_duration,
+            vector_store_size_mb=db_size_mb,
+            raptor_summary_nodes=raptor_nodes,
+            context_building_duration_seconds=embedding_duration,
+        )
+    except Exception as e:
+        collector.record_error(
+            stage="context_building",
+            message=str(e),
+            error_type="embedding" if "embed" in str(e).lower() or "vector" in str(e).lower() else "runtime",
+            exception_type=type(e).__name__,
+        )
+        raise HTTPException(status_code=500, detail=f"Context build failed: {str(e)}")
 
     update_project(request.project_id, "strategy", strategy.value)   # ← also fixed here for consistency
     update_project(request.project_id, "total_chunks", len(chunks))

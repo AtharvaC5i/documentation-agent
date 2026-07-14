@@ -133,9 +133,9 @@ const HDR_H = 0.76;
 const BODY_Y = 0.86;
 const BODY_H = H - BODY_Y - 0.36;
 
-// ── Merge helper ─────────────────────────────────────────────────────────────
-// NOTE: Template merging (title + content + closing) is handled by pptx_service.py
-// using python-pptx directly — no Node→Python subprocess needed here.
+// The editable title and closing slides are inserted by PowerPoint itself in
+// pptx_service.py after this content deck has been written.  Do not ZIP-merge
+// packages here: that produces invalid master/layout relationships.
 
 // ════════════════════════════════════════════════════════════════════════════
 // CONTENT CHROME
@@ -1165,10 +1165,12 @@ function addRisksSlide(pres) {
 
   // STEP 1 — draw.io XML
   log("\n[pptx-gen] STEP 1: Generating draw.io XML...");
+  const startXml = Date.now();
   let drawioXml;
   try {
     drawioXml = generateDrawioXml(DATA);
     log(`[pptx-gen] draw.io XML: ${drawioXml.length} chars`);
+    log(`[pptx-gen] STEP 1 duration: ${Date.now() - startXml} ms`);
   } catch (err) {
     console.error(`[pptx-gen] FATAL: draw.io XML failed: ${err.message}`);
     process.exit(1);
@@ -1176,6 +1178,7 @@ function addRisksSlide(pres) {
 
   // STEP 2 — Render PNG via Puppeteer (non-fatal: diagram slide skipped on failure)
   log("\n[pptx-gen] STEP 2: Rendering PNG...");
+  const startPng = Date.now();
   let diagramRawB64 = null;
   try {
     const pngBuffer = await renderDrawioToPng(drawioXml, {
@@ -1190,6 +1193,7 @@ function addRisksSlide(pres) {
       diagramRawB64 = pngBuffer.toString("base64");
       log(`[pptx-gen] PNG: ${pngBuffer.length} bytes — OK`);
       log(`[pptx-gen] Diagram base64 length: ${diagramRawB64.length}`);
+      log(`[pptx-gen] STEP 2 duration: ${Date.now() - startPng} ms`);
     }
   } catch (err) {
     log(
@@ -1197,7 +1201,7 @@ function addRisksSlide(pres) {
     );
   }
 
-  // STEP 3 — Build content-only PPTX
+  // STEP 3 — Build the content deck. The service inserts editable templates.
   log("\n[pptx-gen] STEP 3: Building content PPTX...");
   const pres = new pptxgen();
   pres.layout = "LAYOUT_16x9";
@@ -1278,7 +1282,7 @@ function addRisksSlide(pres) {
     log(`[pptx-gen] custom slides block failed: ${err.message}`);
   }
 
-  // STEP 4 — Write content PPTX (template merge done by pptx_service.py)
+  // STEP 4 — Write content; the service assembles the final editable deck.
   log(`\n[pptx-gen] STEP 4: Writing content PPTX → ${outputPath}`);
   await pres.writeFile({ fileName: outputPath });
 

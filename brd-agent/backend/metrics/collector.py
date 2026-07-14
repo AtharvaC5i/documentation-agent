@@ -22,10 +22,8 @@ from metrics.models import (
 )
 from utils.logger import info
 
-# ── LLaMA 3.3 70B approximate Databricks Foundation Model Serving pricing.
-# Override via environment variables if your contract differs.
-_PROMPT_COST_PER_TOKEN      = float(os.getenv("LLM_PROMPT_COST_PER_TOKEN",      "0.0000009"))   # $0.90 / 1M
-_COMPLETION_COST_PER_TOKEN  = float(os.getenv("LLM_COMPLETION_COST_PER_TOKEN",  "0.0000027"))   # $2.70 / 1M
+_PROMPT_COST_PER_TOKEN      = float(os.getenv("LLM_PROMPT_COST_PER_TOKEN",      "0.000003"))   # $3.00 / 1M
+_COMPLETION_COST_PER_TOKEN  = float(os.getenv("LLM_COMPLETION_COST_PER_TOKEN",  "0.000015"))   # $15.00 / 1M
 
 
 class MetricsCollector:
@@ -338,6 +336,25 @@ class MetricsCollector:
 
     # ── Serialisation ──────────────────────────────────────────────────────
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "MetricsCollector":
+        """Reconstruct a MetricsCollector from a previously serialized dict."""
+        project_id = data.get("project_id", "")
+        project_name = data.get("project_name", "")
+        collector = cls(project_id, project_name)
+        collector._metrics = BRDRunMetrics(**data)
+        if collector._metrics.timing.run_started_at:
+            try:
+                collector._run_start_ts = datetime.fromisoformat(
+                    collector._metrics.timing.run_started_at
+                ).timestamp()
+            except Exception:
+                pass
+        return collector
+
     def to_dict(self) -> Dict[str, Any]:
         """Return the full metrics payload as a plain dict (JSON-serialisable)."""
-        return self._metrics.dict()
+        with self._lock:
+            self._calculate_cost()
+            return self._metrics.dict()
+

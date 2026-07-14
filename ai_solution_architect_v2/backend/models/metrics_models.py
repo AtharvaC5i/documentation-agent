@@ -63,13 +63,13 @@ class TokenUsageModel(BaseModel):
         """
         Estimate cost in USD based on token usage.
         Databricks LLM pricing (approximate):
-        - Input: $0.001 per 1K tokens
-        - Output: $0.002 per 1K tokens
+        - Input: $0.003 per 1K tokens
+        - Output: $0.015 per 1K tokens
         Adjust pricing as needed based on your actual rate card.
         """
         # Pricing per 1K tokens
-        PROMPT_COST_PER_1K = 0.001
-        COMPLETION_COST_PER_1K = 0.002
+        PROMPT_COST_PER_1K = 0.003
+        COMPLETION_COST_PER_1K = 0.015
         
         prompt_cost = (self.prompt_tokens / 1000) * PROMPT_COST_PER_1K
         completion_cost = (self.completion_tokens / 1000) * COMPLETION_COST_PER_1K

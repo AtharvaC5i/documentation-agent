@@ -47,6 +47,31 @@ info("STARTUP", f"Loaded {len(project_store.list_all())} existing projects from 
 # Keyed by project_id; persists for the lifetime of the process.
 _metrics_registry: Dict[str, MetricsCollector] = {}
 
+
+def _get_or_create_collector(project_id: str, project_name: str) -> MetricsCollector:
+    """
+    Get the existing active collector from registry, or restore it from persisted
+    storage, or initialize a new one if not found.
+    """
+    if project_id in _metrics_registry:
+        return _metrics_registry[project_id]
+
+    stored = load_metrics(project_id)
+    if stored:
+        try:
+            collector = MetricsCollector.from_dict(stored)
+            _metrics_registry[project_id] = collector
+            info("METRICS", f"Restored MetricsCollector from storage for project {project_id[:8]}")
+            return collector
+        except Exception as e:
+            warn("METRICS", f"Failed to restore MetricsCollector from disk: {e}")
+
+    # Fallback to creating a new one
+    collector = MetricsCollector(project_id, project_name)
+    _metrics_registry[project_id] = collector
+    info("METRICS", f"Initialized new MetricsCollector for project {project_id[:8]}")
+    return collector
+
 # ─── Request Models ────────────────────────────────────────────────────────
 
 class ProjectCreateRequest(BaseModel):
@@ -88,6 +113,10 @@ class AcceptanceUpdateRequest(BaseModel):
 
 class ConflictAccuracyRequest(BaseModel):
     feedback: str         # valid | false_positive | mixed
+
+class AnswerQuestionsRequest(BaseModel):
+    project_id: str
+    answers: Dict[str, str]  # Q-001 -> answer text
 
 # ─── Core Routes ───────────────────────────────────────────────────────────
 
@@ -210,11 +239,42 @@ def resolve_conflict(request: ConflictResolutionRequest):
             break
     project_store.save(project)
     # Refresh conflict metrics with the updated resolution state
-    collector = _metrics_registry.get(request.project_id)
-    if collector:
-        collector.update_conflict_resolution(project.conflicts)
-        save_metrics(request.project_id, collector.to_dict())
+    collector = _get_or_create_collector(request.project_id, project.project_name)
+    collector.update_conflict_resolution(project.conflicts)
+    save_metrics(request.project_id, collector.to_dict())
     return {"status": "resolved"}
+
+
+@app.post("/api/projects/{project_id}/answer-questions")
+def answer_clarification_questions(request: AnswerQuestionsRequest):
+    project = _get_or_404(request.project_id)
+    # Merge answers into requirements_pool as verified assumptions
+    import uuid
+    for q_id, answer in request.answers.items():
+        question_text = ""
+        for q in project.clarification_questions:
+            if q["id"] == q_id:
+                question_text = q["question"]
+                break
+        
+        from models.project import Requirement
+        new_assumption = Requirement(
+            req_id=f"AS-ANS-{uuid.uuid4().hex[:6].upper()}",
+            type="assumption",
+            description=f"Verified Answer: {answer} (Regarding: '{question_text}')",
+            source="user_qa",
+            confidence=1.0,
+            priority="must_have",
+            module_tag="general",
+            added_in_version=project.version
+        )
+        project.requirements_pool.append(new_assumption)
+    
+    # Clear clarification questions
+    project.clarification_questions = []
+    project.status = "extracted"
+    project_store.save(project)
+    return {"status": "questions_answered", "pool_size": len(project.requirements_pool)}
 
 
 @app.get("/api/projects/{project_id}/suggested-sections")
@@ -424,17 +484,21 @@ def get_metrics(project_id: str):
     Return the full metrics JSON for a project run.
     First tries the in-memory registry, then falls back to the persisted file.
     """
-    _get_or_404(project_id)
+    project = _get_or_404(project_id)
 
     # Live collector (run still in progress or just completed)
-    collector = _metrics_registry.get(project_id)
-    if collector:
-        return collector.to_dict()
+    if project_id in _metrics_registry:
+        return _metrics_registry[project_id].to_dict()
 
     # Persisted metrics from a previous run
     stored = load_metrics(project_id)
     if stored:
-        return stored
+        try:
+            collector = MetricsCollector.from_dict(stored)
+            _metrics_registry[project_id] = collector
+            return collector.to_dict()
+        except Exception:
+            return stored
 
     raise HTTPException(status_code=404, detail="No metrics available yet for this project.")
 
@@ -445,28 +509,13 @@ def update_acceptance(project_id: str, request: AcceptanceUpdateRequest):
     Set the acceptance / rework flag for a completed BRD run (KPI 13).
     status: accepted_as_is | minor_edits | major_rework | pending
     """
-    _get_or_404(project_id)
-    collector = _metrics_registry.get(project_id)
-    if not collector:
-        # Try to update the persisted file directly
-        stored = load_metrics(project_id)
-        if not stored:
-            raise HTTPException(status_code=404, detail="No metrics found for this project.")
-        from datetime import datetime
-        valid = {"pending", "accepted_as_is", "minor_edits", "major_rework"}
-        stored["acceptance"]["status"]      = request.status if request.status in valid else "pending"
-        stored["acceptance"]["reviewer"]    = request.reviewer
-        stored["acceptance"]["notes"]       = request.notes
-        stored["acceptance"]["reviewed_at"] = datetime.now().isoformat()
-        save_metrics(project_id, stored)
-        return {"status": "updated", "acceptance": stored["acceptance"]}
-
+    project = _get_or_404(project_id)
+    collector = _get_or_create_collector(project_id, project.project_name)
     collector.set_acceptance(
         status=request.status,
         reviewer=request.reviewer,
         notes=request.notes,
     )
-    # Persist the updated metrics
     save_metrics(project_id, collector.to_dict())
     return {"status": "updated", "acceptance": collector.metrics.acceptance.dict()}
 
@@ -477,17 +526,8 @@ def update_conflict_accuracy(project_id: str, request: ConflictAccuracyRequest):
     Provide reviewer accuracy feedback on conflict detection (KPI 11).
     feedback: valid | false_positive | mixed
     """
-    _get_or_404(project_id)
-    collector = _metrics_registry.get(project_id)
-    if not collector:
-        stored = load_metrics(project_id)
-        if not stored:
-            raise HTTPException(status_code=404, detail="No metrics found for this project.")
-        valid = {"valid", "false_positive", "mixed"}
-        stored["conflicts"]["accuracy_feedback"] = request.feedback if request.feedback in valid else None
-        save_metrics(project_id, stored)
-        return {"status": "updated", "conflicts": stored["conflicts"]}
-
+    project = _get_or_404(project_id)
+    collector = _get_or_create_collector(project_id, project.project_name)
     collector.set_conflict_accuracy_feedback(request.feedback)
     save_metrics(project_id, collector.to_dict())
     return {"status": "updated", "conflicts": collector.metrics.conflicts.dict()}
@@ -547,22 +587,20 @@ async def run_extraction(project_id: str):
 
 async def run_generation(project_id: str):
     project = project_store.get(project_id)
-    collector = _metrics_registry.get(project_id)
+    collector = _get_or_create_collector(project_id, project.project_name)
 
     try:
         await GenerationPipeline(
             project, project_store, metrics_collector=collector
         ).run()
-        if collector:
-            save_metrics(project_id, collector.to_dict())
+        save_metrics(project_id, collector.to_dict())
     except Exception as e:
-        if collector:
-            collector.end_run_failure(
-                stage="generation",
-                category=_categorize_error(e),
-                message=str(e),
-            )
-            save_metrics(project_id, collector.to_dict())
+        collector.end_run_failure(
+            stage="generation",
+            category=_categorize_error(e),
+            message=str(e),
+        )
+        save_metrics(project_id, collector.to_dict())
         project.status = "error"
         project.progress_message = f"Generation failed: {str(e)[:200]}"
         project_store.save(project)
@@ -570,13 +608,12 @@ async def run_generation(project_id: str):
 
 async def run_section_regeneration(project_id: str, section_id: str, feedback: str):
     project = project_store.get(project_id)
-    collector = _metrics_registry.get(project_id)
+    collector = _get_or_create_collector(project_id, project.project_name)
     try:
         await GenerationPipeline(
             project, project_store, metrics_collector=collector
         ).regenerate_section(section_id, feedback)
-        if collector:
-            save_metrics(project_id, collector.to_dict())
+        save_metrics(project_id, collector.to_dict())
     except Exception as e:
         project.status = "error"
         project.progress_message = f"Regeneration failed: {str(e)[:200]}"
@@ -585,7 +622,7 @@ async def run_section_regeneration(project_id: str, section_id: str, feedback: s
 
 async def run_document_generation(project_id: str):
     project = project_store.get(project_id)
-    collector = _metrics_registry.get(project_id)
+    collector = _get_or_create_collector(project_id, project.project_name)
 
     try:
         pipeline = DocumentPipeline(
@@ -600,24 +637,22 @@ async def run_document_generation(project_id: str):
         info("BG", "Traceability matrix built automatically after BRD generation")
 
         # Finalise metrics — section completeness + run success
-        if collector:
-            from metrics.section_completeness import evaluate_all_sections
-            completeness_data = evaluate_all_sections(project.generated_sections)
-            collector.record_section_completeness(completeness_data)
-            # Sync latest conflict resolution state
-            collector.update_conflict_resolution(project.conflicts)
-            collector.end_run_success()
-            metrics_path = save_metrics(project_id, collector.to_dict())
-            success("METRICS", f"Final metrics saved: {metrics_path}")
+        from metrics.section_completeness import evaluate_all_sections
+        completeness_data = evaluate_all_sections(project.generated_sections)
+        collector.record_section_completeness(completeness_data)
+        # Sync latest conflict resolution state
+        collector.update_conflict_resolution(project.conflicts)
+        collector.end_run_success()
+        metrics_path = save_metrics(project_id, collector.to_dict())
+        success("METRICS", f"Final metrics saved: {metrics_path}")
 
     except Exception as e:
-        if collector:
-            collector.end_run_failure(
-                stage="assembly",
-                category=_categorize_error(e),
-                message=str(e),
-            )
-            save_metrics(project_id, collector.to_dict())
+        collector.end_run_failure(
+            stage="assembly",
+            category=_categorize_error(e),
+            message=str(e),
+        )
+        save_metrics(project_id, collector.to_dict())
         project.status = "error"
         project.progress_message = f"Document generation failed: {str(e)[:200]}"
         project_store.save(project)

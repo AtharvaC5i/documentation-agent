@@ -1,0 +1,194 @@
+{
+  "hash": "ab3ef56644033c11322818a507a83b7e",
+  "system_prompt": "You are an Architecture Review Board critic.\nReview the proposed core architecture design JSON.\nCheck for:\n1. Tech conflicts (e.g. backend doesn't support the data-flow requirements).\n2. Missing NFR considerations (e.g. scalability requested but single point of failure found).\n3. Missing components or goals compared to the fact sheet.\n\nProvide corrective edits in a structured JSON schema:\n{\n  \"gaps_found\": true,\n  \"criticism\": \"detailed evaluation summary\",\n  \"corrections\": {\n     \"architecture\": { ... corrected fields ... },\n     \"technology_stack\": { ... corrected stack layers ... }\n  }\n}\nReturn valid JSON only.",
+  "user_prompt": "Fact Sheet:\n{\"core_business_goals\": [\"Automate governance reporting for large PowerBI estates with inconsistent cross-team naming conventions\", \"Identify and surface duplicate or semantically similar attributes across PowerBI reports at scale\", \"Produce exportable Excel governance reports from PowerBI metadata with minimal manual effort\", \"Eliminate infrastructure overhead by delivering a zero-infrastructure, browser-deployable governance tool\", \"Enforce deterministic, auditable AI-driven attribute matching to support data governance compliance\"], \"primary_user_personas_and_entry_points\": {\"personas\": [{\"name\": \"Data Governance Analyst\", \"description\": \"Responsible for auditing and standardising PowerBI report metadata across teams; primary consumer of governance reports\", \"entry_point\": \"Drag-and-drop Excel/CSV PowerBI metadata upload on the SPA landing interface\"}, {\"name\": \"BI Platform Administrator\", \"description\": \"Manages large PowerBI estates across multiple teams; needs cross-report attribute consistency visibility\", \"entry_point\": \"Direct browser access to the SPA; uploads metadata exports from PowerBI tenants\"}], \"entry_points\": [\"Browser-based SPA accessed directly with no login or infrastructure setup\", \"Drag-and-drop file upload accepting Excel or CSV PowerBI metadata exports\", \"Exportable Excel governance report download as the primary output delivery mechanism\"]}, \"identified_pain_points_and_constraints\": [\"Inconsistent cross-team naming conventions across PowerBI estates make manual attribute reconciliation infeasible at scale\", \"No existing zero-infrastructure tooling exists to perform semantic governance analysis without heavy deployment overhead\", \"LLM inference latency risk due to per-request client instantiation and batched parallel calls to Azure AI Foundry\", \"TF-IDF vectorizer is fit fresh per request and not persisted, introducing recomputation overhead on every upload\", \"LLM non-determinism risk requires mitigation via low temperature settings and strict JSON-only prompt constraints to ensure auditable outputs\"], \"key_technology_stack\": {\"frontend\": [\"Single-page application (SPA) architecture\", \"Bootstrap 5.3.3\", \"Frontend-first, browser-deployable with no heavy dependencies\", \"Responsive design: max-width 1200px, breakpoints at 768px and 480px\", \"Purple-themed design system\"], \"backend\": [\"Python (server.py monolithic pipeline)\", \"scikit-learn (TF-IDF vectorizer, character-level bi-gram to 4-gram)\", \"Azure AI Foundry integration via AzureOpenAI client\", \"Meta Llama 3.3 70B Instruct as LLM\", \"ThreadPoolExecutor (max_workers=2) for parallelised LLM inference\", \"Hybrid scoring: TF-IDF + Jaccard + Levenshtein (local) followed by LLM semantic scoring\"], \"database\": [\"No persistent database; per-request in-memory attribute dictionary (report name to field/measure/dimension string lists)\", \"Input: Excel or CSV file uploads\", \"Output: exportable Excel governance reports\"]}, \"critical_security_and_performance_nfrs\": [\"Deterministic LLM output enforced via low temperature (0.1) and strict JSON-only prompt instructions to ensure auditable governance results\", \"LLM inference batched at 25 attribute pairs per call with retry/backoff logic to handle Azure AI Foundry transient failures\", \"Parallelised LLM calls via ThreadPoolExecutor capped at max_workers=2 to balance throughput against API rate limits\", \"Unicode normalisation and input sanitisation (whitespace stripping, lowercasing) applied to all attribute strings before scoring to prevent data quality and injection issues\", \"Zero-infrastructure deployment model requires all processing to be self-contained with no persistent server-side state, minimising attack surface and operational risk\"]}\n\nDraft Core Design:\n{\"project\": {\"name\": \"PowerBI Governance Analyser\", \"tagline\": \"Zero-infrastructure semantic governance reporting for large PowerBI estates\", \"client_context\": \"Enterprise data teams managing large, multi-team PowerBI estates with inconsistent naming conventions requiring automated governance tooling\"}, \"alignment\": {\"goals\": [\"Automate governance reporting across PowerBI estates with inconsistent cross-team naming conventions\", \"Identify and surface duplicate or semantically similar attributes across PowerBI reports at scale\", \"Produce exportable Excel governance reports from PowerBI metadata with minimal manual effort\", \"Deliver zero-infrastructure, browser-deployable governance tool eliminating all deployment overhead\", \"Enforce deterministic, auditable AI-driven attribute matching to support data governance compliance\"], \"business_value\": \"Reduces manual governance effort from weeks to minutes, enabling consistent data standards across enterprise PowerBI estates without infrastructure investment\", \"success_metrics\": [\"Governance report generation time reduced to under 5 minutes per PowerBI estate upload\", \"Semantic duplicate detection accuracy exceeds 90% against manually validated attribute pairs\", \"Zero infrastructure provisioning steps required for end-user deployment and access\", \"LLM output determinism rate above 99% measured via JSON parse success across 1000 requests\", \"Cross-team attribute reconciliation coverage reaches 100% of uploaded metadata fields\"]}, \"problem_statement\": {\"current_pain_points\": [\"Inconsistent cross-team naming conventions make manual attribute reconciliation infeasible at scale\", \"No zero-infrastructure tooling exists for semantic governance analysis without heavy deployment overhead\", \"LLM inference latency risk from per-request client instantiation and batched parallel Azure AI Foundry calls\", \"TF-IDF vectorizer refit on every request introduces unnecessary recomputation overhead per upload\", \"LLM non-determinism risks producing non-auditable, inconsistent governance outputs without strict controls\", \"BI administrators lack cross-report attribute consistency visibility across large multi-team PowerBI tenants\"], \"impact\": \"Governance analysts spend excessive manual effort reconciling PowerBI metadata, leading to delayed compliance reporting and undetected data inconsistencies across teams\", \"root_cause\": \"Absence of automated semantic tooling that operates without infrastructure overhead, combined with inherent LLM non-determinism and naming convention fragmentation across BI teams\"}, \"proposed_solution\": {\"summary\": \"Browser-deployable SPA with Python monolithic pipeline combining TF-IDF, Jaccard, Levenshtein, and LLM semantic scoring to auto-generate Excel governance reports from PowerBI metadata uploads\", \"key_differentiators\": [\"Hybrid three-stage scoring pipeline combining TF-IDF, Jaccard, Levenshtein, and LLM semantic analysis\", \"Zero-infrastructure SPA deployment requiring no server provisioning, login, or persistent state\", \"Meta Llama 3.3 70B via Azure AI Foundry with temperature 0.1 enforcing deterministic auditable outputs\", \"ThreadPoolExecutor parallelised LLM batching at 25 pairs per call with retry and backoff logic\", \"Unicode normalisation and input sanitisation applied pre-scoring to guarantee data quality and security\"], \"approach\": \"Upload-process-export pipeline: user uploads PowerBI metadata Excel/CSV, backend performs in-memory hybrid scoring, LLM validates semantic matches, Excel governance report is returned for download\"}, \"architecture\": {\"pattern\": \"Single-Page Application with monolithic Python processing pipeline and zero persistent server-side state\", \"frontend\": \"Bootstrap 5.3.3 SPA with drag-and-drop upload and Excel export download\", \"backend\": \"Python monolithic server.py pipeline with scikit-learn and Azure AI Foundry LLM integration\", \"ai_layer\": \"Meta Llama 3.3 70B Instruct via Azure AI Foundry with batched parallel inference\", \"data_store\": \"In-memory per-request attribute dictionary; no persistent database\", \"hosting\": \"Browser-deployable zero-infrastructure static hosting with Python backend process\", \"components\": [{\"id\": \"user_client\", \"label\": \"User / Client\", \"name\": \"Web Browser Governance Client\", \"role\": \"Entry point for metadata upload and governance report download interactions\", \"technology\": \"Web Browser, REST client, HTML5 File API\"}, {\"id\": \"spa_frontend\", \"label\": \"SPA Frontend\", \"name\": \"Bootstrap SPA Governance Interface\", \"role\": \"Renders drag-and-drop upload UI, progress feedback, and triggers Excel report download\", \"technology\": \"Bootstrap 5.3.3, HTML5, CSS3, JavaScript, Purple design system\"}, {\"id\": \"python_pipeline\", \"label\": \"Python Pipeline\", \"name\": \"Monolithic Python Governance Processing Pipeline\", \"role\": \"Orchestrates full ingestion, normalisation, scoring, and report generation workflow\", \"technology\": \"Python, server.py, Pandas, openpyxl\"}, {\"id\": \"input_sanitiser\", \"label\": \"Input Sanitiser\", \"name\": \"Unicode Normalisation and Input Sanitisation Module\", \"role\": \"Strips whitespace, lowercases, and Unicode-normalises all attribute strings before scoring\", \"technology\": \"Python unicodedata, str.strip, str.lower\"}, {\"id\": \"local_scorer\", \"label\": \"Local Scorer\", \"name\": \"TF-IDF, Jaccard, and Levenshtein Hybrid Scoring Engine\", \"role\": \"Computes local similarity scores for all attribute pairs before LLM semantic validation\", \"technology\": \"scikit-learn TF-IDF, character bi-gram to 4-gram, python-Levenshtein, Jaccard\"}, {\"id\": \"llm_orchestrator\", \"label\": \"LLM Orchestrator\", \"name\": \"Parallelised LLM Inference Orchestrator\", \"role\": \"Batches attribute pairs at 25 per call and dispatches parallel LLM requests with retry logic\", \"technology\": \"ThreadPoolExecutor max_workers=2, Python concurrent.futures, retry/backoff\"}, {\"id\": \"azure_ai_foundry\", \"label\": \"Azure AI Foundry\", \"name\": \"Azure AI Foundry LLM Endpoint\", \"role\": \"Hosts Meta Llama 3.3 70B Instruct and returns deterministic JSON semantic match scores\", \"technology\": \"Azure AI Foundry, AzureOpenAI client, Meta Llama 3.3 70B Instruct, temperature 0.1\"}, {\"id\": \"report_generator\", \"label\": \"Report Generator\", \"name\": \"Excel Governance Report Generator\", \"role\": \"Assembles final scored attribute matches into downloadable Excel governance report\", \"technology\": \"openpyxl, Pandas, Excel XLSX output\"}], \"connections\": [{\"from\": \"user_client\", \"to\": \"spa_frontend\", \"label\": \"Browser Interaction\"}, {\"from\": \"spa_frontend\", \"to\": \"python_pipeline\", \"label\": \"Multipart File Upload (HTTP POST)\"}, {\"from\": \"python_pipeline\", \"to\": \"input_sanitiser\", \"label\": \"Raw Attribute Strings\"}, {\"from\": \"input_sanitiser\", \"to\": \"local_scorer\", \"label\": \"Normalised Attribute Pairs\"}, {\"from\": \"local_scorer\", \"to\": \"llm_orchestrator\", \"label\": \"Candidate Pairs Above Threshold\"}, {\"from\": \"llm_orchestrator\", \"to\": \"azure_ai_foundry\", \"label\": \"Batched JSON Prompt (25 pairs)\"}, {\"from\": \"azure_ai_foundry\", \"to\": \"llm_orchestrator\", \"label\": \"JSON Semantic Scores Response\"}, {\"from\": \"llm_orchestrator\", \"to\": \"report_generator\", \"label\": \"Merged Hybrid Scores\"}, {\"from\": \"report_generator\", \"to\": \"spa_frontend\", \"label\": \"Excel File Download Response\"}, {\"from\": \"spa_frontend\", \"to\": \"user_client\", \"label\": \"Governance Report Download\"}]}, \"data_flow\": [\"User drags and drops PowerBI metadata Excel or CSV file onto the SPA landing interface in the browser\", \"SPA sends multipart HTTP POST with the uploaded file to the Python monolithic pipeline backend endpoint\", \"Python pipeline parses the file into an in-memory attribute dictionary keyed by report name to field, measure, and dimension string lists\", \"Input sanitiser applies Unicode normalisation, whitespace stripping, and lowercasing to all extracted attribute strings\", \"Local scorer fits TF-IDF vectorizer on the request corpus and computes TF-IDF cosine, Jaccard, and Levenshtein scores for all attribute pairs\", \"Candidate pairs exceeding local similarity threshold are batched at 25 pairs per call and dispatched to Azure AI Foundry via parallelised ThreadPoolExecutor\", \"Meta Llama 3.3 70B Instruct returns strict JSON semantic match scores with temperature 0.1; retry and backoff handles transient Azure failures\", \"Report generator merges local and LLM scores, assembles ranked duplicate and similarity findings, and returns downloadable Excel governance report to the browser\"], \"technology_stack\": {\"frontend\": [\"Bootstrap 5.3.3\", \"HTML5\", \"CSS3 responsive design (max-width 1200px)\", \"JavaScript ES6\", \"HTML5 File API drag-and-drop\"], \"backend\": [\"Python 3.x\", \"server.py monolithic pipeline\", \"scikit-learn TF-IDF vectorizer\", \"python-Levenshtein\", \"Pandas\", \"openpyxl\"], \"ai_ml\": [\"Meta Llama 3.3 70B Instruct\", \"Azure AI Foundry AzureOpenAI client\", \"TF-IDF character bi-gram to 4-gram\", \"Jaccard similarity\", \"Levenshtein distance\"], \"data\": [\"In-memory Python dictionary per request\", \"Excel XLSX input parsing via Pandas\", \"CSV input parsing via Pandas\", \"Excel XLSX output via openpyxl\"], \"infrastructure\": [\"Zero-infrastructure browser-deployable hosting\", \"ThreadPoolExecutor max_workers=2\", \"Azure AI Foundry managed LLM endpoint\", \"Static file serving\"], \"security\": [\"Unicode normalisation input sanitisation\", \"Whitespace stripping and lowercasing\", \"No persistent server-side state\", \"Strict JSON-only LLM prompt constraints\", \"Low temperature 0.1 deterministic output enforcement\"]}, \"non_functional\": {\"scalability\": \"Stateless per-request processing with ThreadPoolExecutor parallelism scales horizontally; LLM batching at 25 pairs manages Azure API rate limits\", \"security\": \"Zero persistent state minimises attack surface; input sanitisation prevents injection; no authentication data stored server-side\", \"availability\": \"Azure AI Foundry retry and backoff logic ensures resilience against transient LLM endpoint failures during governance report generation\", \"performance\": \"Hybrid local scoring pre-filters pairs before LLM calls, reducing Azure AI Foundry invocations and targeting sub-5-minute report generation\", \"compliance\": \"Deterministic LLM outputs via temperature 0.1 and JSON-only prompts produce auditable, reproducible governance results supporting data compliance requirements\"}, \"roadmap\": [{\"phase\": \"Phase 1 - Foundation\", \"duration\": \"Weeks 1-4\", \"deliverables\": [\"SPA scaffold with Bootstrap 5.3.3 drag-and-drop upload and purple design system implemented\", \"Python pipeline skeleton with Excel and CSV parsing into in-memory attribute dictionary\", \"Input sanitisation module with Unicode normalisation, whitespace stripping, and lowercasing\", \"Azure AI Foundry account provisioned and Meta Llama 3.3 70B Instruct endpoint validated\"]}, {\"phase\": \"Phase 2 - Core Build\", \"duration\": \"Weeks 5-10\", \"deliverables\": [\"TF-IDF character bi-gram to 4-gram vectorizer with Jaccard and Levenshtein hybrid scoring engine\", \"LLM orchestrator with ThreadPoolExecutor batching at 25 pairs per call and retry backoff logic\", \"Strict JSON-only prompt templates with temperature 0.1 enforcing deterministic LLM outputs\", \"Excel governance report generator assembling ranked duplicate and similarity findings via openpyxl\"]}, {\"phase\": \"Phase 3 - Scale & Optimise\", \"duration\": \"Weeks 11-16\", \"deliverables\": [\"Performance tuning of local scoring threshold to minimise unnecessary LLM API calls\", \"End-to-end determinism validation suite testing JSON parse success rate across 1000 requests\", \"Responsive SPA breakpoint refinement at 768px and 480px with cross-browser compatibility testing\", \"User acceptance testing with Data Governance Analysts and BI Platform Administrators on real estates\"]}], \"risks\": [{\"risk\": \"Azure AI Foundry LLM latency spikes cause governance report generation to exceed acceptable time thresholds\", \"mitigation\": \"Implement retry with exponential backoff, cap ThreadPoolExecutor at max_workers=2, and pre-filter pairs with local scoring to reduce LLM call volume\"}, {\"risk\": \"TF-IDF vectorizer refit per request introduces significant CPU overhead for very large PowerBI estates\", \"mitigation\": \"Profile vectorizer fit time against realistic estate sizes and introduce request-scoped caching or incremental fitting if thresholds are breached\"}, {\"risk\": \"LLM returns malformed JSON despite strict prompt constraints, breaking report generation pipeline\", \"mitigation\": \"Wrap all LLM response parsing in try-except with fallback to local-only scoring and log all parse failures for prompt refinement\"}, {\"risk\": \"Large metadata file uploads cause browser memory pressure or HTTP timeout in zero-infrastructure deployment\", \"mitigation\": \"Enforce client-side file size validation in SPA, implement streaming file parsing in Python pipeline, and document supported estate size limits\"}, {\"risk\": \"Azure AI Foundry API rate limits throttle parallel LLM calls for large attribute pair volumes\", \"mitigation\": \"Enforce max_workers=2 cap, implement token-bucket rate limiting in orchestrator, and provide user-facing progress feedback during processing\"}], \"assumptions\": [\"Users have access to a modern web browser and can export PowerBI metadata as Excel or CSV without additional tooling\", \"Azure AI Foundry subscription with Meta Llama 3.3 70B Instruct endpoint is provisioned and accessible from the backend host\", \"PowerBI metadata exports contain consistent enough structure for Pandas to parse report name, field, measure, and dimension columns\", \"Governance analysts accept sub-5-minute processing time as acceptable for estates up to a defined maximum attribute count\", \"No authentication or multi-user session management is required as the tool operates as a single-user stateless utility\"], \"open_questions\": [\"What is the maximum PowerBI estate size in attribute count that must be supported within the 5-minute performance target?\", \"Should the TF-IDF vectorizer similarity threshold for LLM escalation be configurable by the user or fixed in the pipeline?\", \"Is there a requirement to persist or audit governance report outputs server-side for compliance record-keeping purposes?\", \"What fallback behaviour is expected when Azure AI Foundry is unavailable \\u2014 local-only scoring report or hard failure?\", \"Are there specific PowerBI metadata export column schemas that must be supported, or should the tool handle arbitrary column naming?\"]}",
+  "response": {
+    "gaps_found": true,
+    "criticism": "The draft core design is broadly well-aligned with the fact sheet and covers most goals, personas, and NFRs. However, seven material gaps and conflicts have been identified across architecture, technology stack, NFR coverage, and security posture:\n\n1. TECH CONFLICT \u2014 'Zero-infrastructure' claim is architecturally inconsistent: The design simultaneously claims 'zero-infrastructure browser-deployable' hosting AND requires a Python monolithic backend (server.py) with scikit-learn, Pandas, openpyxl, and Azure AI Foundry API calls. A true browser-only SPA cannot execute Python server-side code. The architecture must explicitly acknowledge a lightweight Python backend server (e.g. Flask or FastAPI) is required, or alternatively clarify that 'zero-infrastructure' means zero *user-provisioned* infrastructure (i.e. the tool is packaged as a self-contained local Python server the user runs). The current framing is misleading and will cause delivery confusion. The hosting description 'Static file serving' is also incorrect for a Python backend.\n\n2. MISSING COMPONENT \u2014 No HTTP API layer defined between SPA and Python pipeline: The connection 'spa_frontend -> python_pipeline' via 'Multipart File Upload (HTTP POST)' implies an HTTP server, but no web framework component (Flask, FastAPI, or equivalent) is listed in components, technology_stack.backend, or infrastructure. This is a missing architectural component that must be made explicit.\n\n3. MISSING NFR \u2014 No CORS policy defined: The SPA frontend communicates with the Python backend via HTTP POST. In any browser-based deployment, CORS headers must be explicitly configured on the backend. No CORS policy or header configuration is mentioned anywhere in security NFRs, components, or technology stack. This is a functional blocker in browser deployments.\n\n4. MISSING NFR \u2014 No file upload size limit enforcement at the backend layer: The risk register mentions client-side file size validation in the SPA, but there is no corresponding server-side enforcement in the Python pipeline or HTTP layer. Client-side validation alone is insufficient for security and stability; a backend request size limit (e.g. via Flask MAX_CONTENT_LENGTH or equivalent) must be specified.\n\n5. MISSING NFR \u2014 Scalability claim is overstated for a monolithic stateless process: The non_functional.scalability entry claims 'scales horizontally' but the monolithic server.py with in-memory per-request state and a single ThreadPoolExecutor instance cannot horizontally scale without a load balancer and session-affinity-free design. For the stated zero-infrastructure single-user utility model, horizontal scaling is irrelevant and the claim should be corrected to reflect single-instance vertical scaling with concurrency bounded by max_workers=2.\n\n6. MISSING NFR \u2014 No timeout enforcement on LLM calls: The retry/backoff logic is mentioned but no maximum timeout per LLM call or per overall request is specified. Without a hard timeout, a hung Azure AI Foundry call can block the ThreadPoolExecutor worker indefinitely, causing the entire report generation to stall. A per-call timeout must be added to the LLM orchestrator specification.\n\n7. MISSING CONSIDERATION \u2014 Azure AI Foundry API key management not addressed: The backend makes authenticated calls to Azure AI Foundry using an AzureOpenAI client, which requires an API key or managed identity credential. No mechanism for supplying, storing, or rotating this credential is described in the architecture, security NFRs, or assumptions. For a zero-infrastructure local deployment, this is typically an environment variable or config file, but it must be explicitly specified to avoid a security gap (e.g. hardcoded credentials risk).",
+    "corrections": {
+      "architecture": {
+        "hosting": "Self-contained local Python HTTP server (Flask or FastAPI) bundled with the SPA static assets; 'zero-infrastructure' refers to zero user-provisioned cloud or server infrastructure \u2014 the tool runs as a local process on the analyst's machine or a minimal host, requiring no deployment pipeline, container orchestration, or cloud provisioning by the end user",
+        "components": [
+          {
+            "id": "user_client",
+            "label": "User / Client",
+            "name": "Web Browser Governance Client",
+            "role": "Entry point for metadata upload and governance report download interactions",
+            "technology": "Web Browser, REST client, HTML5 File API"
+          },
+          {
+            "id": "spa_frontend",
+            "label": "SPA Frontend",
+            "name": "Bootstrap SPA Governance Interface",
+            "role": "Renders drag-and-drop upload UI, progress feedback, and triggers Excel report download",
+            "technology": "Bootstrap 5.3.3, HTML5, CSS3, JavaScript ES6, Purple design system"
+          },
+          {
+            "id": "http_api_layer",
+            "label": "HTTP API Layer",
+            "name": "Flask/FastAPI HTTP Server",
+            "role": "Exposes multipart file upload endpoint to SPA, enforces backend request size limits, sets CORS headers, and routes requests to the Python processing pipeline",
+            "technology": "Flask or FastAPI, Python WSGI/ASGI, CORS middleware, MAX_CONTENT_LENGTH enforcement",
+            "gap_added": "Previously missing \u2014 required to bridge SPA HTTP POST to Python pipeline and enforce server-side upload size limits and CORS policy"
+          },
+          {
+            "id": "python_pipeline",
+            "label": "Python Pipeline",
+            "name": "Monolithic Python Governance Processing Pipeline",
+            "role": "Orchestrates full ingestion, normalisation, scoring, and report generation workflow",
+            "technology": "Python, server.py, Pandas, openpyxl"
+          },
+          {
+            "id": "input_sanitiser",
+            "label": "Input Sanitiser",
+            "name": "Unicode Normalisation and Input Sanitisation Module",
+            "role": "Strips whitespace, lowercases, and Unicode-normalises all attribute strings before scoring",
+            "technology": "Python unicodedata, str.strip, str.lower"
+          },
+          {
+            "id": "local_scorer",
+            "label": "Local Scorer",
+            "name": "TF-IDF, Jaccard, and Levenshtein Hybrid Scoring Engine",
+            "role": "Computes local similarity scores for all attribute pairs before LLM semantic validation",
+            "technology": "scikit-learn TF-IDF, character bi-gram to 4-gram, python-Levenshtein, Jaccard"
+          },
+          {
+            "id": "llm_orchestrator",
+            "label": "LLM Orchestrator",
+            "name": "Parallelised LLM Inference Orchestrator",
+            "role": "Batches attribute pairs at 25 per call, dispatches parallel LLM requests with retry logic, enforces per-call timeout to prevent indefinite worker blocking",
+            "technology": "ThreadPoolExecutor max_workers=2, Python concurrent.futures, retry/backoff, per-call timeout (configurable, default 30s)",
+            "gap_corrected": "Per-call timeout added to prevent hung Azure AI Foundry calls from blocking ThreadPoolExecutor workers indefinitely"
+          },
+          {
+            "id": "azure_ai_foundry",
+            "label": "Azure AI Foundry",
+            "name": "Azure AI Foundry LLM Endpoint",
+            "role": "Hosts Meta Llama 3.3 70B Instruct and returns deterministic JSON semantic match scores",
+            "technology": "Azure AI Foundry, AzureOpenAI client, Meta Llama 3.3 70B Instruct, temperature 0.1"
+          },
+          {
+            "id": "credential_config",
+            "label": "Credential Config",
+            "name": "Azure AI Foundry API Credential Manager",
+            "role": "Supplies Azure AI Foundry API key or managed identity credential to the AzureOpenAI client at runtime; prevents hardcoded credentials in source",
+            "technology": "Environment variable (AZURE_AI_FOUNDRY_API_KEY) or .env file loaded via python-dotenv at startup; never committed to source control",
+            "gap_added": "Previously missing \u2014 API key management for Azure AI Foundry calls was unaddressed, creating hardcoded credentials risk"
+          },
+          {
+            "id": "report_generator",
+            "label": "Report Generator",
+            "name": "Excel Governance Report Generator",
+            "role": "Assembles final scored attribute matches into downloadable Excel governance report",
+            "technology": "openpyxl, Pandas, Excel XLSX output"
+          }
+        ],
+        "connections": [
+          {
+            "from": "user_client",
+            "to": "spa_frontend",
+            "label": "Browser Interaction"
+          },
+          {
+            "from": "spa_frontend",
+            "to": "http_api_layer",
+            "label": "Multipart File Upload (HTTP POST) with CORS preflight"
+          },
+          {
+            "from": "http_api_layer",
+            "to": "python_pipeline",
+            "label": "Validated and size-checked file stream"
+          },
+          {
+            "from": "python_pipeline",
+            "to": "input_sanitiser",
+            "label": "Raw Attribute Strings"
+          },
+          {
+            "from": "input_sanitiser",
+            "to": "local_scorer",
+            "label": "Normalised Attribute Pairs"
+          },
+          {
+            "from": "local_scorer",
+            "to": "llm_orchestrator",
+            "label": "Candidate Pairs Above Threshold"
+          },
+          {
+            "from": "llm_orchestrator",
+            "to": "azure_ai_foundry",
+            "label": "Batched JSON Prompt (25 pairs) with per-call timeout"
+          },
+          {
+            "from": "azure_ai_foundry",
+            "to": "llm_orchestrator",
+            "label": "JSON Semantic Scores Response"
+          },
+          {
+            "from": "credential_config",
+            "to": "azure_ai_foundry",
+            "label": "API Key / Credential injection at client init"
+          },
+          {
+            "from": "llm_orchestrator",
+            "to": "report_generator",
+            "label": "Merged Hybrid Scores"
+          },
+          {
+            "from": "report_generator",
+            "to": "http_api_layer",
+            "label": "Excel XLSX byte stream"
+          },
+          {
+            "from": "http_api_layer",
+            "to": "spa_frontend",
+            "label": "Excel File Download Response"
+          },
+          {
+            "from": "spa_frontend",
+            "to": "user_client",
+            "label": "Governance Report Download"
+          }
+        ]
+      },
+      "technology_stack": {
+        "backend": [
+          "Python 3.x",
+          "Flask or FastAPI (HTTP API layer \u2014 previously missing; required for SPA-to-pipeline HTTP bridging)",
+          "Flask-CORS or FastAPI CORSMiddleware (CORS policy enforcement \u2014 previously missing)",
+          "server.py monolithic pipeline",
+          "scikit-learn TF-IDF vectorizer",
+          "python-Levenshtein",
+          "Pandas",
+          "openpyxl",
+          "python-dotenv (Azure AI Foundry API key loading from environment \u2014 previously missing)"
+        ],
+        "infrastructure": [
+          "Self-contained local Python HTTP server process (zero user-provisioned infrastructure)",
+          "ThreadPoolExecutor max_workers=2 with per-call LLM timeout (default 30s)",
+          "Azure AI Foundry managed LLM endpoint",
+          "Static SPA assets served by Flask/FastAPI or co-located static file server",
+          "Backend request size limit enforced via MAX_CONTENT_LENGTH or equivalent (previously missing)"
+        ],
+        "security": [
+          "Unicode normalisation input sanitisation",
+          "Whitespace stripping and lowercasing",
+          "No persistent server-side state",
+          "Strict JSON-only LLM prompt constraints",
+          "Low temperature 0.1 deterministic output enforcement",
+          "CORS policy configured on HTTP API layer to restrict allowed origins (previously missing)",
+          "Server-side file upload size limit enforced at HTTP layer \u2014 client-side validation alone is insufficient (previously missing)",
+          "Azure AI Foundry API key supplied via environment variable or .env file; never hardcoded in source (previously missing)",
+          "Per-call LLM timeout to prevent indefinite worker thread blocking (previously missing)"
+        ]
+      },
+      "non_functional": {
+        "scalability": "Single-instance vertical scaling model appropriate for a zero-infrastructure single-user utility; concurrency bounded by ThreadPoolExecutor max_workers=2 to respect Azure AI Foundry rate limits. Horizontal scaling is out of scope for the stated deployment model and the previous claim of horizontal scalability has been removed as architecturally inconsistent with a monolithic stateless local process.",
+        "security": "Zero persistent state minimises attack surface; input sanitisation prevents injection; no authentication data stored server-side; CORS policy restricts browser cross-origin access; server-side upload size limit prevents resource exhaustion; Azure AI Foundry credentials managed via environment variables to prevent hardcoded secrets exposure.",
+        "availability": "Azure AI Foundry retry and backoff logic with per-call timeout (default 30s) ensures resilience against transient LLM endpoint failures and prevents indefinite worker blocking during governance report generation.",
+        "performance": "Hybrid local scoring pre-filters pairs before LLM calls, reducing Azure AI Foundry invocations and targeting sub-5-minute report generation; per-call LLM timeout bounds worst-case latency per batch.",
+        "compliance": "Deterministic LLM outputs via temperature 0.1 and JSON-only prompts produce auditable, reproducible governance results supporting data compliance requirements."
+      }
+    }
+  }
+}

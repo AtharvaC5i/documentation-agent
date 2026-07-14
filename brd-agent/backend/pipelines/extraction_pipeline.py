@@ -309,6 +309,18 @@ class ExtractionPipeline:
             # Build gaps from coverage
             gaps = self._build_gaps(self.project.section_coverage)
             self.project.gaps = gaps
+
+            # Generate clarification questions — LLM Call 5 (Agentic Gap Resolution)
+            self._update_progress(80, "Generating targeted clarification questions...")
+            try:
+                questions = await self._generate_clarification_questions(
+                    unique_requirements, self.project.conflicts, self.project.gaps
+                )
+                self.project.clarification_questions = questions
+                success("QUESTIONS", f"Generated {len(questions)} clarification questions")
+            except Exception as ex:
+                warn("QUESTIONS", f"Clarification questions failed: {ex} — skipping")
+                self.project.clarification_questions = []
             strong = sum(1 for v in self.project.section_coverage.values() if v == "strong")
             weak   = sum(1 for v in self.project.section_coverage.values() if v == "weak")
             none_  = sum(1 for v in self.project.section_coverage.values() if v == "none")
@@ -552,3 +564,49 @@ Return [] if no conflicts. Return ONLY the JSON array."""
                     )
                 })
         return gaps
+
+    async def _generate_clarification_questions(
+        self,
+        requirements: List[Requirement],
+        conflicts: List[Dict],
+        gaps: List[Dict]
+    ) -> List[Dict]:
+        req_lines = [f"[{r.req_id}][{r.type}] {r.description[:100]}" for r in requirements[:40]]
+        req_summary = "\n".join(req_lines)
+        
+        conf_lines = [f"[{c.get('id')}][{c.get('impact')}] {c.get('description')}" for c in conflicts[:5]]
+        conf_summary = "\n".join(conf_lines)
+        
+        gap_lines = [f"[{g.get('id')}][{g.get('section')}] {g.get('message')}" for g in gaps[:5]]
+        gap_summary = "\n".join(gap_lines)
+        
+        system_prompt = """You are a senior Business Analyst reviewing project requirements, conflicts, and gaps.
+Generate 3 to 5 highly specific, high-priority clarification questions for the client to resolve the key ambiguities, contradictions, or missing information.
+For each question, provide:
+1. "id": e.g., "Q-001"
+2. "question": a clear, polite, and technical question
+3. "context": why this question is being asked (referencing specific requirements, conflicts, or gaps)
+4. "suggested_options": a list of 2-3 possible answers/options for the client to select from
+
+Return a JSON array ONLY. Format:
+[
+  {
+    "id": "Q-001",
+    "question": "question text",
+    "context": "context explanation",
+    "suggested_options": ["Option A", "Option B"]
+  }
+]
+Return ONLY valid JSON."""
+
+        user_prompt = f"Requirements:\n{req_summary}\n\nConflicts:\n{conf_summary}\n\nGaps:\n{gap_summary}"
+        
+        llm_call("QUESTIONS", "Generate clarification questions", len(user_prompt))
+        raw = await call_databricks_llm(
+            system_prompt, user_prompt, max_tokens=3000, json_mode=True,
+            _metrics_collector=self._mc, _metrics_stage="clarification_questions",
+        )
+        llm_response("QUESTIONS", len(raw))
+        
+        data = parse_llm_json(raw)
+        return data if isinstance(data, list) else data.get("questions", [])

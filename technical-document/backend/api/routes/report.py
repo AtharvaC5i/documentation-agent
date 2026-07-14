@@ -20,6 +20,22 @@ def get_report(project_id: str, body: ReportRequest):
 
         try:
             collector = get_collector(project_id)
+            summary = report.get("summary", {})
+            total = summary.get("total_sections", 0)
+            rejected = summary.get("rejected", 0)
+            edited = summary.get("edited", 0)
+            regenerated = summary.get("regenerated", 0)
+
+            if total == 0:
+                flag = "not_reviewed"
+            elif regenerated > 2 or rejected > 0:
+                flag = "major_rework"
+            elif edited > 0 or regenerated > 0:
+                flag = "minor_edits"
+            else:
+                flag = "accepted"
+
+            collector.set_acceptance_flag(flag)
             metrics_path = collector.save(status="success")
             print(f"📊 [report.py] Metrics written to: {metrics_path}")
         except Exception as metrics_err:

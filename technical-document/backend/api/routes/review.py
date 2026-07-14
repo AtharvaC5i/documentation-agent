@@ -121,9 +121,27 @@ def regenerate_section(project_id: str, body: RegenRequest):
     reset_section_for_regen(project_id, body.section_name)
 
     # Re-generate
+    from core.state_store import get_collector
+    collector = get_collector(project_id)
     try:
         result = generate_section(project_id, body.section_name, analysis)
+        usage = result.get("usage")
+        if usage:
+            collector.record_llm_call(
+                section_name=body.section_name,
+                prompt_tokens=usage.get("prompt_tokens", 0),
+                completion_tokens=usage.get("completion_tokens", 0),
+            )
     except Exception as e:
+        collector.record_error(
+            stage="review",
+            message=f"Regeneration failed for '{body.section_name}': {str(e)}",
+            error_type="timeout" if "timeout" in str(e).lower() else
+                       "llm_rate_limit" if "rate" in str(e).lower() else
+                       "empty_output" if "empty" in str(e).lower() else
+                       "runtime",
+            exception_type=type(e).__name__,
+        )
         raise HTTPException(
             status_code=500,
             detail=f"Regeneration failed: {str(e)}",

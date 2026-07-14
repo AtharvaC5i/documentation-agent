@@ -1,0 +1,101 @@
+{
+  "hash": "62ede36fbb67475a2ba00bb4eafec5a9",
+  "system_prompt": "\nYou are a solution architect producing a structured component graph for an architecture diagram.\n\nGiven the architecture JSON, output ONLY valid JSON with components and connections.\n\nSTRICT RULES:\n- Return ONLY valid JSON \u2014 no markdown, no backticks, no explanation\n- components: 5-8 nodes, each with id (snake_case), label (short, max 4 words)\n- Assign each component a layer from: Client, Frontend, Backend, AI/ML, Data, External\n- connections: directed left-to-right flow \u2014 user to frontend to backend to AI/data\n- Every connection from/to MUST reference an id in components\n- Edge labels: 1-3 words max (REST, SQL, gRPC, HTTPS, Embed, Invoke, Event)\n- NO Mermaid syntax\n\nOUTPUT FORMAT:\n{\n  \"components\": [\n    { \"id\": \"user_client\",  \"label\": \"User / Client\",   \"layer\": \"Client\"   },\n    { \"id\": \"frontend\",     \"label\": \"Streamlit UI\",    \"layer\": \"Frontend\" },\n    { \"id\": \"backend_api\",  \"label\": \"FastAPI Backend\", \"layer\": \"Backend\"  },\n    { \"id\": \"ai_engine\",    \"label\": \"LLM Engine\",      \"layer\": \"AI/ML\"    },\n    { \"id\": \"vector_db\",    \"label\": \"ChromaDB\",        \"layer\": \"Data\"     },\n    { \"id\": \"json_store\",   \"label\": \"JSON State Store\",\"layer\": \"Data\"     }\n  ],\n  \"connections\": [\n    { \"from\": \"user_client\",  \"to\": \"frontend\",    \"label\": \"HTTPS\"  },\n    { \"from\": \"frontend\",     \"to\": \"backend_api\", \"label\": \"REST\"   },\n    { \"from\": \"backend_api\",  \"to\": \"ai_engine\",   \"label\": \"Invoke\" },\n    { \"from\": \"backend_api\",  \"to\": \"vector_db\",   \"label\": \"Embed\"  },\n    { \"from\": \"backend_api\",  \"to\": \"json_store\",  \"label\": \"Persist\"}\n  ]\n}\n",
+  "user_prompt": "{\"project\": {\"name\": \"PowerBI Governance Intelligence Platform\", \"tagline\": \"LLM-Powered Semantic Duplicate Detection for Enterprise BI Rationalization\", \"client_context\": \"Enterprise BI teams managing large PowerBI landscapes with redundant, ungoverned report attributes needing consolidation.\"}, \"architecture\": {\"pattern\": \"Single-Page Application (SPA) with client-side LLM inference and in-browser data processing pipeline\", \"frontend\": \"HTML5 SPA with Bootstrap 5.3.3, custom CSS design system, drag-and-drop upload, tabbed report cards\", \"backend\": \"Client-side JavaScript orchestration layer \\u2014 no traditional backend server required\", \"ai_layer\": \"LLM-powered semantic similarity scoring engine running in-browser or via lightweight API call\", \"data_store\": \"In-memory browser state for loaded metadata; Excel/CSV as input and output persistence layer\", \"hosting\": \"Static file hosting (CDN or local) \\u2014 zero server-side infrastructure required\", \"components\": [{\"id\": \"user_client\", \"label\": \"User / Client\", \"name\": \"BI Governance User Browser Session\", \"role\": \"Entry point for all user interactions including upload, search, and export\", \"technology\": \"Web Browser, HTML5, REST client\"}, {\"id\": \"spa_ui\", \"label\": \"SPA Frontend\", \"name\": \"Single-Page Application UI Layer\", \"role\": \"Renders all UI components, manages state, handles drag-and-drop and tabbed report cards\", \"technology\": \"HTML5, Bootstrap 5.3.3 CDN, CSS Custom Properties, JavaScript ES6+\"}, {\"id\": \"file_ingestion\", \"label\": \"File Ingestion\", \"name\": \"Metadata File Ingestion Module\", \"role\": \"Parses uploaded Excel or CSV PowerBI metadata exports into structured in-memory objects\", \"technology\": \"JavaScript, SheetJS (xlsx.js), HTML5 File API, Drag-and-Drop API\"}, {\"id\": \"similarity_engine\", \"label\": \"Similarity Engine\", \"name\": \"LLM Semantic Similarity Scoring Engine\", \"role\": \"Computes semantic similarity scores across report attributes using LLM embeddings or API\", \"technology\": \"LLM API (OpenAI/Azure OpenAI), JavaScript, cosine similarity, embedding vectors\"}, {\"id\": \"matching_processor\", \"label\": \"Matching Processor\", \"name\": \"Cross-Report Attribute Matching Processor\", \"role\": \"Orchestrates cross-report field, measure, and dimension duplicate detection logic\", \"technology\": \"JavaScript ES6+, in-memory data structures, similarity threshold logic\"}, {\"id\": \"search_filter\", \"label\": \"Search & Filter\", \"name\": \"Real-Time Search and Filter Subsystem\", \"role\": \"Provides live in-browser filtering and search highlighting across loaded governance results\", \"technology\": \"JavaScript, DOM manipulation, CSS highlight classes, debounce utilities\"}, {\"id\": \"results_renderer\", \"label\": \"Results Renderer\", \"name\": \"Interactive Results and Report Card Renderer\", \"role\": \"Renders tabbed report cards with expandable attribute panels and governance insights\", \"technology\": \"HTML5, Bootstrap 5.3.3 tabs, JavaScript, custom CSS design tokens\"}, {\"id\": \"export_module\", \"label\": \"Export Module\", \"name\": \"Excel Export and Governance Output Module\", \"role\": \"Generates downloadable Excel output of duplicate detection results for downstream workflows\", \"technology\": \"SheetJS (xlsx.js), JavaScript Blob API, FileSaver.js\"}], \"connections\": [{\"from\": \"user_client\", \"to\": \"spa_ui\", \"label\": \"Browser Render / Interaction\"}, {\"from\": \"spa_ui\", \"to\": \"file_ingestion\", \"label\": \"File Upload / Drag-and-Drop\"}, {\"from\": \"file_ingestion\", \"to\": \"matching_processor\", \"label\": \"Parsed Metadata Objects\"}, {\"from\": \"matching_processor\", \"to\": \"similarity_engine\", \"label\": \"Attribute Pairs for Scoring\"}, {\"from\": \"similarity_engine\", \"to\": \"matching_processor\", \"label\": \"Similarity Scores Returned\"}, {\"from\": \"matching_processor\", \"to\": \"results_renderer\", \"label\": \"Scored Duplicate Results\"}, {\"from\": \"results_renderer\", \"to\": \"search_filter\", \"label\": \"Rendered Results DOM\"}, {\"from\": \"results_renderer\", \"to\": \"export_module\", \"label\": \"Export Trigger\"}, {\"from\": \"export_module\", \"to\": \"user_client\", \"label\": \"Excel File Download\"}, {\"from\": \"search_filter\", \"to\": \"results_renderer\", \"label\": \"Filtered View Update\"}]}, \"technology_stack\": {\"frontend\": [\"HTML5\", \"Bootstrap 5.3.3 (CDN)\", \"CSS Custom Properties Design System\", \"JavaScript ES6+\", \"HTML5 Drag-and-Drop API\"], \"backend\": [\"Client-side JavaScript Orchestration\", \"No server-side backend framework\", \"Browser-native fetch API for LLM calls\"], \"ai_ml\": [\"OpenAI Embeddings API / Azure OpenAI\", \"Cosine Similarity Algorithm\", \"LLM Semantic Similarity Scoring\", \"Configurable Similarity Threshold Engine\"], \"data\": [\"SheetJS xlsx.js for Excel and CSV parsing\", \"In-memory JavaScript data structures\", \"FileSaver.js for Excel export\", \"HTML5 File API\"], \"infrastructure\": [\"Static CDN Hosting (cdn.jsdelivr.net)\", \"Zero server-side infrastructure\", \"Browser-native execution environment\", \"Local file system for input/output\"], \"security\": [\"Client-side only data processing \\u2014 no server upload\", \"Zero server-side attack surface by design\", \"HTTPS for LLM API calls\", \"No persistent data storage of sensitive metadata\"]}, \"data_flow\": [\"User drags and drops Excel or CSV PowerBI metadata export onto the SPA drop-zone upload interface\", \"File Ingestion Module parses the file using SheetJS, extracting report attributes, fields, measures, and dimensions into structured in-memory objects\", \"Matching Processor enumerates all cross-report attribute pairs and queues them for semantic similarity evaluation\", \"Similarity Engine sends attribute pairs to LLM API, receives embedding vectors, and computes cosine similarity scores per pair\", \"Matching Processor applies configurable similarity thresholds to classify attribute pairs as duplicates, near-duplicates, or unique\", \"Results Renderer displays scored results as interactive tabbed report cards with expandable attribute panels and governance annotations\", \"Search and Filter Subsystem enables real-time in-browser filtering and keyword highlighting across all loaded governance results\", \"Export Module serializes final duplicate detection results into a formatted Excel file and triggers browser download for downstream governance use\"]}",
+  "response": {
+    "components": [
+      {
+        "id": "user_client",
+        "label": "User / Browser",
+        "layer": "Client"
+      },
+      {
+        "id": "spa_ui",
+        "label": "SPA Frontend",
+        "layer": "Frontend"
+      },
+      {
+        "id": "file_ingestion",
+        "label": "File Ingestion",
+        "layer": "Backend"
+      },
+      {
+        "id": "matching_processor",
+        "label": "Matching Processor",
+        "layer": "Backend"
+      },
+      {
+        "id": "similarity_engine",
+        "label": "Similarity Engine",
+        "layer": "AI/ML"
+      },
+      {
+        "id": "results_renderer",
+        "label": "Results Renderer",
+        "layer": "Frontend"
+      },
+      {
+        "id": "export_module",
+        "label": "Export Module",
+        "layer": "Data"
+      },
+      {
+        "id": "llm_api",
+        "label": "LLM Embeddings API",
+        "layer": "External"
+      }
+    ],
+    "connections": [
+      {
+        "from": "user_client",
+        "to": "spa_ui",
+        "label": "HTTPS"
+      },
+      {
+        "from": "spa_ui",
+        "to": "file_ingestion",
+        "label": "File Upload"
+      },
+      {
+        "from": "file_ingestion",
+        "to": "matching_processor",
+        "label": "Parsed Metadata"
+      },
+      {
+        "from": "matching_processor",
+        "to": "similarity_engine",
+        "label": "Attribute Pairs"
+      },
+      {
+        "from": "similarity_engine",
+        "to": "llm_api",
+        "label": "REST"
+      },
+      {
+        "from": "llm_api",
+        "to": "similarity_engine",
+        "label": "Embeddings"
+      },
+      {
+        "from": "similarity_engine",
+        "to": "matching_processor",
+        "label": "Scores"
+      },
+      {
+        "from": "matching_processor",
+        "to": "results_renderer",
+        "label": "Scored Results"
+      },
+      {
+        "from": "results_renderer",
+        "to": "export_module",
+        "label": "Export Trigger"
+      },
+      {
+        "from": "export_module",
+        "to": "user_client",
+        "label": "File Download"
+      }
+    ]
+  }
+}

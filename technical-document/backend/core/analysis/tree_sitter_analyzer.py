@@ -358,6 +358,10 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
     discovered_classes = 0
     discovered_functions = 0
 
+    discovered_api_list = []
+    discovered_class_list = []
+    discovered_function_list = []
+
     for filepath in filtered_files:
         filename = os.path.basename(filepath).lower()
         _, ext = os.path.splitext(filepath)
@@ -420,19 +424,41 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
         ))
 
         if not _is_test and ext_lower in SOURCE_EXTENSIONS:
+            import re
             for line in content.splitlines():
                 line_stripped = line.strip()
+                # Skip comments and empty lines
+                if not line_stripped or line_stripped.startswith(("#", "//", "/*", "*", "*/", "--", "'''", '"""', "rem ", "REM ", "import ", "from ")):
+                    continue
+
                 for pattern in API_PATTERNS:
                     if pattern in line_stripped:
                         api_count += 1
                         discovered_apis += 1
+                        route_match = re.search(r'[\'"]([^\'"]+)[\'"]', line_stripped)
+                        if route_match:
+                            discovered_api_list.append(route_match.group(1))
                         break
-                if line_stripped.startswith(("class ", "export class ", "interface ", "struct ", "enum ")):
+
+                class_match = re.match(r'^(?:export\s+)?(?:class|struct|interface|enum)\s+(\w+)', line_stripped)
+                if class_match:
                     discovered_classes += 1
-                if line_stripped.startswith(("def ", "function ", "async def ", "fn ", "public ", "private ", "protected ")):
+                    discovered_class_list.append(class_match.group(1))
+
+                func_match = re.match(r'^(?:export\s+)?(?:async\s+)?(?:def|function|fn)\s+(\w+)', line_stripped)
+                if func_match:
                     discovered_functions += 1
-                elif line_stripped.startswith(("const ", "let ", "var ")) and ("=" in line_stripped and ("=>" in line_stripped or "function" in line_stripped)):
-                    discovered_functions += 1
+                    discovered_function_list.append(func_match.group(1))
+                else:
+                    arrow_match = re.match(r'^(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\(', line_stripped)
+                    if arrow_match and ("=>" in line_stripped or "function" in line_stripped):
+                        discovered_functions += 1
+                        discovered_function_list.append(arrow_match.group(1))
+                    else:
+                        method_match = re.match(r'^(?:public|private|protected|static|virtual|override|async)\s+[\w<>]+\s+(\w+)\s*\(', line_stripped)
+                        if method_match:
+                            discovered_functions += 1
+                            discovered_function_list.append(method_match.group(1))
 
     tech = detect_tech_stack(filtered_files)
 
@@ -480,6 +506,9 @@ def analyze_codebase(filtered_files: List[str]) -> AnalysisResult:
         discovered_apis=discovered_apis,
         discovered_classes=discovered_classes,
         discovered_functions=discovered_functions,
+        discovered_api_list=discovered_api_list,
+        discovered_class_list=discovered_class_list,
+        discovered_function_list=discovered_function_list,
         detected_stack=detected_stack,
         actual_stack=actual_stack,
         tech_stack_comparison=tech_stack_comparison,

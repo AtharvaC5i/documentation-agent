@@ -15,7 +15,9 @@ import re
 import subprocess
 import tempfile
 import zipfile
+from contextlib import nullcontext
 from pathlib import Path
+from typing import Optional, Any
 
 from lxml import etree
 
@@ -517,27 +519,71 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
 
 
 def _merge_with_templates(content_bytes: bytes) -> bytes:
-    has_title = _TITLE_SLIDES.exists()
-    has_closing = _CLOSING_SLIDES.exists()
+    """Assemble editable slides with PowerPoint's native import operation.
 
-    if not has_title and not has_closing:
+    Copying parts between arbitrary PPTX ZIP packages leaves invalid
+    master/layout relationship graphs. PowerPoint's ``InsertFromFile`` keeps
+    the title and closing slides editable while rebuilding those relationships
+    correctly in the final package.
+    """
+    if not _TITLE_SLIDES.exists() and not _CLOSING_SLIDES.exists():
         return content_bytes
 
-    parts = []
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        content_path = tmpdir_path / "content.pptx"
+        output_path = tmpdir_path / "final.pptx"
+        base_path = tmpdir_path / "base.pptx"
+        content_path.write_bytes(content_bytes)
 
-    if has_title:
-        parts.append(_TITLE_SLIDES.read_bytes())
+        if _TITLE_SLIDES.exists():
+            base_path.write_bytes(_TITLE_SLIDES.read_bytes())
+        else:
+            base_path.write_bytes(content_bytes)
+            content_path = None
 
-    parts.append(content_bytes)
+        def ps_quote(value: Path) -> str:
+            return "'" + str(value).replace("'", "''") + "'"
 
-    if has_closing:
-        parts.append(_CLOSING_SLIDES.read_bytes())
+        commands = [
+            "$ErrorActionPreference = 'Stop'",
+            "$ppt = New-Object -ComObject PowerPoint.Application",
+            "$deck = $null",
+            "try {",
+            f"  $deck = $ppt.Presentations.Open({ps_quote(base_path)}, $false, $false, $false)",
+        ]
+        if content_path is not None:
+            commands.append(
+                f"  [void]$deck.Slides.InsertFromFile({ps_quote(content_path)}, $deck.Slides.Count)"
+            )
+        if _CLOSING_SLIDES.exists():
+            commands.append(
+                f"  [void]$deck.Slides.InsertFromFile({ps_quote(_CLOSING_SLIDES)}, $deck.Slides.Count)"
+            )
+        commands.extend([
+            f"  $deck.SaveAs({ps_quote(output_path)}, 24)",
+            "} finally {",
+            "  if ($deck -ne $null) { $deck.Close() }",
+            "  if ($ppt -ne $null) { $ppt.Quit(); [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($ppt) }",
+            "}",
+        ])
 
-    return _zip_merge_pptx(parts)
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", "\n".join(commands)],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        if result.returncode != 0 or not output_path.exists():
+            details = (result.stderr or result.stdout or "unknown error").strip()
+            raise RuntimeError(f"PowerPoint template assembly failed: {details}")
+
+        return output_path.read_bytes()
 
 
 class PptxService:
-    def generate(self, architecture_json: dict) -> bytes:
+    def generate(self, architecture_json: dict, tracker: Optional[Any] = None) -> bytes:
+        import time
 
         with tempfile.TemporaryDirectory() as tmpdir:
 
@@ -551,12 +597,14 @@ class PptxService:
                     ensure_ascii=False,
                 )
 
+            start_node = time.time()
             result = subprocess.run(
                 [_NODE_BIN, str(_JS_SCRIPT), input_path, output_path],
                 capture_output=True,
                 timeout=180,
                 cwd=str(_SCRIPT_DIR),
             )
+            node_duration = time.time() - start_node
 
             stdout_text = (
                 result.stdout.decode("utf-8", errors="replace")
@@ -567,6 +615,10 @@ class PptxService:
                 result.stderr.decode("utf-8", errors="replace")
                 if result.stderr else ""
             )
+            
+            # Print stderr text for server logging/visibility
+            if stderr_text:
+                print(f"[pptx_service Node stderr]:\n{stderr_text}")
 
             if result.returncode != 0:
                 raise RuntimeError(
@@ -580,8 +632,29 @@ class PptxService:
                     "Node process exited 0 but output file not found.\n"
                     f"STDERR: {stderr_text}"
                 )
+                
+            # Parse timing information if tracker is present
+            if tracker is not None:
+                try:
+                    step1_match = re.search(r"\[pptx-gen\] STEP 1 duration:\s*(\d+)\s*ms", stderr_text)
+                    step2_match = re.search(r"\[pptx-gen\] STEP 2 duration:\s*(\d+)\s*ms", stderr_text)
+                    
+                    duration_xml = float(step1_match.group(1)) / 1000.0 if step1_match else 0.0
+                    duration_png = float(step2_match.group(1)) / 1000.0 if step2_match else 0.0
+                    
+                    tracker._phase_timers["diagram_generation"] = duration_xml
+                    tracker._phase_timers["diagram_rendering"] = duration_png
+                    
+                    # The remaining time is pure PPTX layout/writing
+                    tracker._phase_timers["pptx_generation"] = max(0.0, node_duration - duration_xml - duration_png)
+                except Exception as timing_err:
+                    print(f"[Metrics] Warning: failed to parse timing from JS stderr: {timing_err}")
 
             with open(output_path, "rb") as f:
                 content_bytes = f.read()
 
-        return _merge_with_templates(content_bytes)
+        assembly_ctx = tracker.phase("pptx_assembly") if tracker is not None else nullcontext()
+        with assembly_ctx:
+            merged_bytes = _merge_with_templates(content_bytes)
+
+        return merged_bytes

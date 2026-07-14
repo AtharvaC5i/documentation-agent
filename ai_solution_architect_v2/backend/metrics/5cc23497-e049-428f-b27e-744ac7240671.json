@@ -1,0 +1,147 @@
+{
+  "run_id": "5cc23497-e049-428f-b27e-744ac7240671",
+  "timestamp_start": "2026-06-18T07:27:33.392270",
+  "timestamp_end": "2026-06-18T07:29:53.856835",
+  "run_success": true,
+  "error_details": {
+    "occurred": false,
+    "stage": "unknown",
+    "category": "unknown_error",
+    "message": "",
+    "recovery_attempted": false,
+    "recovery_successful": false
+  },
+  "duration": {
+    "total_seconds": 140.46,
+    "summarization_seconds": 7.08,
+    "core_generation_seconds": 49.11,
+    "diagram_generation_seconds": 0.0,
+    "diagram_rendering_seconds": 4.44,
+    "pptx_generation_seconds": 5.51,
+    "pptx_assembly_seconds": 0.56,
+    "validation_seconds": 0.09,
+    "self_critique_seconds": 8.57,
+    "architecture_refinement_seconds": 50.69
+  },
+  "llm_tokens": {
+    "summarization": {
+      "prompt_tokens": 155,
+      "completion_tokens": 169,
+      "total_tokens": 324
+    },
+    "core_generation": {
+      "prompt_tokens": 6392,
+      "completion_tokens": 7312,
+      "total_tokens": 13704
+    },
+    "diagram_generation": {
+      "prompt_tokens": 2381,
+      "completion_tokens": 603,
+      "total_tokens": 2984
+    },
+    "total": {
+      "prompt_tokens": 8928,
+      "completion_tokens": 8084,
+      "total_tokens": 17012
+    }
+  },
+  "estimated_cost_usd": 0.0251,
+  "sections": {
+    "selected_count": 12,
+    "selected_list": [
+      "Title",
+      "Problem",
+      "Solution",
+      "Diagram",
+      "Components",
+      "DataFlow",
+      "TechStack",
+      "Features",
+      "NFR",
+      "Roadmap",
+      "Risks",
+      "Closing"
+    ],
+    "custom_sections_count": 2,
+    "custom_sections": [
+      "Feedback and Review",
+      "Future Extensions"
+    ],
+    "total_sections": 14
+  },
+  "slides": {
+    "attempted": 15,
+    "successful": 15,
+    "failed": 0,
+    "retry_count": 0,
+    "success_rate": 1.0
+  },
+  "diagram": {
+    "attempted": true,
+    "success": true,
+    "components_count": 1,
+    "connections_count": 12,
+    "expected_components": 10,
+    "expected_connections": 17,
+    "component_coverage": 0.1,
+    "connection_coverage": 0.7058823529411765,
+    "correctness_score": 0.342
+  },
+  "quality": {
+    "content_quality": 1.0,
+    "diagram_quality": 1.0,
+    "architecture_alignment": 1.0,
+    "output_validity": 0.95,
+    "overall_score": 0.988
+  },
+  "pptx_validation": {
+    "file_created": true,
+    "file_size_bytes": 7326215,
+    "valid_xml": true,
+    "valid_relationships": true,
+    "opens_without_repair": true,
+    "all_slides_present": false,
+    "all_media_present": true,
+    "health_score": 0.833
+  },
+  "architecture_justification": {
+    "decisions_identified": 6,
+    "decisions_justified": 6,
+    "brd_citations": 5,
+    "constraint_references": 5,
+    "justification_score": 1.0
+  },
+  "review_cycle_count": 0,
+  "acceptance_status": "pending_review",
+  "total_retry_count": 0,
+  "quality_summary": {
+    "overall_score": 99,
+    "overall_label": "Excellent",
+    "dimensions": [
+      {
+        "id": "architecture_alignment",
+        "label": "Architecture Alignment",
+        "value": 100,
+        "display": "100%",
+        "status": "green",
+        "detail": "6 of 6 architecture decisions are justified with BRD citations"
+      },
+      {
+        "id": "diagram_accuracy",
+        "label": "Diagram Accuracy",
+        "value": 34,
+        "display": "34%",
+        "status": "red",
+        "detail": "1 of 10 architecture components rendered correctly"
+      },
+      {
+        "id": "presentation_health",
+        "label": "Presentation Health",
+        "value": 83,
+        "display": "83%",
+        "status": "amber",
+        "detail": "File integrity issue detected \u2014 check PPTX validation"
+      }
+    ]
+  }
+}

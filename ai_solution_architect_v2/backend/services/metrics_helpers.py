@@ -43,31 +43,113 @@ def extract_diagram_metrics(result: Any, diagram_selected: bool = False) -> Dict
   
   try:
     # Get raw architecture (has diagram components/connections)
-    # Note: result._raw_arch IS the architecture dict, not nested under "architecture"
     raw_arch = result.get_raw_architecture() if hasattr(result, 'get_raw_architecture') else {}
     if not raw_arch:
       return metrics
     
     metrics["attempted"] = True
     
-    # Extract components (raw_arch is already the architecture dict)
-    diagram_comps = raw_arch.get("components") or []
-    diagram_conns = raw_arch.get("connections") or []
+    # Expected from Core Architecture Step
+    expected_comps_list = raw_arch.get("components") or []
+    expected_conns_list = raw_arch.get("connections") or []
+    if not expected_conns_list and hasattr(result, 'data_flow'):
+      expected_conns_list = result.data_flow or []
+      
+    # Actuals from Diagram Generation Step (Step 2)
+    diagram_comps = raw_arch.get("diagram_components")
+    if diagram_comps is None:
+      diagram_comps = expected_comps_list
+      
+    diagram_conns = raw_arch.get("diagram_connections")
+    if diagram_conns is None:
+      diagram_conns = expected_conns_list
+
+    # Match components (case-insensitive)
+    expected_names = set()
+    for c in expected_comps_list:
+      name = c.get("name") or c.get("label") or c.get("id") if isinstance(c, dict) else str(c)
+      if name:
+        expected_names.add(str(name).strip().lower())
+        
+    matched_comps = 0
+    for c in diagram_comps:
+      name = c.get("label") or c.get("id") or c.get("name") if isinstance(c, dict) else str(c)
+      if name and str(name).strip().lower() in expected_names:
+        matched_comps += 1
+      elif name:
+        # Check partial match as fallback
+        name_clean = str(name).strip().lower()
+        if any(name_clean in en or en in name_clean for en in expected_names):
+          matched_comps += 1
+          
+    # Match connections
+    expected_conns_set = set()
+    expected_id_to_name = {}
+    for c in expected_comps_list:
+      cid = c.get("id") if isinstance(c, dict) else None
+      cname = c.get("name") or c.get("label") if isinstance(c, dict) else str(c)
+      if cid:
+        expected_id_to_name[str(cid).strip().lower()] = str(cname or cid).strip().lower()
+        
+    for conn in expected_conns_list:
+      if isinstance(conn, dict):
+        src = conn.get("source") or conn.get("from")
+        tgt = conn.get("target") or conn.get("to")
+      else:
+        src, tgt = None, None
+      if src and tgt:
+        src_clean = str(src).strip().lower()
+        tgt_clean = str(tgt).strip().lower()
+        # Add ID pair
+        expected_conns_set.add(frozenset([src_clean, tgt_clean]))
+        # Resolve to names and add name pair
+        src_name = expected_id_to_name.get(src_clean, src_clean)
+        tgt_name = expected_id_to_name.get(tgt_clean, tgt_clean)
+        expected_conns_set.add(frozenset([src_name, tgt_name]))
+        
+    diagram_id_to_name = {}
+    for c in diagram_comps:
+      if isinstance(c, dict):
+        cid = c.get("id")
+        cname = c.get("label") or c.get("name")
+        if cid:
+          diagram_id_to_name[str(cid).strip().lower()] = str(cname or cid).strip().lower()
+          
+    matched_conns = 0
+    for conn in diagram_conns:
+      if isinstance(conn, dict):
+        src = conn.get("source") or conn.get("from")
+        tgt = conn.get("target") or conn.get("to")
+      else:
+        src, tgt = None, None
+      if src and tgt:
+        src_clean = str(src).strip().lower()
+        tgt_clean = str(tgt).strip().lower()
+        
+        # Check direct clean match (could be ID-based or name-based)
+        if frozenset([src_clean, tgt_clean]) in expected_conns_set:
+          matched_conns += 1
+          continue
+          
+        # Check resolved name match
+        src_name = diagram_id_to_name.get(src_clean, src_clean)
+        tgt_name = diagram_id_to_name.get(tgt_clean, tgt_clean)
+        if frozenset([src_name, tgt_name]) in expected_conns_set:
+          matched_conns += 1
+          continue
+          
+        # Fallback: check if both endpoints exist in the diagram (partial match)
+        if src_clean in diagram_id_to_name or src_name in expected_names:
+          if tgt_clean in diagram_id_to_name or tgt_name in expected_names:
+            matched_conns += 1
+
+    metrics["components_count"] = matched_comps
+    metrics["expected_components"] = len(expected_names) if expected_names else len(diagram_comps)
+    metrics["connections_count"] = matched_conns
+    metrics["expected_connections"] = len(expected_conns_list) if expected_conns_list else len(diagram_conns)
     
-    # Also check data_flow from result
-    if not diagram_conns and hasattr(result, 'data_flow'):
-      diagram_conns = result.data_flow or []
-    
-    if isinstance(diagram_comps, list):
-      metrics["components_count"] = len(diagram_comps)
-      metrics["expected_components"] = len(diagram_comps)
-    
-    if isinstance(diagram_conns, list):
-      metrics["connections_count"] = len(diagram_conns)
-      metrics["expected_connections"] = len(diagram_conns)
-    
-    # If we got components and connections, diagram succeeded
-    metrics["success"] = metrics["components_count"] > 0 and metrics["connections_count"] > 0
+    # Diagram succeeded if actual components and connections were successfully generated and matching
+    metrics["success"] = metrics["components_count"] > 0 and len(diagram_comps) > 0
     
   except Exception as e:
     print(f"[Metrics] Warning: failed to extract diagram metrics: {e}")
@@ -114,13 +196,12 @@ def calculate_quality_scores(result: Any, brd_text: str, tech_doc_text: str, dia
         # Diagram quality: based on components and connections (only if diagram was selected)
         if diagram_selected:
             raw_arch = result.get_raw_architecture() if hasattr(result, 'get_raw_architecture') else {}
-            # Note: raw_arch IS the architecture dict, not nested under "architecture"
-            diagram_comps = raw_arch.get("components") or []
-            diagram_conns = raw_arch.get("connections") or []
-            
-            # Also check data_flow from result
-            if not diagram_conns and hasattr(result, 'data_flow'):
-                diagram_conns = result.data_flow or []
+            diagram_comps = raw_arch.get("diagram_components")
+            if diagram_comps is None:
+                diagram_comps = raw_arch.get("components") or []
+            diagram_conns = raw_arch.get("diagram_connections")
+            if diagram_conns is None:
+                diagram_conns = raw_arch.get("connections") or []
             
             # Ideal: 6-10 components, 8-12 connections
             comp_score = min(1.0, len(diagram_comps) / 8) if diagram_comps else 0.0
@@ -147,7 +228,11 @@ def calculate_quality_scores(result: Any, brd_text: str, tech_doc_text: str, dia
     return scores
 
 
-def extract_slide_metrics(result_dict: Dict[str, Any], selected_slides: Optional[List[str]] = None) -> Dict[str, int]:
+def extract_slide_metrics(
+    result_dict: Dict[str, Any], 
+    selected_slides: Optional[List[str]] = None,
+    diagram_success: bool = True
+) -> Dict[str, int]:
     """
     Extract slide generation metrics from result dict based on user's selected sections.
     
@@ -160,6 +245,7 @@ def extract_slide_metrics(result_dict: Dict[str, Any], selected_slides: Optional
     Args:
         result_dict: The generation result as a dict
         selected_slides: List of section names user selected (e.g., ["Title", "Closing", "Diagram", "Solution"])
+        diagram_success: Whether the diagram was successfully generated and rendered
     
     Returns:
         {
@@ -180,6 +266,8 @@ def extract_slide_metrics(result_dict: Dict[str, Any], selected_slides: Optional
         # Base: Title (2 slides) + Closing (1 slide) = 3 slides from templates
         slide_count = 3
         
+        diagram_selected = False
+        
         # If user selected specific sections, count those beyond Title/Closing
         if selected_slides and isinstance(selected_slides, list):
             # Count sections that are NOT Title or Closing (those are already in the base count)
@@ -188,6 +276,11 @@ def extract_slide_metrics(result_dict: Dict[str, Any], selected_slides: Optional
                 if s.strip().lower() not in ["title", "closing"]
             ]
             slide_count += len(additional_sections)
+            
+            diagram_selected = any(
+                s.strip().lower() == "diagram"
+                for s in additional_sections
+            )
             
             # Add custom slides if any
             custom_slides = result_dict.get("custom_slides") or []
@@ -214,14 +307,21 @@ def extract_slide_metrics(result_dict: Dict[str, Any], selected_slides: Optional
                 has_tech, has_nonfunc, has_roadmap, has_risks
             ])
             
+            arch = result_dict.get("architecture", {})
+            diagram_selected = isinstance(arch, dict) and (bool(arch.get("components")) or bool(arch.get("connections")))
+            
             # Add custom slides
             custom_slides = result_dict.get("custom_slides") or []
             if isinstance(custom_slides, list):
                 slide_count += len(custom_slides)
         
+        failed_slides = 0
+        if diagram_selected and not diagram_success:
+            failed_slides = 1
+            
         metrics["attempted"] = slide_count
-        metrics["successful"] = slide_count  # All slides attempted = successful (if PPTX generated)
-        metrics["failed"] = 0
+        metrics["successful"] = max(0, slide_count - failed_slides)
+        metrics["failed"] = failed_slides
         metrics["retry_count"] = 0
         
     except Exception as e:

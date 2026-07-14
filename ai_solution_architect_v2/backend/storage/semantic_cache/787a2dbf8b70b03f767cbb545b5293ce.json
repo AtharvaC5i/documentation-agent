@@ -1,0 +1,293 @@
+{
+  "hash": "787a2dbf8b70b03f767cbb545b5293ce",
+  "system_prompt": "\nYou are a principal solution architect at a top-tier consulting firm.\n\nAnalyse the provided Business Requirement Document and/or Technical Documentation carefully. Extract EVERYTHING relevant and produce a complete architecture JSON.\n\nNOTES:\n- Either BRD and/or Technical Documentation may be provided (at least one will be present)\n- If only Technical Documentation is provided, infer the project requirements and solution from it\n- If only BRD is provided, design a reasonable architecture based on the requirements\n- If both are provided, synthesize both perspectives\n\nCRITICAL RULES:\n- Return ONLY valid, complete JSON \u2014 no markdown, no explanation, no truncation\n- Every string value: max 20 words, clear and specific\n- NO empty arrays \u2014 every array must have real content derived from the input\n- alignment.goals: exactly 5 specific goals (extracted from BRD or inferred from tech doc)\n- alignment.success_metrics: exactly 5 measurable KPIs\n- problem_statement.current_pain_points: exactly 5-6 specific pains\n- proposed_solution.key_differentiators: exactly 5 specific technical differentiators\n- data_flow: exactly 6-8 sequential steps describing the actual system data flow\n- architecture.components: exactly 6-8 components, each with id, label, name, role, technology fields\n- architecture.connections: directed edges between component ids for the diagram\n- technology_stack: fill ALL 6 layers with real tech names from the input (frontend/backend/ai_ml/data/infrastructure/security)\n- non_functional: fill all 5 fields (scalability/security/availability/performance/compliance) with specific statements\n- roadmap: exactly 3 phases, each with exactly 4 concrete deliverables\n- risks: exactly 4-5 risks each with specific mitigation\n- assumptions: exactly 4-5 specific assumptions\n- open_questions: exactly 4-5 specific open questions\n\nIMPORTANT for architecture.components \u2014 each component MUST have ALL these fields:\n  \"id\": snake_case unique identifier (e.g. \"fastapi_backend\")\n  \"label\": short display name (e.g. \"FastAPI Backend\")\n  \"name\": full descriptive name (e.g. \"FastAPI REST Backend Service\")\n  \"role\": one-line description of what it does (e.g. \"Handles all API requests and orchestrates pipeline\")\n  \"technology\": specific tech used (e.g. \"FastAPI, Python, Pydantic, Uvicorn\")\n\nOUTPUT FORMAT:\n{\n  \"project\": { \"name\": \"\", \"tagline\": \"\", \"client_context\": \"\" },\n  \"alignment\": { \"goals\": [], \"business_value\": \"\", \"success_metrics\": [] },\n  \"problem_statement\": { \"current_pain_points\": [], \"impact\": \"\", \"root_cause\": \"\" },\n  \"proposed_solution\": { \"summary\": \"\", \"key_differentiators\": [], \"approach\": \"\" },\n  \"architecture\": {\n    \"pattern\": \"\", \"frontend\": \"\", \"backend\": \"\", \"ai_layer\": \"\", \"data_store\": \"\", \"hosting\": \"\",\n    \"components\": [\n      { \"id\": \"user_client\", \"label\": \"User / Client\", \"name\": \"Web Browser / API Client\", \"role\": \"Entry point for all user interactions\", \"technology\": \"Web Browser, REST client\" }\n    ],\n    \"connections\": [\n      { \"from\": \"user_client\", \"to\": \"frontend\", \"label\": \"HTTPS\" }\n    ]\n  },\n  \"data_flow\": [],\n  \"technology_stack\": { \"frontend\": [], \"backend\": [], \"ai_ml\": [], \"data\": [], \"infrastructure\": [], \"security\": [] },\n  \"non_functional\": { \"scalability\": \"\", \"security\": \"\", \"availability\": \"\", \"performance\": \"\", \"compliance\": \"\" },\n  \"roadmap\": [\n    { \"phase\": \"Phase 1 - Foundation\", \"duration\": \"Weeks 1-4\", \"deliverables\": [] },\n    { \"phase\": \"Phase 2 - Core Build\", \"duration\": \"Weeks 5-10\", \"deliverables\": [] },\n    { \"phase\": \"Phase 3 - Scale & Optimise\", \"duration\": \"Weeks 11-16\", \"deliverables\": [] }\n  ],\n  \"risks\": [{ \"risk\": \"\", \"mitigation\": \"\" }],\n  \"assumptions\": [],\n  \"open_questions\": []\n}\n",
+  "user_prompt": "ARCHITECTURAL FACT SHEET:\n{\"CoreBusinessGoals\": [\"Analyze PowerBI report metadata to detect duplicate and semantically similar report attributes across multiple reports\", \"Reduce BI asset redundancy by surfacing actionable governance insights to BI teams and data managers\", \"Enable enterprise-scale BI rationalization through cross-report attribute matching of fields, measures, and dimensions\", \"Deliver LLM-powered similarity scoring that identifies semantically equivalent attributes named differently across reports\", \"Provide an end-to-end exportable governance workflow from metadata ingestion through duplicate detection to Excel output\"], \"PrimaryUserPersonasAndEntryPoints\": {\"Personas\": [{\"Name\": \"BI Governance Manager\", \"Description\": \"Responsible for rationalizing and consolidating enterprise BI reporting landscape\", \"EntryPoint\": \"Drag-and-drop Excel/CSV metadata upload interface on the main SPA page\"}, {\"Name\": \"Data Manager / BI Analyst\", \"Description\": \"Seeks to identify redundant report attributes and consolidate PowerBI report definitions\", \"EntryPoint\": \"Results toolbar and interactive report cards with tabbed attribute panels\"}], \"EntryPoints\": [\"Drag-and-drop .drop-zone upload interface accepting Excel or CSV metadata exports\", \"Interactive results layer with tabbed report cards and expandable attribute lists\", \"Real-time search subsystem (.search-input-group) for filtering loaded results\", \"Export to Excel function for downstream governance workflows\"]}, \"IdentifiedPainPointsAndConstraints\": [\"Exact string matching is insufficient to identify semantically equivalent attributes named differently across PowerBI reports, requiring LLM-powered scoring\", \"Enterprise BI landscapes contain high volumes of redundant and duplicate report attributes that are difficult to govern manually\", \"BI teams lack a consolidated tooling workflow that spans metadata ingestion, similarity analysis, and exportable results in one interface\", \"The application must operate as a zero-dependency, browser-deployable tool, constraining backend and infrastructure options\", \"Responsive design must support multiple breakpoints (768px and 480px) to accommodate varied client device environments\"], \"KeyTechnologyStackPreferences\": {\"Frontend\": [\"Single-Page Application (SPA) architecture \\u2014 fully browser-side UI state and rendering\", \"Bootstrap 5.3.3 loaded via CDN (cdn.jsdelivr.net) for responsive grid and utility primitives\", \"Custom CSS design system in style.css using CSS custom properties (--purple, --purple-mid, --purple-light, --purple-faint, --radius, --font)\", \"Responsive breakpoints at 768px and 480px\", \"HTML5 drag-and-drop file upload interface\"], \"Backend\": [\"LLM-powered similarity scoring engine for semantic attribute matching\", \"No explicit backend framework specified in provided documents; architecture described as frontend-first\"], \"Database\": [\"No database technology explicitly specified in provided documents\", \"Input data sourced from Excel or CSV metadata exports; output delivered as Excel export\"]}, \"CriticalSecurityAndPerformanceNFRs\": {\"Security\": [\"Client-facing web application handling potentially sensitive enterprise BI metadata \\u2014 data handling and upload security controls implied but not explicitly detailed in provided documents\", \"Zero-dependency browser-deployable architecture reduces server-side attack surface\"], \"Performance\": [\"Real-time filtering and search highlighting across loaded results must perform responsively in-browser without server round-trips\", \"Cross-report attribute matching and LLM similarity scoring must handle metadata exports from multiple PowerBI reports at enterprise scale\", \"SPA architecture constrains all UI state and rendering to the browser, requiring efficient client-side data processing\", \"Max-width constraint of 1200px on .main-content ensures consistent rendering performance across viewport sizes\"]}}",
+  "response": {
+    "project": {
+      "name": "PowerBI Governance Intelligence Platform",
+      "tagline": "LLM-Powered Semantic Duplicate Detection for Enterprise BI Rationalization",
+      "client_context": "Enterprise BI teams managing large PowerBI landscapes with redundant, ungoverned report attributes needing consolidation."
+    },
+    "alignment": {
+      "goals": [
+        "Detect duplicate and semantically similar PowerBI report attributes across enterprise BI landscapes",
+        "Reduce BI asset redundancy by surfacing actionable governance insights to BI managers",
+        "Enable cross-report attribute matching of fields, measures, and dimensions at enterprise scale",
+        "Deliver LLM-powered similarity scoring for semantically equivalent but differently named attributes",
+        "Provide end-to-end exportable governance workflow from metadata ingestion to Excel output"
+      ],
+      "business_value": "Accelerates BI rationalization, reduces report sprawl, and empowers governance teams with zero-infrastructure tooling.",
+      "success_metrics": [
+        "Reduction in duplicate BI report attributes identified per governance cycle by 60%",
+        "Time-to-insight for metadata analysis reduced from days to under 5 minutes",
+        "100% of similarity scoring completed client-side with no server round-trips",
+        "Excel export adoption rate across BI governance workflows reaches 80% of users",
+        "Responsive UI renders correctly across all breakpoints for 100% of target devices"
+      ]
+    },
+    "problem_statement": {
+      "current_pain_points": [
+        "Exact string matching fails to identify semantically equivalent attributes named differently across PowerBI reports",
+        "Enterprise BI landscapes contain high volumes of redundant report attributes that are impossible to govern manually",
+        "No consolidated tooling spans metadata ingestion, similarity analysis, and exportable results in one workflow",
+        "BI teams rely on fragmented, manual processes to rationalize report definitions across business units",
+        "Zero-dependency browser-deployable constraint limits backend options and requires all processing client-side",
+        "Responsive design requirements across 768px and 480px breakpoints add UI complexity for varied client devices"
+      ],
+      "impact": "Ungoverned BI redundancy inflates maintenance costs, creates data inconsistency, and slows enterprise reporting rationalization.",
+      "root_cause": "Absence of semantic-aware, integrated tooling forces manual, error-prone governance processes across fragmented BI metadata."
+    },
+    "proposed_solution": {
+      "summary": "A zero-dependency browser-deployable SPA that ingests PowerBI metadata exports, applies LLM semantic similarity scoring, and delivers interactive governance insights with Excel export.",
+      "key_differentiators": [
+        "LLM-powered semantic similarity scoring detects equivalent attributes regardless of naming conventions",
+        "Fully browser-side SPA architecture eliminates server infrastructure and reduces attack surface",
+        "Drag-and-drop Excel/CSV ingestion with real-time in-browser filtering and search highlighting",
+        "Cross-report attribute matching across fields, measures, and dimensions in a single unified workflow",
+        "One-click Excel export enables downstream governance workflows without additional tooling"
+      ],
+      "approach": "Build a client-side SPA using Bootstrap 5.3.3 and custom CSS, integrating an LLM similarity engine for semantic attribute matching, with interactive tabbed report cards and exportable results."
+    },
+    "architecture": {
+      "pattern": "Single-Page Application (SPA) with client-side LLM inference and in-browser data processing pipeline",
+      "frontend": "HTML5 SPA with Bootstrap 5.3.3, custom CSS design system, drag-and-drop upload, tabbed report cards",
+      "backend": "Client-side JavaScript orchestration layer \u2014 no traditional backend server required",
+      "ai_layer": "LLM-powered semantic similarity scoring engine running in-browser or via lightweight API call",
+      "data_store": "In-memory browser state for loaded metadata; Excel/CSV as input and output persistence layer",
+      "hosting": "Static file hosting (CDN or local) \u2014 zero server-side infrastructure required",
+      "components": [
+        {
+          "id": "user_client",
+          "label": "User / Client",
+          "name": "BI Governance User Browser Session",
+          "role": "Entry point for all user interactions including upload, search, and export",
+          "technology": "Web Browser, HTML5, REST client"
+        },
+        {
+          "id": "spa_ui",
+          "label": "SPA Frontend",
+          "name": "Single-Page Application UI Layer",
+          "role": "Renders all UI components, manages state, handles drag-and-drop and tabbed report cards",
+          "technology": "HTML5, Bootstrap 5.3.3 CDN, CSS Custom Properties, JavaScript ES6+"
+        },
+        {
+          "id": "file_ingestion",
+          "label": "File Ingestion",
+          "name": "Metadata File Ingestion Module",
+          "role": "Parses uploaded Excel or CSV PowerBI metadata exports into structured in-memory objects",
+          "technology": "JavaScript, SheetJS (xlsx.js), HTML5 File API, Drag-and-Drop API"
+        },
+        {
+          "id": "similarity_engine",
+          "label": "Similarity Engine",
+          "name": "LLM Semantic Similarity Scoring Engine",
+          "role": "Computes semantic similarity scores across report attributes using LLM embeddings or API",
+          "technology": "LLM API (OpenAI/Azure OpenAI), JavaScript, cosine similarity, embedding vectors"
+        },
+        {
+          "id": "matching_processor",
+          "label": "Matching Processor",
+          "name": "Cross-Report Attribute Matching Processor",
+          "role": "Orchestrates cross-report field, measure, and dimension duplicate detection logic",
+          "technology": "JavaScript ES6+, in-memory data structures, similarity threshold logic"
+        },
+        {
+          "id": "search_filter",
+          "label": "Search & Filter",
+          "name": "Real-Time Search and Filter Subsystem",
+          "role": "Provides live in-browser filtering and search highlighting across loaded governance results",
+          "technology": "JavaScript, DOM manipulation, CSS highlight classes, debounce utilities"
+        },
+        {
+          "id": "results_renderer",
+          "label": "Results Renderer",
+          "name": "Interactive Results and Report Card Renderer",
+          "role": "Renders tabbed report cards with expandable attribute panels and governance insights",
+          "technology": "HTML5, Bootstrap 5.3.3 tabs, JavaScript, custom CSS design tokens"
+        },
+        {
+          "id": "export_module",
+          "label": "Export Module",
+          "name": "Excel Export and Governance Output Module",
+          "role": "Generates downloadable Excel output of duplicate detection results for downstream workflows",
+          "technology": "SheetJS (xlsx.js), JavaScript Blob API, FileSaver.js"
+        }
+      ],
+      "connections": [
+        {
+          "from": "user_client",
+          "to": "spa_ui",
+          "label": "Browser Render / Interaction"
+        },
+        {
+          "from": "spa_ui",
+          "to": "file_ingestion",
+          "label": "File Upload / Drag-and-Drop"
+        },
+        {
+          "from": "file_ingestion",
+          "to": "matching_processor",
+          "label": "Parsed Metadata Objects"
+        },
+        {
+          "from": "matching_processor",
+          "to": "similarity_engine",
+          "label": "Attribute Pairs for Scoring"
+        },
+        {
+          "from": "similarity_engine",
+          "to": "matching_processor",
+          "label": "Similarity Scores Returned"
+        },
+        {
+          "from": "matching_processor",
+          "to": "results_renderer",
+          "label": "Scored Duplicate Results"
+        },
+        {
+          "from": "results_renderer",
+          "to": "search_filter",
+          "label": "Rendered Results DOM"
+        },
+        {
+          "from": "results_renderer",
+          "to": "export_module",
+          "label": "Export Trigger"
+        },
+        {
+          "from": "export_module",
+          "to": "user_client",
+          "label": "Excel File Download"
+        },
+        {
+          "from": "search_filter",
+          "to": "results_renderer",
+          "label": "Filtered View Update"
+        }
+      ]
+    },
+    "data_flow": [
+      "User drags and drops Excel or CSV PowerBI metadata export onto the SPA drop-zone upload interface",
+      "File Ingestion Module parses the file using SheetJS, extracting report attributes, fields, measures, and dimensions into structured in-memory objects",
+      "Matching Processor enumerates all cross-report attribute pairs and queues them for semantic similarity evaluation",
+      "Similarity Engine sends attribute pairs to LLM API, receives embedding vectors, and computes cosine similarity scores per pair",
+      "Matching Processor applies configurable similarity thresholds to classify attribute pairs as duplicates, near-duplicates, or unique",
+      "Results Renderer displays scored results as interactive tabbed report cards with expandable attribute panels and governance annotations",
+      "Search and Filter Subsystem enables real-time in-browser filtering and keyword highlighting across all loaded governance results",
+      "Export Module serializes final duplicate detection results into a formatted Excel file and triggers browser download for downstream governance use"
+    ],
+    "technology_stack": {
+      "frontend": [
+        "HTML5",
+        "Bootstrap 5.3.3 (CDN)",
+        "CSS Custom Properties Design System",
+        "JavaScript ES6+",
+        "HTML5 Drag-and-Drop API"
+      ],
+      "backend": [
+        "Client-side JavaScript Orchestration",
+        "No server-side backend framework",
+        "Browser-native fetch API for LLM calls"
+      ],
+      "ai_ml": [
+        "OpenAI Embeddings API / Azure OpenAI",
+        "Cosine Similarity Algorithm",
+        "LLM Semantic Similarity Scoring",
+        "Configurable Similarity Threshold Engine"
+      ],
+      "data": [
+        "SheetJS xlsx.js for Excel and CSV parsing",
+        "In-memory JavaScript data structures",
+        "FileSaver.js for Excel export",
+        "HTML5 File API"
+      ],
+      "infrastructure": [
+        "Static CDN Hosting (cdn.jsdelivr.net)",
+        "Zero server-side infrastructure",
+        "Browser-native execution environment",
+        "Local file system for input/output"
+      ],
+      "security": [
+        "Client-side only data processing \u2014 no server upload",
+        "Zero server-side attack surface by design",
+        "HTTPS for LLM API calls",
+        "No persistent data storage of sensitive metadata"
+      ]
+    },
+    "non_functional": {
+      "scalability": "Client-side in-memory processing must handle metadata exports from 50+ PowerBI reports without browser memory exhaustion.",
+      "security": "All metadata remains in-browser; LLM API calls use HTTPS with API key management; no server-side data persistence.",
+      "availability": "Zero-infrastructure SPA ensures 100% availability independent of backend uptime; static assets served via CDN.",
+      "performance": "Real-time search filtering and DOM updates must complete within 100ms; LLM scoring batched to minimize API latency.",
+      "compliance": "Sensitive enterprise BI metadata must not be persisted beyond browser session; LLM API data handling must meet enterprise data policies."
+    },
+    "roadmap": [
+      {
+        "phase": "Phase 1 - Foundation",
+        "duration": "Weeks 1-4",
+        "deliverables": [
+          "SPA scaffold with Bootstrap 5.3.3, CSS design system, and responsive breakpoints at 768px and 480px",
+          "Drag-and-drop file upload interface accepting Excel and CSV PowerBI metadata exports",
+          "SheetJS-based file ingestion module parsing metadata into structured in-memory attribute objects",
+          "Basic report card UI with tabbed attribute panels rendering parsed metadata results"
+        ]
+      },
+      {
+        "phase": "Phase 2 - Core Build",
+        "duration": "Weeks 5-10",
+        "deliverables": [
+          "LLM similarity engine integration with OpenAI/Azure OpenAI embeddings API and cosine scoring",
+          "Cross-report attribute matching processor with configurable duplicate detection thresholds",
+          "Real-time search and filter subsystem with keyword highlighting across governance results",
+          "Excel export module generating formatted downloadable governance output via SheetJS and FileSaver.js"
+        ]
+      },
+      {
+        "phase": "Phase 3 - Scale & Optimise",
+        "duration": "Weeks 11-16",
+        "deliverables": [
+          "Performance optimisation for large metadata exports including batched LLM API calls and lazy rendering",
+          "Enhanced governance insights UI with similarity score visualisation and attribute consolidation recommendations",
+          "End-to-end user acceptance testing with BI Governance Manager and Data Manager personas",
+          "Static deployment packaging and CDN configuration for zero-dependency enterprise distribution"
+        ]
+      }
+    ],
+    "risks": [
+      {
+        "risk": "LLM API latency degrades user experience when scoring large volumes of cross-report attribute pairs",
+        "mitigation": "Implement batched API calls, progress indicators, and client-side caching of previously scored attribute pairs."
+      },
+      {
+        "risk": "Browser memory limits exceeded when processing metadata exports from very large enterprise PowerBI landscapes",
+        "mitigation": "Implement chunked in-memory processing, virtual DOM rendering for results, and file size validation on upload."
+      },
+      {
+        "risk": "Enterprise data governance policies may prohibit sending sensitive BI metadata to external LLM APIs",
+        "mitigation": "Support Azure OpenAI private endpoint configuration and document data handling for enterprise compliance review."
+      },
+      {
+        "risk": "LLM similarity scoring produces inconsistent or low-quality results for highly domain-specific BI attribute naming",
+        "mitigation": "Allow configurable similarity thresholds, provide manual override UI, and support prompt tuning for domain context."
+      },
+      {
+        "risk": "Cross-browser compatibility issues with HTML5 File API and Drag-and-Drop across enterprise-managed browser environments",
+        "mitigation": "Test across Chrome, Edge, and Firefox; provide fallback file input button alongside drag-and-drop interface."
+      }
+    ],
+    "assumptions": [
+      "Users have access to a modern browser supporting HTML5 File API, Drag-and-Drop, and ES6+ JavaScript",
+      "An LLM API key (OpenAI or Azure OpenAI) is available and accessible from the client browser environment",
+      "PowerBI metadata exports are available in structured Excel or CSV format with consistent attribute column schemas",
+      "Enterprise data governance policies permit client-side processing of BI metadata within the browser session",
+      "BI Governance Managers and Data Analysts are the primary users and will provide metadata exports directly"
+    ],
+    "open_questions": [
+      "Will LLM API calls be made directly from the browser or proxied through a lightweight serverless function for key security?",
+      "What is the maximum expected number of PowerBI reports and attributes per metadata export for performance benchmarking?",
+      "Are there specific enterprise data residency or compliance requirements that restrict use of external LLM APIs?",
+      "Should similarity thresholds be user-configurable in the UI or fixed by governance policy at deployment time?",
+      "Is there a requirement to persist governance results across sessions, or is single-session in-memory processing sufficient?"
+    ]
+  }
+}

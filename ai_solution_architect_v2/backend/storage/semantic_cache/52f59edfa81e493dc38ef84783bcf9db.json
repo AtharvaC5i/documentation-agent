@@ -1,0 +1,106 @@
+{
+  "hash": "52f59edfa81e493dc38ef84783bcf9db",
+  "system_prompt": "\nYou are a solution architect producing a structured component graph for an architecture diagram.\n\nGiven the architecture JSON, output ONLY valid JSON with components and connections.\n\nSTRICT RULES:\n- Return ONLY valid JSON \u2014 no markdown, no backticks, no explanation\n- components: 5-8 nodes, each with id (snake_case), label (short, max 4 words)\n- Assign each component a layer from: Client, Frontend, Backend, AI/ML, Data, External\n- connections: directed left-to-right flow \u2014 user to frontend to backend to AI/data\n- Every connection from/to MUST reference an id in components\n- Edge labels: 1-3 words max (REST, SQL, gRPC, HTTPS, Embed, Invoke, Event)\n- NO Mermaid syntax\n\nOUTPUT FORMAT:\n{\n  \"components\": [\n    { \"id\": \"user_client\",  \"label\": \"User / Client\",   \"layer\": \"Client\"   },\n    { \"id\": \"frontend\",     \"label\": \"Streamlit UI\",    \"layer\": \"Frontend\" },\n    { \"id\": \"backend_api\",  \"label\": \"FastAPI Backend\", \"layer\": \"Backend\"  },\n    { \"id\": \"ai_engine\",    \"label\": \"LLM Engine\",      \"layer\": \"AI/ML\"    },\n    { \"id\": \"vector_db\",    \"label\": \"ChromaDB\",        \"layer\": \"Data\"     },\n    { \"id\": \"json_store\",   \"label\": \"JSON State Store\",\"layer\": \"Data\"     }\n  ],\n  \"connections\": [\n    { \"from\": \"user_client\",  \"to\": \"frontend\",    \"label\": \"HTTPS\"  },\n    { \"from\": \"frontend\",     \"to\": \"backend_api\", \"label\": \"REST\"   },\n    { \"from\": \"backend_api\",  \"to\": \"ai_engine\",   \"label\": \"Invoke\" },\n    { \"from\": \"backend_api\",  \"to\": \"vector_db\",   \"label\": \"Embed\"  },\n    { \"from\": \"backend_api\",  \"to\": \"json_store\",  \"label\": \"Persist\"}\n  ]\n}\n",
+  "user_prompt": "{\"project\": {\"name\": \"PowerBI Governance Analyser\", \"tagline\": \"Zero-infrastructure semantic governance reporting for large PowerBI estates\", \"client_context\": \"Enterprise data teams managing large, multi-team PowerBI estates with inconsistent naming conventions requiring automated governance tooling\"}, \"architecture\": {\"pattern\": \"Single-Page Application with monolithic Python processing pipeline and zero persistent server-side state\", \"frontend\": \"Bootstrap 5.3.3 SPA with drag-and-drop upload and Excel export download\", \"backend\": \"Python monolithic server.py pipeline with scikit-learn and Azure AI Foundry LLM integration\", \"ai_layer\": \"Meta Llama 3.3 70B Instruct via Azure AI Foundry with batched parallel inference\", \"data_store\": \"In-memory per-request attribute dictionary; no persistent database\", \"hosting\": \"Self-contained local Python HTTP server (Flask or FastAPI) bundled with the SPA static assets; 'zero-infrastructure' refers to zero user-provisioned cloud or server infrastructure \\u2014 the tool runs as a local process on the analyst's machine or a minimal host, requiring no deployment pipeline, container orchestration, or cloud provisioning by the end user\", \"components\": [{\"id\": \"user_client\", \"label\": \"User / Client\", \"name\": \"Web Browser Governance Client\", \"role\": \"Entry point for metadata upload and governance report download interactions\", \"technology\": \"Web Browser, REST client, HTML5 File API\"}, {\"id\": \"spa_frontend\", \"label\": \"SPA Frontend\", \"name\": \"Bootstrap SPA Governance Interface\", \"role\": \"Renders drag-and-drop upload UI, progress feedback, and triggers Excel report download\", \"technology\": \"Bootstrap 5.3.3, HTML5, CSS3, JavaScript ES6, Purple design system\"}, {\"id\": \"http_api_layer\", \"label\": \"HTTP API Layer\", \"name\": \"Flask/FastAPI HTTP Server\", \"role\": \"Exposes multipart file upload endpoint to SPA, enforces backend request size limits, sets CORS headers, and routes requests to the Python processing pipeline\", \"technology\": \"Flask or FastAPI, Python WSGI/ASGI, CORS middleware, MAX_CONTENT_LENGTH enforcement\", \"gap_added\": \"Previously missing \\u2014 required to bridge SPA HTTP POST to Python pipeline and enforce server-side upload size limits and CORS policy\"}, {\"id\": \"python_pipeline\", \"label\": \"Python Pipeline\", \"name\": \"Monolithic Python Governance Processing Pipeline\", \"role\": \"Orchestrates full ingestion, normalisation, scoring, and report generation workflow\", \"technology\": \"Python, server.py, Pandas, openpyxl\"}, {\"id\": \"input_sanitiser\", \"label\": \"Input Sanitiser\", \"name\": \"Unicode Normalisation and Input Sanitisation Module\", \"role\": \"Strips whitespace, lowercases, and Unicode-normalises all attribute strings before scoring\", \"technology\": \"Python unicodedata, str.strip, str.lower\"}, {\"id\": \"local_scorer\", \"label\": \"Local Scorer\", \"name\": \"TF-IDF, Jaccard, and Levenshtein Hybrid Scoring Engine\", \"role\": \"Computes local similarity scores for all attribute pairs before LLM semantic validation\", \"technology\": \"scikit-learn TF-IDF, character bi-gram to 4-gram, python-Levenshtein, Jaccard\"}, {\"id\": \"llm_orchestrator\", \"label\": \"LLM Orchestrator\", \"name\": \"Parallelised LLM Inference Orchestrator\", \"role\": \"Batches attribute pairs at 25 per call, dispatches parallel LLM requests with retry logic, enforces per-call timeout to prevent indefinite worker blocking\", \"technology\": \"ThreadPoolExecutor max_workers=2, Python concurrent.futures, retry/backoff, per-call timeout (configurable, default 30s)\", \"gap_corrected\": \"Per-call timeout added to prevent hung Azure AI Foundry calls from blocking ThreadPoolExecutor workers indefinitely\"}, {\"id\": \"azure_ai_foundry\", \"label\": \"Azure AI Foundry\", \"name\": \"Azure AI Foundry LLM Endpoint\", \"role\": \"Hosts Meta Llama 3.3 70B Instruct and returns deterministic JSON semantic match scores\", \"technology\": \"Azure AI Foundry, AzureOpenAI client, Meta Llama 3.3 70B Instruct, temperature 0.1\"}, {\"id\": \"credential_config\", \"label\": \"Credential Config\", \"name\": \"Azure AI Foundry API Credential Manager\", \"role\": \"Supplies Azure AI Foundry API key or managed identity credential to the AzureOpenAI client at runtime; prevents hardcoded credentials in source\", \"technology\": \"Environment variable (AZURE_AI_FOUNDRY_API_KEY) or .env file loaded via python-dotenv at startup; never committed to source control\", \"gap_added\": \"Previously missing \\u2014 API key management for Azure AI Foundry calls was unaddressed, creating hardcoded credentials risk\"}, {\"id\": \"report_generator\", \"label\": \"Report Generator\", \"name\": \"Excel Governance Report Generator\", \"role\": \"Assembles final scored attribute matches into downloadable Excel governance report\", \"technology\": \"openpyxl, Pandas, Excel XLSX output\"}], \"connections\": [{\"from\": \"user_client\", \"to\": \"spa_frontend\", \"label\": \"Browser Interaction\"}, {\"from\": \"spa_frontend\", \"to\": \"http_api_layer\", \"label\": \"Multipart File Upload (HTTP POST) with CORS preflight\"}, {\"from\": \"http_api_layer\", \"to\": \"python_pipeline\", \"label\": \"Validated and size-checked file stream\"}, {\"from\": \"python_pipeline\", \"to\": \"input_sanitiser\", \"label\": \"Raw Attribute Strings\"}, {\"from\": \"input_sanitiser\", \"to\": \"local_scorer\", \"label\": \"Normalised Attribute Pairs\"}, {\"from\": \"local_scorer\", \"to\": \"llm_orchestrator\", \"label\": \"Candidate Pairs Above Threshold\"}, {\"from\": \"llm_orchestrator\", \"to\": \"azure_ai_foundry\", \"label\": \"Batched JSON Prompt (25 pairs) with per-call timeout\"}, {\"from\": \"azure_ai_foundry\", \"to\": \"llm_orchestrator\", \"label\": \"JSON Semantic Scores Response\"}, {\"from\": \"credential_config\", \"to\": \"azure_ai_foundry\", \"label\": \"API Key / Credential injection at client init\"}, {\"from\": \"llm_orchestrator\", \"to\": \"report_generator\", \"label\": \"Merged Hybrid Scores\"}, {\"from\": \"report_generator\", \"to\": \"http_api_layer\", \"label\": \"Excel XLSX byte stream\"}, {\"from\": \"http_api_layer\", \"to\": \"spa_frontend\", \"label\": \"Excel File Download Response\"}, {\"from\": \"spa_frontend\", \"to\": \"user_client\", \"label\": \"Governance Report Download\"}]}, \"technology_stack\": {\"frontend\": [\"Bootstrap 5.3.3\", \"HTML5\", \"CSS3 responsive design (max-width 1200px)\", \"JavaScript ES6\", \"HTML5 File API drag-and-drop\"], \"backend\": [\"Python 3.x\", \"Flask or FastAPI (HTTP API layer \\u2014 previously missing; required for SPA-to-pipeline HTTP bridging)\", \"Flask-CORS or FastAPI CORSMiddleware (CORS policy enforcement \\u2014 previously missing)\", \"server.py monolithic pipeline\", \"scikit-learn TF-IDF vectorizer\", \"python-Levenshtein\", \"Pandas\", \"openpyxl\", \"python-dotenv (Azure AI Foundry API key loading from environment \\u2014 previously missing)\"], \"ai_ml\": [\"Meta Llama 3.3 70B Instruct\", \"Azure AI Foundry AzureOpenAI client\", \"TF-IDF character bi-gram to 4-gram\", \"Jaccard similarity\", \"Levenshtein distance\"], \"data\": [\"In-memory Python dictionary per request\", \"Excel XLSX input parsing via Pandas\", \"CSV input parsing via Pandas\", \"Excel XLSX output via openpyxl\"], \"infrastructure\": [\"Self-contained local Python HTTP server process (zero user-provisioned infrastructure)\", \"ThreadPoolExecutor max_workers=2 with per-call LLM timeout (default 30s)\", \"Azure AI Foundry managed LLM endpoint\", \"Static SPA assets served by Flask/FastAPI or co-located static file server\", \"Backend request size limit enforced via MAX_CONTENT_LENGTH or equivalent (previously missing)\"], \"security\": [\"Unicode normalisation input sanitisation\", \"Whitespace stripping and lowercasing\", \"No persistent server-side state\", \"Strict JSON-only LLM prompt constraints\", \"Low temperature 0.1 deterministic output enforcement\", \"CORS policy configured on HTTP API layer to restrict allowed origins (previously missing)\", \"Server-side file upload size limit enforced at HTTP layer \\u2014 client-side validation alone is insufficient (previously missing)\", \"Azure AI Foundry API key supplied via environment variable or .env file; never hardcoded in source (previously missing)\", \"Per-call LLM timeout to prevent indefinite worker thread blocking (previously missing)\"]}, \"data_flow\": [\"User drags and drops PowerBI metadata Excel or CSV file onto the SPA landing interface in the browser\", \"SPA sends multipart HTTP POST with the uploaded file to the Python monolithic pipeline backend endpoint\", \"Python pipeline parses the file into an in-memory attribute dictionary keyed by report name to field, measure, and dimension string lists\", \"Input sanitiser applies Unicode normalisation, whitespace stripping, and lowercasing to all extracted attribute strings\", \"Local scorer fits TF-IDF vectorizer on the request corpus and computes TF-IDF cosine, Jaccard, and Levenshtein scores for all attribute pairs\", \"Candidate pairs exceeding local similarity threshold are batched at 25 pairs per call and dispatched to Azure AI Foundry via parallelised ThreadPoolExecutor\", \"Meta Llama 3.3 70B Instruct returns strict JSON semantic match scores with temperature 0.1; retry and backoff handles transient Azure failures\", \"Report generator merges local and LLM scores, assembles ranked duplicate and similarity findings, and returns downloadable Excel governance report to the browser\"]}",
+  "response": {
+    "components": [
+      {
+        "id": "user_client",
+        "label": "User / Browser",
+        "layer": "Client"
+      },
+      {
+        "id": "spa_frontend",
+        "label": "Bootstrap SPA",
+        "layer": "Frontend"
+      },
+      {
+        "id": "http_api_layer",
+        "label": "Flask/FastAPI API",
+        "layer": "Backend"
+      },
+      {
+        "id": "python_pipeline",
+        "label": "Python Pipeline",
+        "layer": "Backend"
+      },
+      {
+        "id": "local_scorer",
+        "label": "Hybrid Scorer",
+        "layer": "AI/ML"
+      },
+      {
+        "id": "llm_orchestrator",
+        "label": "LLM Orchestrator",
+        "layer": "AI/ML"
+      },
+      {
+        "id": "azure_ai_foundry",
+        "label": "Azure AI Foundry",
+        "layer": "External"
+      },
+      {
+        "id": "report_generator",
+        "label": "Report Generator",
+        "layer": "Data"
+      }
+    ],
+    "connections": [
+      {
+        "from": "user_client",
+        "to": "spa_frontend",
+        "label": "HTTPS"
+      },
+      {
+        "from": "spa_frontend",
+        "to": "http_api_layer",
+        "label": "Multipart POST"
+      },
+      {
+        "from": "http_api_layer",
+        "to": "python_pipeline",
+        "label": "File Stream"
+      },
+      {
+        "from": "python_pipeline",
+        "to": "local_scorer",
+        "label": "Normalised Pairs"
+      },
+      {
+        "from": "local_scorer",
+        "to": "llm_orchestrator",
+        "label": "Candidate Pairs"
+      },
+      {
+        "from": "llm_orchestrator",
+        "to": "azure_ai_foundry",
+        "label": "Batched Prompt"
+      },
+      {
+        "from": "azure_ai_foundry",
+        "to": "llm_orchestrator",
+        "label": "JSON Scores"
+      },
+      {
+        "from": "llm_orchestrator",
+        "to": "report_generator",
+        "label": "Merged Scores"
+      },
+      {
+        "from": "report_generator",
+        "to": "http_api_layer",
+        "label": "XLSX Stream"
+      },
+      {
+        "from": "http_api_layer",
+        "to": "spa_frontend",
+        "label": "File Download"
+      },
+      {
+        "from": "spa_frontend",
+        "to": "user_client",
+        "label": "Report Download"
+      }
+    ]
+  }
+}

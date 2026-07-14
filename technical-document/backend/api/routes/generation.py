@@ -23,25 +23,42 @@ class GenerationStatusResponse(BaseModel):
     finished: bool
 
 
-def _count_documented_elements(sections: Dict[str, dict]) -> Dict[str, int]:
+def _count_documented_elements(sections: Dict[str, dict], analysis: AnalysisResult) -> Dict[str, int]:
     documented_apis = 0
     documented_classes = 0
     documented_functions = 0
 
-    api_patterns = [r"@app\.", r"@router\.", r"route\(", r"\bendpoint\b", r"\bapi\b"]
-    class_patterns = [r"\bclass\s+\w+", r"\bstruct\s+\w+", r"\binterface\s+\w+", r"\benum\s+\w+"]
-    func_patterns = [r"\bdef\s+\w+", r"\bfunction\s+\w+", r"\b\w+\s*=>", r"\bfn\s+\w+"]
-
+    full_content = ""
     for sec in sections.values():
         content = sec.get("content", "") or ""
-        lowered = content.lower()
+        full_content += "\n" + content.lower()
 
+    if hasattr(analysis, "discovered_api_list") and analysis.discovered_api_list:
+        for route in analysis.discovered_api_list:
+            if route.lower() in full_content:
+                documented_apis += 1
+    else:
+        api_patterns = [r"@app\.", r"@router\.", r"route\(", r"\bendpoint\b", r"\bapi\b"]
         for p in api_patterns:
-            documented_apis += len(re.findall(p, lowered))
+            documented_apis += len(re.findall(p, full_content))
+
+    if hasattr(analysis, "discovered_class_list") and analysis.discovered_class_list:
+        for cls_name in analysis.discovered_class_list:
+            if cls_name.lower() in full_content:
+                documented_classes += 1
+    else:
+        class_patterns = [r"\bclass\s+\w+", r"\bstruct\s+\w+", r"\binterface\s+\w+", r"\benum\s+\w+"]
         for p in class_patterns:
-            documented_classes += len(re.findall(p, lowered))
+            documented_classes += len(re.findall(p, full_content))
+
+    if hasattr(analysis, "discovered_function_list") and analysis.discovered_function_list:
+        for func_name in analysis.discovered_function_list:
+            if func_name.lower() in full_content:
+                documented_functions += 1
+    else:
+        func_patterns = [r"\bdef\s+\w+", r"\bfunction\s+\w+", r"\b\w+\s*=>", r"\bfn\s+\w+"]
         for p in func_patterns:
-            documented_functions += len(re.findall(p, lowered))
+            documented_functions += len(re.findall(p, full_content))
 
     return {
         "documented_apis": documented_apis,
@@ -132,7 +149,7 @@ def _run_generation(project_id: str, sections: List[str], analysis_dict: dict):
     )
 
     generated_sections = _generation_state[project_id]["sections"]
-    doc_counts = _count_documented_elements(generated_sections)
+    doc_counts = _count_documented_elements(generated_sections, analysis)
 
     collector.record_codebase_coverage(
         discovered_apis=analysis.discovered_apis,

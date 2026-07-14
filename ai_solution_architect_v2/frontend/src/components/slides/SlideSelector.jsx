@@ -33,10 +33,9 @@ function SlidePill({ slideKey, label, index, checked, onChange }) {
         group relative flex items-center gap-2.5 w-full
         px-3 py-2.5 rounded-[10px] text-left
         border transition-all duration-200 select-none
-        ${
-          checked
-            ? "bg-[#F0EBFF] border-brand-purple/50 shadow-[0_0_0_3px_rgba(124,92,191,0.07)]"
-            : "bg-white border-brand-border hover:border-brand-purple/30 hover:bg-[#FAF8FF]"
+        ${checked
+          ? "bg-[#F0EBFF] border-brand-purple/50 shadow-[0_0_0_3px_rgba(124,92,191,0.07)]"
+          : "bg-white border-brand-border hover:border-brand-purple/30 hover:bg-[#FAF8FF]"
         }
       `}
     >
@@ -45,11 +44,10 @@ function SlidePill({ slideKey, label, index, checked, onChange }) {
         shrink-0 w-5 h-5 rounded-full text-[0.6rem] font-bold
         flex items-center justify-center tabular-nums
         transition-all duration-200
-        ${
-          checked
+        ${checked
             ? "bg-brand-purple text-white"
             : "bg-[#EDE9F7] text-brand-muted group-hover:bg-[#E2D9F3]"
-        }
+          }
       `}
       >
         {checked ? <Check size={10} strokeWidth={3} /> : index}

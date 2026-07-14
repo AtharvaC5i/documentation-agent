@@ -72,10 +72,9 @@ export default function FileUploadPanel() {
                 className={`
                   flex items-center gap-2 px-4 py-2 rounded-[9px]
                   text-[0.8rem] font-semibold transition-all duration-200 select-none
-                  ${
-                    isActive
-                      ? "bg-white text-brand-navy shadow-[0_1px_6px_rgba(124,92,191,0.18)] border border-brand-border"
-                      : "text-brand-muted hover:text-brand-navy hover:bg-white/50"
+                  ${isActive
+                    ? "bg-white text-brand-navy shadow-[0_1px_6px_rgba(124,92,191,0.18)] border border-brand-border"
+                    : "text-brand-muted hover:text-brand-navy hover:bg-white/50"
                   }
                 `}
               >

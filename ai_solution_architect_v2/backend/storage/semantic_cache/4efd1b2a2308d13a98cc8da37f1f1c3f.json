@@ -1,0 +1,69 @@
+{
+  "hash": "4efd1b2a2308d13a98cc8da37f1f1c3f",
+  "system_prompt": "You are a senior systems architect compiling a dense Architectural Fact Sheet from project documents.\nCompile:\n1. Core Business Goals (exactly 5 specific items)\n2. Primary User Personas & Entry Points\n3. Identified Pain Points & Constraints (exactly 5 specific items)\n4. Key Technology Stack preferences (Frontend, Backend, DB)\n5. Critical Security & Performance NFRs\n\nReturn ONLY valid JSON with these fields. No explanations.",
+  "user_prompt": "BRD:\n\n\nTECH SUMMARY:\n[\"Single-page web app (SPA) built with Bootstrap 5.3.3; frontend-first architecture, browser-deployable with no heavy dependencies\", \"Backend pipeline resides entirely in server.py; Python-based with scikit-learn and Azure AI Foundry integrations\", \"Input: Excel or CSV PowerBI metadata uploads via drag-and-drop; output: exportable Excel governance reports\", \"Data model is a per-report attribute dictionary mapping report names to lists of field/measure/dimension strings\", \"Two-stage AI/ML pipeline: local hybrid scoring (TF-IDF, Jaccard, Levenshtein) followed by LLM semantic scoring\", \"LLM is Meta Llama 3.3 70B Instruct accessed via Azure AI Foundry using AzureOpenAI client instantiated per-request\", \"TF-IDF vectorizer is character-level (bi-gram to 4-gram), fit fresh per request \\u2014 not persisted or pre-trained\", \"LLM inference batches 25 attribute pairs per call, parallelised via ThreadPoolExecutor (max_workers=2) with retry/backoff\", \"Preprocessing normalises Unicode anomalies, strips whitespace, and lowercases all attribute strings before scoring\", \"UI constraints: max-width 1200px content area, responsive breakpoints at 768px and 480px, purple-themed design system\", \"NFR: deterministic LLM output enforced via low temperature (0.1) and strict JSON-only prompt instructions\", \"Positioned as a zero-infrastructure governance tool for large PowerBI estates with inconsistent cross-team naming\"]",
+  "response": {
+    "core_business_goals": [
+      "Automate governance reporting for large PowerBI estates with inconsistent cross-team naming conventions",
+      "Identify and surface duplicate or semantically similar attributes across PowerBI reports at scale",
+      "Produce exportable Excel governance reports from PowerBI metadata with minimal manual effort",
+      "Eliminate infrastructure overhead by delivering a zero-infrastructure, browser-deployable governance tool",
+      "Enforce deterministic, auditable AI-driven attribute matching to support data governance compliance"
+    ],
+    "primary_user_personas_and_entry_points": {
+      "personas": [
+        {
+          "name": "Data Governance Analyst",
+          "description": "Responsible for auditing and standardising PowerBI report metadata across teams; primary consumer of governance reports",
+          "entry_point": "Drag-and-drop Excel/CSV PowerBI metadata upload on the SPA landing interface"
+        },
+        {
+          "name": "BI Platform Administrator",
+          "description": "Manages large PowerBI estates across multiple teams; needs cross-report attribute consistency visibility",
+          "entry_point": "Direct browser access to the SPA; uploads metadata exports from PowerBI tenants"
+        }
+      ],
+      "entry_points": [
+        "Browser-based SPA accessed directly with no login or infrastructure setup",
+        "Drag-and-drop file upload accepting Excel or CSV PowerBI metadata exports",
+        "Exportable Excel governance report download as the primary output delivery mechanism"
+      ]
+    },
+    "identified_pain_points_and_constraints": [
+      "Inconsistent cross-team naming conventions across PowerBI estates make manual attribute reconciliation infeasible at scale",
+      "No existing zero-infrastructure tooling exists to perform semantic governance analysis without heavy deployment overhead",
+      "LLM inference latency risk due to per-request client instantiation and batched parallel calls to Azure AI Foundry",
+      "TF-IDF vectorizer is fit fresh per request and not persisted, introducing recomputation overhead on every upload",
+      "LLM non-determinism risk requires mitigation via low temperature settings and strict JSON-only prompt constraints to ensure auditable outputs"
+    ],
+    "key_technology_stack": {
+      "frontend": [
+        "Single-page application (SPA) architecture",
+        "Bootstrap 5.3.3",
+        "Frontend-first, browser-deployable with no heavy dependencies",
+        "Responsive design: max-width 1200px, breakpoints at 768px and 480px",
+        "Purple-themed design system"
+      ],
+      "backend": [
+        "Python (server.py monolithic pipeline)",
+        "scikit-learn (TF-IDF vectorizer, character-level bi-gram to 4-gram)",
+        "Azure AI Foundry integration via AzureOpenAI client",
+        "Meta Llama 3.3 70B Instruct as LLM",
+        "ThreadPoolExecutor (max_workers=2) for parallelised LLM inference",
+        "Hybrid scoring: TF-IDF + Jaccard + Levenshtein (local) followed by LLM semantic scoring"
+      ],
+      "database": [
+        "No persistent database; per-request in-memory attribute dictionary (report name to field/measure/dimension string lists)",
+        "Input: Excel or CSV file uploads",
+        "Output: exportable Excel governance reports"
+      ]
+    },
+    "critical_security_and_performance_nfrs": [
+      "Deterministic LLM output enforced via low temperature (0.1) and strict JSON-only prompt instructions to ensure auditable governance results",
+      "LLM inference batched at 25 attribute pairs per call with retry/backoff logic to handle Azure AI Foundry transient failures",
+      "Parallelised LLM calls via ThreadPoolExecutor capped at max_workers=2 to balance throughput against API rate limits",
+      "Unicode normalisation and input sanitisation (whitespace stripping, lowercasing) applied to all attribute strings before scoring to prevent data quality and injection issues",
+      "Zero-infrastructure deployment model requires all processing to be self-contained with no persistent server-side state, minimising attack surface and operational risk"
+    ]
+  }
+}

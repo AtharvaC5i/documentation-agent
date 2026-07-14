@@ -35,10 +35,9 @@ export default function GenerateButton() {
           w-full max-w-sm h-12 px-8 rounded-[10px]
           text-white font-semibold text-[0.92rem] tracking-[0.01em]
           transition-all duration-200 overflow-hidden
-          ${
-            canGenerate
-              ? "bg-gradient-to-br from-brand-navy to-brand-purple shadow-purple hover:shadow-purple-lg hover:-translate-y-px active:translate-y-0"
-              : "bg-[#C4BAE8] cursor-not-allowed"
+          ${canGenerate
+            ? "bg-gradient-to-br from-brand-navy to-brand-purple shadow-purple hover:shadow-purple-lg hover:-translate-y-px active:translate-y-0"
+            : "bg-[#C4BAE8] cursor-not-allowed"
           }
         `}
       >

@@ -1,0 +1,137 @@
+{
+  "run_id": "dcedca0b-21e5-4c27-b7de-6d90aa241867",
+  "project_id": "92d2e895-0a14-49cc-9d68-71ec93c251f8",
+  "project_name": "TestProject",
+  "recorded_at": "2026-06-15T20:58:23.865938",
+  "run_outcome": {
+    "success": true,
+    "error_stage": null,
+    "error_category": null,
+    "error_message": null
+  },
+  "timing": {
+    "run_started_at": "2026-06-15T20:52:29.292875",
+    "run_ended_at": "2026-06-15T20:58:23.865938",
+    "total_duration_seconds": 354.57,
+    "extraction_duration_seconds": 137.87,
+    "generation_duration_seconds": 72.72,
+    "document_duration_seconds": 0.42
+  },
+  "llm_usage": {
+    "total_calls": 7,
+    "prompt_tokens": 14692,
+    "completion_tokens": 15172,
+    "total_tokens": 29864,
+    "by_stage": {
+      "extraction": {
+        "calls": 3,
+        "prompt_tokens": 4976,
+        "completion_tokens": 10967,
+        "total_tokens": 15943
+      },
+      "conflicts": {
+        "calls": 1,
+        "prompt_tokens": 1926,
+        "completion_tokens": 1167,
+        "total_tokens": 3093
+      },
+      "generation": {
+        "calls": 3,
+        "prompt_tokens": 7790,
+        "completion_tokens": 3038,
+        "total_tokens": 10828
+      }
+    }
+  },
+  "cost": {
+    "model_name": "databricks-claude-sonnet-4-6",
+    "prompt_cost_usd": 0.013223,
+    "completion_cost_usd": 0.040964,
+    "total_cost_usd": 0.054187,
+    "currency": "USD"
+  },
+  "sections": {
+    "attempted": 3,
+    "succeeded": 3,
+    "failed": 0,
+    "success_rate_pct": 100.0,
+    "review_cycles": {
+      "total_regenerations": 0,
+      "sections_with_rework": [],
+      "per_section": {
+        "5ff2faf2-3d33-41a8-8fa5-1bad927ece6d": {
+          "name": "Executive Summary",
+          "cycles": 0
+        },
+        "fc2229da-7ae9-4e00-85d2-d1d52d505467": {
+          "name": "Scope",
+          "cycles": 0
+        },
+        "7da1c23d-53f7-457c-bd1f-69b40a02c2ec": {
+          "name": "Risks",
+          "cycles": 0
+        }
+      }
+    }
+  },
+  "quality": {
+    "requirement_quality": {
+      "total_evaluated": 71,
+      "smart_scores": {
+        "avg_score": 0.665,
+        "specific_pct": 85.9,
+        "measurable_pct": 9.9,
+        "achievable_pct": 100.0,
+        "relevant_pct": 100.0,
+        "time_bound_pct": 32.4
+      },
+      "high_quality_count": 24,
+      "medium_quality_count": 37,
+      "low_quality_count": 10
+    },
+    "section_completeness": {
+      "overall_pct": 93.3,
+      "by_section": {
+        "Executive Summary": {
+          "required_items": 5,
+          "present_items": 4,
+          "completeness_pct": 80.0
+        },
+        "Scope": {
+          "required_items": 3,
+          "present_items": 3,
+          "completeness_pct": 100.0
+        },
+        "Risks": {
+          "required_items": 3,
+          "present_items": 3,
+          "completeness_pct": 100.0
+        }
+      }
+    }
+  },
+  "conflicts": {
+    "detected_count": 7,
+    "resolved_count": 7,
+    "unresolved_count": 0,
+    "high_impact_count": 2,
+    "medium_impact_count": 5,
+    "low_impact_count": 0,
+    "resolution_rate_pct": 100.0,
+    "accuracy_feedback": null
+  },
+  "output": {
+    "file_generated": true,
+    "filename": "BRD_TestProject_v1.docx",
+    "file_size_bytes": 36887,
+    "output_path": "D:\\documentation-agent\\brd-agent\\backend\\pipelines\\../../outputs\\BRD_TestProject_v1.docx",
+    "sections_included": 3,
+    "word_count_estimate": 1720
+  },
+  "acceptance": {
+    "status": "pending",
+    "reviewer": null,
+    "reviewed_at": null,
+    "notes": null
+  }
+}

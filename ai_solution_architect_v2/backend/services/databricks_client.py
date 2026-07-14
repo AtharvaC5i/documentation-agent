@@ -36,6 +36,7 @@ class DatabricksClient:
         }
         # Track last usage for metrics collection
         self.last_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+        self.retry_count = 0
 
     # ── Low-level call ────────────────────────────────────────
 
@@ -49,17 +50,30 @@ class DatabricksClient:
             "max_tokens": max_tokens,
             "temperature": 0.1,
         }
-        try:
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(self.url, headers=self.headers, json=payload)
-        except httpx.RequestError as e:
-            raise Exception(f"Network error connecting to Databricks: {e}")
-
-        if response.status_code != 200:
-            raise Exception(
-                f"Databricks API error ({response.status_code}): "
-                f"{response.text[:400]}"
-            )
+        
+        max_attempts = 3
+        attempt = 0
+        response = None
+        
+        while attempt < max_attempts:
+            attempt += 1
+            try:
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    response = await client.post(self.url, headers=self.headers, json=payload)
+                
+                if response.status_code != 200:
+                    raise Exception(
+                        f"Databricks API error ({response.status_code}): "
+                        f"{response.text[:400]}"
+                    )
+                break  # Success!
+            except Exception as e:
+                if attempt >= max_attempts:
+                    raise  # Re-raise the exception if we have exhausted all attempts
+                self.retry_count += 1
+                import asyncio
+                logger.warning(f"[DatabricksClient] Attempt {attempt} failed: {e}. Retrying in 2 seconds...")
+                await asyncio.sleep(2.0)
 
         try:
             data = response.json()
@@ -117,10 +131,17 @@ class DatabricksClient:
 
     async def invoke(self, system_prompt: str, user_message: str) -> dict:
         """Call API and return parsed JSON (usage stored in self.last_usage)"""
+        from utils.semantic_cache import get_cache, set_cache
+        cached = get_cache(system_prompt, user_message)
+        if cached is not None:
+            self.last_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+            return cached
+
         raw, usage = await self._call(system_prompt, user_message, max_tokens=4000)
         cleaned = _strip_markdown_fences(raw)
         parsed  = _try_parse_json(cleaned)
         if parsed is not None:
+            set_cache(system_prompt, user_message, parsed)
             return parsed
         # Log clearly so truncation / bad JSON is visible in server logs
         logger.warning(
@@ -135,8 +156,16 @@ class DatabricksClient:
 
     async def invoke_raw(self, system_prompt: str, user_message: str) -> str:
         """Call API and return raw text (usage stored in self.last_usage)"""
+        from utils.semantic_cache import get_cache, set_cache
+        cached = get_cache(system_prompt, user_message)
+        if cached is not None:
+            self.last_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+            return cached
+
         raw, usage = await self._call(system_prompt, user_message, max_tokens=800)
-        return _strip_markdown_fences(raw).strip()
+        content = _strip_markdown_fences(raw).strip()
+        set_cache(system_prompt, user_message, content)
+        return content
     
     def get_last_usage(self) -> dict:
         """Get token usage from last API call"""

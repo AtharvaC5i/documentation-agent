@@ -173,18 +173,57 @@ class GenerationPipeline:
 
         quality = _meaningful_quality_score(content, section_name, len(relevant_reqs))
 
-        # Auto-regenerate once if quality too low
+        # Auto-regenerate if quality too low using LLM Critic
         if quality < QUALITY_THRESHOLD and not feedback:
-            warn("GENERATE", f"Quality {round(quality*100)}% — auto-regenerating {section_name}")
-            improved = user_prompt + f"\n\nIMPORTANT: Previous attempt was low quality. Be specific, use tables where appropriate, reference actual requirements."
-            llm_call("GENERATE", f"Re-generate: {section_name}")
-            content  = await call_databricks_llm(
-                system_prompt, improved, max_tokens=5000, temperature=0.3,
-                _metrics_collector=self._mc, _metrics_stage="generation",
-            )
-            llm_response("GENERATE", len(content))
-            content  = _truncate_section_content(content, word_limit)
-            quality  = _meaningful_quality_score(content, section_name, len(relevant_reqs))
+            warn("GENERATE", f"Quality {round(quality*100)}% — invoking Critic for {section_name}")
+            
+            critic_system_prompt = """You are a senior Business Requirements Document Quality Critic.
+Review the draft section text against the provided context and requirements.
+Identify missing details, generic placeholder sentences, and layout issues.
+Return a JSON object with:
+{
+  "gap_identified": true,
+  "critic_feedback": "detailed specific critique and instructions for rewrite, referencing missing requirement IDs.",
+  "suggested_formatting": "prose|table|bullets"
+}
+Return valid JSON only. Do not include markdown code fences or explanations."""
+
+            critic_user_prompt = f"Draft Section '{section_name}':\n{content}\n\nRequirements Context:\n{req_context}"
+            
+            try:
+                llm_call("CRITIC", f"Critique section: {section_name}")
+                critic_raw = await call_databricks_llm(
+                    critic_system_prompt, critic_user_prompt, max_tokens=2000, json_mode=True,
+                    _metrics_collector=self._mc, _metrics_stage="criticism",
+                )
+                llm_response("CRITIC", len(critic_raw))
+                from utils.databricks_client import parse_llm_json
+                critic_res = parse_llm_json(critic_raw)
+                
+                feedback_text = critic_res.get("critic_feedback", "Make the content more specific and cover all requirements.")
+                formatting = critic_res.get("suggested_formatting", "markdown")
+                
+                improved_user_prompt = user_prompt + f"\n\nCRITIC FEEDBACK:\n{feedback_text}\nUse formatting: {formatting}\nIMPORTANT: Address this critique and rewrite the section thoroughly."
+                
+                llm_call("GENERATE", f"Re-generate: {section_name}")
+                content = await call_databricks_llm(
+                    system_prompt, improved_user_prompt, max_tokens=5000, temperature=0.3,
+                    _metrics_collector=self._mc, _metrics_stage="generation",
+                )
+                llm_response("GENERATE", len(content))
+                content = _truncate_section_content(content, word_limit)
+                quality = _meaningful_quality_score(content, section_name, len(relevant_reqs))
+            except Exception as e:
+                warn("CRITIC", f"Critic review failed: {e} — falling back to static regeneration")
+                improved = user_prompt + f"\n\nIMPORTANT: Previous attempt was low quality. Be specific, use tables where appropriate, reference actual requirements."
+                llm_call("GENERATE", f"Re-generate: {section_name}")
+                content = await call_databricks_llm(
+                    system_prompt, improved, max_tokens=5000, temperature=0.3,
+                    _metrics_collector=self._mc, _metrics_stage="generation",
+                )
+                llm_response("GENERATE", len(content))
+                content = _truncate_section_content(content, word_limit)
+                quality = _meaningful_quality_score(content, section_name, len(relevant_reqs))
 
         word_count  = len(content.split())
         sources     = list(set(r.source for r in relevant_reqs))
@@ -237,10 +276,19 @@ class GenerationPipeline:
                 break
 
         pool = self.project.requirements_pool
-        if matched_types is None:
-            return pool
-
-        return [r for r in pool if r.type in matched_types]
+        filtered = pool
+        if matched_types is not None:
+            filtered = [r for r in pool if r.type in matched_types]
+            
+        # Priority order sorting: must_have -> should_have -> could_have -> others
+        priority_order = {"must_have": 0, "should_have": 1, "could_have": 2}
+        sorted_reqs = sorted(
+            filtered,
+            key=lambda x: priority_order.get(x.priority, 9)
+        )
+        
+        # Cap requirements context to top 25 to save tokens
+        return sorted_reqs[:25]
 
     def _format_requirements(self, requirements: List[Requirement]) -> str:
         if not requirements:

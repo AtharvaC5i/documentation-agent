@@ -1,0 +1,133 @@
+{
+  "run_id": "a9d76bdc",
+  "project_id": "56959f01-fd22-4c34-8c8e-77112039e5cb",
+  "agent": "technical-document",
+  "environment": "development",
+  "app_version": "1.0.0",
+  "triggered_by": "api",
+  "timestamp": "2026-07-08T06:45:20.333794+00:00",
+  "completed_at": "2026-07-08T06:49:23.305499+00:00",
+  "status": "success",
+  "error_stage": null,
+  "errors": {
+    "total_errors": 0,
+    "error_categories": {},
+    "errors": []
+  },
+  "system": {
+    "platform": "windows",
+    "python_version": "3.13.1",
+    "peak_memory_mb": 1065.5,
+    "avg_memory_mb": 873.6,
+    "cpu_percent_avg": 37.9,
+    "cpu_percent_peak": 646.6,
+    "sampling_interval_seconds": 0.5
+  },
+  "llm_usage": {
+    "total_prompt_tokens": 11932,
+    "total_completion_tokens": 2842,
+    "total_tokens": 14774,
+    "estimated_cost_usd": 0.017616,
+    "tokens_per_section": {
+      "Executive Summary": 7129,
+      "AI/ML Pipeline": 7645
+    }
+  },
+  "ingestion": {},
+  "context_building": {
+    "strategy": "flat",
+    "total_chunks": 49,
+    "embedding_duration_seconds": 8.63,
+    "context_building_duration_seconds": 8.63,
+    "vector_store_size_mb": 1.36,
+    "raptor_summary_nodes": 0
+  },
+  "section_selection": {
+    "total_sections_available": 18,
+    "sections_selected": 2,
+    "selection_method": "ai_suggested"
+  },
+  "generation": {
+    "sections_attempted": 2,
+    "sections_succeeded": 2,
+    "sections_failed": 0,
+    "section_success_rate_percent": 100.0,
+    "avg_quality_score": 0.95,
+    "min_quality_score": 0.9,
+    "max_quality_score": 1.0,
+    "per_section_scores": {
+      "Executive Summary": 0.9,
+      "AI/ML Pipeline": 1.0
+    },
+    "total_generation_duration_seconds": 81.2,
+    "llm_retries": 0,
+    "per_section_word_counts": {
+      "Executive Summary": 407,
+      "AI/ML Pipeline": 1007
+    },
+    "empty_sections": [],
+    "quality_scoring_method": "heuristic_length_structure_keyword",
+    "quality_score_scale": "0_to_1"
+  },
+  "assembly": {
+    "output_file": "output.docx",
+    "output_size_bytes": 55463,
+    "output_size_kb": 54.2,
+    "word_count": 1414,
+    "page_estimate": 5,
+    "section_count": 2,
+    "assembly_duration_seconds": 0.83,
+    "assembly_success": true,
+    "output_validation_success": true,
+    "output_validation_error": null
+  },
+  "review": {
+    "review_cycles": 2,
+    "review_cycle_source": "manual",
+    "review_duration_seconds": 0.0
+  },
+  "quality_metrics": {
+    "codebase_coverage": {
+      "discovered_apis": 3,
+      "documented_apis": 1,
+      "discovered_classes": 0,
+      "documented_classes": 0,
+      "discovered_functions": 30,
+      "documented_functions": 12,
+      "discovered_total": 33,
+      "documented_total": 13,
+      "covered_total": 13,
+      "overall_coverage_percent": 39.4
+    },
+    "tech_stack": null,
+    "code_examples": {
+      "total_examples": 10,
+      "valid_examples": 7,
+      "invalid_examples": 3,
+      "validation_method": "syntax_and_lint",
+      "errors": [
+        {
+          "section": "AI/ML Pipeline",
+          "language": "python",
+          "error": "Python SyntaxError: unexpected indent on line 2",
+          "snippet_preview": "str(text)\n    .replace(\"\\u00A0\", \" \")   # non-breaking space\n    .replace(\"\\u200B\", \"\")    # zero-wi..."
+        },
+        {
+          "section": "AI/ML Pipeline",
+          "language": "python",
+          "error": "Python SyntaxError: expected an indented block after function definition on line 1 on line 6",
+          "snippet_preview": "def batch_llm_contextual_scores(\n    pairs: List[Tuple[str, str]],\n    client: AzureOpenAI,\n    mode..."
+        },
+        {
+          "section": "AI/ML Pipeline",
+          "language": "python",
+          "error": "Python SyntaxError: unexpected indent on line 1",
+          "snippet_preview": "   model = \"Llama-3.3-70B-Instruct\"\n   "
+        }
+      ],
+      "validity_score_percent": 70.0
+    },
+    "acceptance_flag": "accepted"
+  },
+  "end_to_end_duration_seconds": 242.97
+}

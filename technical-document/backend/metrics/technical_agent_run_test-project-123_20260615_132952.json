@@ -1,0 +1,157 @@
+{
+  "run_id": "d5451f06",
+  "project_id": "test-project-123",
+  "agent": "technical-document",
+  "environment": "development",
+  "app_version": "1.0.0",
+  "triggered_by": "api",
+  "timestamp": "2026-06-15T13:29:52.761455+00:00",
+  "completed_at": "2026-06-15T13:29:53.268454+00:00",
+  "status": "success",
+  "error_stage": "generation",
+  "errors": {
+    "total_errors": 1,
+    "error_categories": {
+      "timeout": 1
+    },
+    "errors": [
+      {
+        "stage": "generation",
+        "category": "timeout",
+        "message": "Request timed out after 30s",
+        "exception_type": "timeout",
+        "timestamp": "2026-06-15T13:29:52.965745+00:00",
+        "retryable": true
+      }
+    ]
+  },
+  "system": {
+    "platform": "windows",
+    "python_version": "3.13.1",
+    "peak_memory_mb": 34.3,
+    "avg_memory_mb": 34.2,
+    "cpu_percent_avg": 0.0,
+    "cpu_percent_peak": 0.0,
+    "sampling_interval_seconds": 0.5
+  },
+  "llm_usage": {
+    "total_prompt_tokens": 420,
+    "total_completion_tokens": 630,
+    "total_tokens": 1050,
+    "estimated_cost_usd": 0.00168,
+    "tokens_per_section": {
+      "Executive Summary": 350,
+      "API Reference": 700
+    }
+  },
+  "ingestion": {
+    "source_type": "zip",
+    "total_files_found": 10,
+    "files_after_filter": 8,
+    "filter_rate_percent": 80.0,
+    "ingestion_duration_seconds": 0.2,
+    "ingestion_success": true,
+    "input_profile": {}
+  },
+  "context_building": {},
+  "section_selection": {},
+  "generation": {},
+  "assembly": {
+    "output_file": "documentation.docx",
+    "output_size_bytes": 10240,
+    "output_size_kb": 10.0,
+    "word_count": 500,
+    "page_estimate": 2,
+    "section_count": 2,
+    "assembly_duration_seconds": 0.1,
+    "assembly_success": true,
+    "output_validation_success": true,
+    "output_validation_error": null
+  },
+  "review": {
+    "review_cycles": 1,
+    "review_cycle_source": "manual",
+    "review_duration_seconds": 0.0
+  },
+  "quality_metrics": {
+    "codebase_coverage": {
+      "discovered_apis": 5,
+      "documented_apis": 4,
+      "discovered_classes": 10,
+      "documented_classes": 9,
+      "discovered_functions": 50,
+      "documented_functions": 45,
+      "discovered_total": 65,
+      "documented_total": 58,
+      "covered_total": 58,
+      "overall_coverage_percent": 89.2
+    },
+    "tech_stack": {
+      "detected": {
+        "has_dockerfile": false,
+        "has_cicd": false,
+        "has_kubernetes": false,
+        "has_terraform": false,
+        "has_ansible": false,
+        "detected_language_hints": [
+          "JavaScript",
+          "Python"
+        ],
+        "detected_framework_hints": [
+          "flask",
+          "numpy",
+          "openai",
+          "pandas",
+          "sklearn"
+        ],
+        "detected_database_hints": [],
+        "detected_test_hints": [
+          "jest"
+        ]
+      },
+      "actual": {
+        "languages": [
+          "JavaScript",
+          "Python"
+        ],
+        "frameworks": [
+          "flask",
+          "numpy",
+          "openai",
+          "pandas",
+          "sklearn"
+        ],
+        "databases": [],
+        "test_frameworks": [
+          "jest"
+        ],
+        "has_dockerfile": false,
+        "has_cicd": false,
+        "has_kubernetes": false,
+        "has_terraform": false,
+        "has_ansible": false
+      },
+      "correct_matches": [],
+      "missed_items": [],
+      "false_positives": [],
+      "accuracy_score": 0.0
+    },
+    "code_examples": {
+      "total_examples": 5,
+      "valid_examples": 4,
+      "invalid_examples": 1,
+      "validation_method": "syntax_and_lint",
+      "errors": [
+        {
+          "section": "API Reference",
+          "language": "python",
+          "error": "Python SyntaxError: invalid syntax on line 3",
+          "snippet_preview": "def foo(;"
+        }
+      ],
+      "validity_score_percent": 80.0
+    },
+    "acceptance_flag": "minor_edits"
+  },
+  "end_to_end_duration_seconds": 0.51
+}

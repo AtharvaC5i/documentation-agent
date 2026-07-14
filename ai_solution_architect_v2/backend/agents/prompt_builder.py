@@ -127,6 +127,39 @@ OUTPUT FORMAT:
 }
 """
 
+CUSTOM_SLIDE_VISUAL_PROMPT = """
+You are a presentation architect designing one executive-quality solution-architecture slide.
+
+Read the supplied business and technical documents, then decide how the custom slide topic is
+best understood visually. Return concise, evidence-based content for exactly one of these layouts:
+timeline, comparison, people, metrics, flow, financials, benefits, key_messages.
+
+Use exactly this item shape for the chosen layout:
+- timeline: {"phase":"", "duration":"", "description":""}
+- comparison: {"dimension":"", "left":"", "right":""}
+- people: {"name":"", "role":"", "responsibility":""}
+- metrics: {"label":"", "value":"", "description":""}
+- flow: {"step":"", "description":""}
+- financials: {"label":"", "value":"", "note":""}
+- benefits or key_messages: {"title":"", "description":""}
+
+Return ONLY valid JSON:
+{
+  "title":"maximum 6 words",
+  "layout":"one lowercase layout name",
+  "subtitle":"optional takeaway, maximum 16 words",
+  "content":["3 to 5 items matching the selected layout"],
+  "left_label":"comparison only; optional concise label",
+  "right_label":"comparison only; optional concise label"
+}
+
+Do not return bullets. Let the selected layout carry the meaning. Every statement must be grounded
+in the supplied documents; do not invent figures, owners, phases, or claims. Keep descriptions to
+16 words and labels/values to 8 words maximum. Use key_messages when another layout is not clearly
+supported by the evidence.
+"""
+
+
 def build_user_message(brd_text: str, tech_doc_text: str = "") -> str:
     MAX_BRD_LENGTH = 4000
     MAX_TECH_DOC_LENGTH = 4000

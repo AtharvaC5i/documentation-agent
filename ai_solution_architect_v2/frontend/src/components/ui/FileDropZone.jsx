@@ -46,10 +46,9 @@ export default function FileDropZone({ onFile, disabled = false }) {
         relative flex flex-col items-center justify-center gap-2
         border-2 border-dashed rounded-[10px] px-6 py-8
         cursor-pointer select-none transition-all duration-200
-        ${
-          isDragging
-            ? "border-brand-purple bg-brand-purple-light"
-            : "border-brand-border bg-white hover:border-brand-purple hover:bg-brand-purple-light"
+        ${isDragging
+          ? "border-brand-purple bg-brand-purple-light"
+          : "border-brand-border bg-white hover:border-brand-purple hover:bg-brand-purple-light"
         }
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}
       `}
