@@ -3,7 +3,6 @@
 const fs = require("fs");
 const pptxgen = require("pptxgenjs");
 const { generateMermaidCode } = require("./mermaidGenerator");
-const { renderMermaidToPng } = require("./mermaidRenderer");
 const { addCustomSlide } = require("./customSlideRenderer");
 const path = require("path");
 
@@ -517,20 +516,282 @@ function addSolutionSlide(pres) {
   }
 }
 
-function addDiagramSlide(pres, rawBase64) {
+// ─── Layer detection + themes ────────────────────────────────────────────────
+const LAYER_RULES = [
+  { layer: "Client",   keywords: ["user", "client", "browser", "mobile", "web app", "end user"] },
+  { layer: "Frontend", keywords: ["frontend", "react", "angular", "vue", "streamlit", "ui", "dashboard", "portal"] },
+  { layer: "Backend",  keywords: ["backend", "api", "fastapi", "flask", "django", "express", "server", "service", "gateway", "rest"] },
+  { layer: "AI/ML",    keywords: ["ai", "ml", "llm", "gpt", "claude", "databricks", "groq", "openai", "model", "inference", "raptor", "embedding", "nlp", "vector"] },
+  { layer: "Data",     keywords: ["database", "db", "postgres", "mysql", "mongo", "redis", "chroma", "chromadb", "sqlite", "store", "storage", "cache", "queue", "kafka", "s3", "json"] },
+  { layer: "External", keywords: ["external", "third", "github", "gitlab", "auth", "oauth", "stripe", "aws", "azure", "gcp"] },
+];
+
+// fill = lane header, cardBg = node fill, border = node/lane border
+// text = node label colour, badgeBg/badgeText = tech pill
+const LAYER_THEMES = {
+  "Client":   { fill: "1D4ED8", cardBg: "DBEAFE", border: "3B82F6", text: "1E3A8A", badgeBg: "BFDBFE", badgeText: "1E40AF" },
+  "Frontend": { fill: "6D28D9", cardBg: "EDE9FE", border: "8B5CF6", text: "4C1D95", badgeBg: "DDD6FE", badgeText: "5B21B6" },
+  "Backend":  { fill: "065F46", cardBg: "D1FAE5", border: "10B981", text: "064E3B", badgeBg: "A7F3D0", badgeText: "065F46" },
+  "AI/ML":    { fill: "92400E", cardBg: "FEF3C7", border: "F59E0B", text: "78350F", badgeBg: "FDE68A", badgeText: "92400E" },
+  "Data":     { fill: "9D174D", cardBg: "FCE7F3", border: "EC4899", text: "831843", badgeBg: "FBCFE8", badgeText: "9D174D" },
+  "External": { fill: "1E293B", cardBg: "F1F5F9", border: "64748B", text: "334155", badgeBg: "E2E8F0", badgeText: "475569" },
+};
+
+function _detectLayer(txt) {
+  const low = (txt || "").toLowerCase();
+  for (const { layer, keywords } of LAYER_RULES) {
+    if (keywords.some(k => low.includes(k))) return layer;
+  }
+  return "Backend";
+}
+
+function _safeId(str) {
+  return String(str).replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
+}
+
+// Draw a styled elbow connector with an optional floating label badge
+function drawConnection(slide, x1, y1, x2, y2, labelText) {
+  const CONN  = "94A3B8"; // slate-400
+  const ARROW = "475569"; // slate-600
+  const LBG   = "F8FAFC";
+  const LBD   = "CBD5E1";
+  const LBT   = "334155";
+
+  // Helper: draw a single line segment safely (no zero-dimension shapes, COM rejects them)
+  function seg(x, y, w, h, isArrow) {
+    const safeW = Math.max(Math.abs(w), 0.005);
+    const safeH = Math.max(Math.abs(h), 0.005);
+    slide.addShape("line", {
+      x: x, y: y, w: safeW, h: safeH,
+      line: {
+        color: isArrow ? ARROW : CONN,
+        width: 1.6,
+        dashType: "solid",
+        ...(isArrow ? { endArrowType: "triangle" } : {})
+      }
+    });
+  }
+
+  // Helper: draw a floating label badge — uses plain rect (no rectRadius) for COM safety
+  function badge(cx, cy, label) {
+    if (!label) return;
+    const lw = 1.12, lh = 0.22;
+    const lx = Math.max(0.05, Math.min(cx - lw / 2, 9.8 - lw));
+    const ly = Math.max(0.05, Math.min(cy - lh / 2, 5.5 - lh));
+    // Pill badge — use roundRect preset (COM-safe prstGeom)
+    slide.addShape("roundRect", { x: lx, y: ly, w: lw, h: lh,
+      fill: { color: LBG }, line: { color: LBD, width: 0.8 }, rectRadius: 0.05 });
+    slide.addText(label, { x: lx, y: ly, w: lw, h: lh,
+      fontSize: 6.5, color: LBT, fontFace: FONT_BODY,
+      align: "center", valign: "middle", bold: false, margin: 2 });
+  }
+
+  const sameCol = Math.abs(x1 - x2) < 0.10;
+
+  if (sameCol) {
+    // Straight vertical connector
+    const yTop = Math.min(y1, y2);
+    const yBot = Math.max(y1, y2);
+    if (yBot - yTop < 0.02) return;
+    seg(x1, yTop, 0.005, yBot - yTop, true);
+    badge(x1, yTop + (yBot - yTop) / 2, labelText);
+    return;
+  }
+
+  // Cross-column elbow: H-segment → V-bridge → H-segment-with-arrow
+  const xMid = (x1 + x2) / 2;
+  const yMid = (y1 + y2) / 2;
+
+  // A: horizontal from source to midpoint
+  const horizA = Math.abs(xMid - x1);
+  if (horizA > 0.01) {
+    seg(Math.min(x1, xMid), y1, horizA, 0.005, false);
+  }
+
+  // B: vertical bridge (only if rows differ)
+  const vertB = Math.abs(y2 - y1);
+  if (vertB > 0.04) {
+    seg(xMid, Math.min(y1, y2), 0.005, vertB, false);
+  }
+
+  // C: horizontal to target with arrowhead
+  const horizC = Math.abs(x2 - xMid);
+  if (horizC > 0.01) {
+    seg(Math.min(xMid, x2), y2, horizC, 0.005, true);
+  }
+
+  // Label badge at midpoint of full path
+  badge((x1 + x2) / 2, yMid, labelText);
+}
+
+
+function addDiagramSlide(pres, rawMermaidCode) {
   const slide = pres.addSlide();
   contentChrome(slide, "High-Level Architecture Diagram");
-  // Ensure proper data URI prefix for pptxgenjs image embedding
-  const dataUri = rawBase64.startsWith("data:")
-    ? rawBase64
-    : "data:image/png;base64," + rawBase64;
-  slide.addImage({
-    data: dataUri,
-    x: 0.18,
-    y: BODY_Y,
-    w: W - 0.28,
-    h: BODY_H,
-    sizing: { type: "contain", w: W - 0.28, h: BODY_H },
+
+  // Mermaid source saved to speaker notes for re-use
+  if (rawMermaidCode) {
+    slide.notes = `MERMAID SOURCE (paste into mermaid.live to edit):\n\n${rawMermaidCode}`;
+  }
+
+  const arch = DATA.architecture || {};
+  let rawC = arch.diagram_components || arch.components || [];
+  let rawE = arch.diagram_connections || arch.connections || [];
+
+  if (!rawC.length) {
+    rawC = [
+      { id: "client",   label: "User / Client",            technology: "Web Browser" },
+      { id: "frontend", label: arch.frontend  || "Frontend", technology: "Vite SPA" },
+      { id: "backend",  label: arch.backend   || "Backend",  technology: "FastAPI" },
+      { id: "ai",       label: arch.ai_layer  || "AI Layer", technology: "LLM Engine" },
+      { id: "data",     label: arch.data_store || "Data",    technology: "SQL DB" },
+    ].filter(n => n.label);
+    rawE = rawC.slice(0, -1).map((p, i) => ({ from: p.id, to: rawC[i + 1].id, label: "" }));
+  }
+
+  // Build component list with layer detection
+  const components = rawC.map(c => {
+    const label = (c.label || c.name || c.id || "").trim();
+    const tech  = (c.technology || "").trim();
+    const layer = c.layer || _detectLayer(label + " " + tech);
+    return { id: _safeId(c.id || c.name || String(Math.random())), label, tech, layer };
+  });
+
+  const layerOrder = ["Client", "Frontend", "Backend", "AI/ML", "Data", "External"];
+  const byLayer    = {};
+  layerOrder.forEach(l => { byLayer[l] = []; });
+  components.forEach(c => { (byLayer[c.layer] = byLayer[c.layer] || []).push(c); });
+
+  const usedLayers = layerOrder.filter(l => byLayer[l] && byLayer[l].length > 0);
+  if (usedLayers.length === 0) return;
+
+  // ── Layout constants (inches) ────────────────────────────────────────────
+  const SLIDE_PAD  = 0.18;
+  const LANE_TOP   = 0.82;
+  const LANE_H     = 4.55;
+  const HDR_H_LANE = 0.42;
+  const BODY_PAD   = 0.16;
+  const NODE_H     = 0.68;
+  const BADGE_H    = 0.20;
+  const BADGE_VPAD = 0.05;
+  const NODE_HPAD  = 0.10;
+  const COL_GAP    = 0.12;
+  const AVAIL_W    = 9.64;
+
+  const N    = usedLayers.length;
+  const colW = (AVAIL_W - COL_GAP * (N - 1)) / N;
+  const nodeW = colW - NODE_HPAD * 2;
+
+  const nodeMap = {};
+
+  // ── Phase 1: Swimlanes + Component Cards ─────────────────────────────────
+  usedLayers.forEach((layer, i) => {
+    const T    = LAYER_THEMES[layer] || LAYER_THEMES["External"];
+    const colX = SLIDE_PAD + i * (colW + COL_GAP);
+
+    // Lane background — roundRect is COM-safe (prstGeom)
+    slide.addShape("roundRect", {
+      x: colX, y: LANE_TOP, w: colW, h: LANE_H,
+      fill: { color: "F8FAFC" }, line: { color: T.border, width: 1.0 }, rectRadius: 0.05
+    });
+    // Header fill (solid rect, then a plain rect covers bottom half for flat-bottom look)
+    slide.addShape("roundRect", {
+      x: colX, y: LANE_TOP, w: colW, h: HDR_H_LANE,
+      fill: { color: T.fill }, line: { color: T.fill, width: 0.1 }, rectRadius: 0.05
+    });
+    // Flush the bottom rounded corners of the header
+    slide.addShape("rect", {
+      x: colX, y: LANE_TOP + HDR_H_LANE / 2, w: colW, h: HDR_H_LANE / 2,
+      fill: { color: T.fill }, line: { color: T.fill, width: 0.1 }
+    });
+    // Header label
+    slide.addText(layer.toUpperCase(), {
+      x: colX, y: LANE_TOP, w: colW, h: HDR_H_LANE,
+      fontSize: 8.5, bold: true, color: "FFFFFF", fontFace: FONT_TITLE,
+      align: "center", valign: "middle", margin: 0
+    });
+
+    // ── Component cards ──────────────────────────────────────────────────
+    const comps  = byLayer[layer];
+    const M      = comps.length;
+    const innerH = LANE_H - HDR_H_LANE - BODY_PAD * 2;
+    const gap    = M > 1 ? (innerH - M * NODE_H) / (M - 1) : 0;
+    const yFirst = LANE_TOP + HDR_H_LANE + BODY_PAD + (M === 1 ? (innerH - NODE_H) / 2 : 0);
+
+    comps.forEach((c, j) => {
+      const nX = colX + NODE_HPAD;
+      const nY = yFirst + j * (NODE_H + (M > 1 ? gap : 0));
+
+      // Card body — roundRect preset (COM-safe)
+      slide.addShape("roundRect", {
+        x: nX, y: nY, w: nodeW, h: NODE_H,
+        fill: { color: T.cardBg }, line: { color: T.border, width: 1.8 }, rectRadius: 0.05
+      });
+      // Accent strip along card top (plain rect — no radius needed)
+      slide.addShape("rect", {
+        x: nX + 0.10, y: nY, w: nodeW - 0.20, h: 0.055,
+        fill: { color: T.border }, line: { color: T.border, width: 0.1 }
+      });
+
+      const hasTech = c.tech && c.tech.length > 0;
+      const nameH   = hasTech ? NODE_H - 0.055 - BADGE_H - BADGE_VPAD - 0.05 : NODE_H - 0.055;
+
+      // Component name
+      slide.addText(sanitize(c.label), {
+        x: nX + 0.06, y: nY + 0.055, w: nodeW - 0.12, h: nameH,
+        fontSize: 9.5, bold: true, color: T.text, fontFace: FONT_BODY,
+        align: "center", valign: "middle", margin: 0, wrap: true
+      });
+
+      // Tech badge pill — roundRect preset (COM-safe)
+      if (hasTech) {
+        const bY = nY + NODE_H - BADGE_H - BADGE_VPAD;
+        const bX = nX + 0.08;
+        const bW = nodeW - 0.16;
+        slide.addShape("roundRect", {
+          x: bX, y: bY, w: bW, h: BADGE_H,
+          fill: { color: T.badgeBg }, line: { color: T.border, width: 0.7 }, rectRadius: 0.05
+        });
+        slide.addText(sanitize(c.tech).substring(0, 52), {
+          x: bX, y: bY, w: bW, h: BADGE_H,
+          fontSize: 6.5, color: T.badgeText, fontFace: FONT_BODY, italic: true,
+          align: "center", valign: "middle", margin: 1
+        });
+      }
+
+      nodeMap[c.id] = { x: nX, y: nY, w: nodeW, h: NODE_H, colIndex: i };
+    });
+  });
+
+  // ── Phase 2: Connections ─────────────────────────────────────────────────
+  rawE.forEach(conn => {
+    const sid = _safeId(conn.from);
+    const tid = _safeId(conn.to);
+    const sn  = nodeMap[sid];
+    const tn  = nodeMap[tid];
+    if (!sn || !tn) return;
+
+    // Sanitise label
+    const rawLbl = (conn.label || "").toString().replace(/[<>{}|"]/g, "").trim();
+    const label  = rawLbl.length > 30 ? rawLbl.substring(0, 28) + "…" : rawLbl;
+
+    let x1, y1, x2, y2;
+
+    if (tn.colIndex > sn.colIndex) {
+      x1 = sn.x + sn.w;  y1 = sn.y + sn.h / 2;
+      x2 = tn.x;          y2 = tn.y + tn.h / 2;
+    } else if (tn.colIndex < sn.colIndex) {
+      x1 = sn.x;           y1 = sn.y + sn.h / 2;
+      x2 = tn.x + tn.w;   y2 = tn.y + tn.h / 2;
+    } else {
+      const goDown = tn.y > sn.y;
+      x1 = sn.x + sn.w / 2;
+      y1 = goDown ? sn.y + sn.h : sn.y;
+      x2 = tn.x + tn.w / 2;
+      y2 = goDown ? tn.y : tn.y + tn.h;
+    }
+
+    drawConnection(slide, x1, y1, x2, y2, label);
   });
 }
 
@@ -1177,29 +1438,9 @@ function addRisksSlide(pres) {
   }
 
   // STEP 2 — Render PNG via mermaidRenderer (non-fatal: diagram slide skipped on failure)
-  log("\n[pptx-gen] STEP 2: Rendering PNG...");
-  const startPng = Date.now();
-  let diagramRawB64 = null;
-  try {
-    const pngBuffer = await renderMermaidToPng(mermaidCode, {
-      width: 1400,
-      height: 850,
-    });
-    if (!pngBuffer || pngBuffer.length < 1000) {
-      log(
-        `[pptx-gen] WARNING: PNG buffer too small (${pngBuffer ? pngBuffer.length : 0} bytes) — diagram slide will be skipped`,
-      );
-    } else {
-      diagramRawB64 = pngBuffer.toString("base64");
-      log(`[pptx-gen] PNG: ${pngBuffer.length} bytes — OK`);
-      log(`[pptx-gen] Diagram base64 length: ${diagramRawB64.length}`);
-      log(`[pptx-gen] STEP 2 duration: ${Date.now() - startPng} ms`);
-    }
-  } catch (err) {
-    log(
-      `[pptx-gen] WARNING: PNG render failed: ${err.message} — diagram slide will be skipped`,
-    );
-  }
+  // STEP 2 — native shapes rendered directly in pptxgenjs (no Puppeteer)
+  log("\n[pptx-gen] STEP 2: Building native shapes...");
+  log(`[pptx-gen] STEP 2 duration: 0 ms`);
 
   // STEP 3 — Build the content deck. The service inserts editable templates.
   log("\n[pptx-gen] STEP 3: Building content PPTX...");
@@ -1213,8 +1454,8 @@ function addRisksSlide(pres) {
   if (shouldInclude("ExecSummary")) addExecSummarySlide(pres);
   if (shouldInclude("Problem")) addProblemSlide(pres);
   if (shouldInclude("Solution")) addSolutionSlide(pres);
-  if (shouldInclude("Diagram") && diagramRawB64)
-    addDiagramSlide(pres, diagramRawB64);
+  if (shouldInclude("Diagram"))
+    addDiagramSlide(pres, mermaidCode);
   if (shouldInclude("Components")) addComponentsSlide(pres);
   if (shouldInclude("DataFlow")) addDataFlowSlide(pres);
   if (shouldInclude("TechStack")) addTechStackSlide(pres);

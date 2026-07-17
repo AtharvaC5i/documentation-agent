@@ -1,0 +1,99 @@
+{
+  "run_id": "2432b892-623c-4a24-a999-01686e860e58",
+  "timestamp_start": "2026-07-17T07:06:12.961684",
+  "timestamp_end": "2026-07-17T07:06:33.497267",
+  "run_success": false,
+  "error_details": {
+    "occurred": true,
+    "stage": "pptx_generation",
+    "category": "assembly_error",
+    "message": "PowerPoint template assembly failed.\n\nPowerShell stdout:\n[base] Opening base presentation\n[base] Opened with 2 slide(s)\n[content] Importing into deck with 2 slide(s)\n\nPowerShell stderr:\nInsert-DeckSlides : Error HRESULT E_FAIL has been returned from a call to a COM \ncomponent.\nAt C:\\Users\\Atharva Joshi\\AppData\\Local\\DocuFlow\\pptx_work\\docuflow_pptx_3z_1_1hy\n\\assemble_pptx.ps1:69 char:3\n+   Insert-DeckSlides -Presentation $deck -SourcePath 'C:\\Users\\Atharva ...\n+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : OperationStopped: (:) [Insert-DeckSlides], COMExce \n   ption\n    + FullyQualifiedErrorId : System.Runtime.InteropServices.COMException,Insert \n   -DeckSlides",
+    "recovery_attempted": false,
+    "recovery_successful": false
+  },
+  "duration": {
+    "total_seconds": 20.54,
+    "summarization_seconds": 0.01,
+    "core_generation_seconds": 0.01,
+    "diagram_generation_seconds": 0.0,
+    "diagram_rendering_seconds": 0.0,
+    "pptx_generation_seconds": 20.47,
+    "pptx_assembly_seconds": 20.04,
+    "validation_seconds": 0.0
+  },
+  "llm_tokens": {
+    "summarization": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "core_generation": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "diagram_generation": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "total": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    }
+  },
+  "estimated_cost_usd": 0.0,
+  "sections": {
+    "selected_count": 0,
+    "selected_list": [],
+    "custom_sections_count": 0,
+    "custom_sections": [],
+    "total_sections": 0
+  },
+  "slides": {
+    "attempted": 0,
+    "successful": 0,
+    "failed": 0,
+    "retry_count": 0,
+    "success_rate": 0.0
+  },
+  "diagram": {
+    "attempted": false,
+    "success": false,
+    "components_count": 0,
+    "connections_count": 0,
+    "expected_components": 0,
+    "expected_connections": 0,
+    "component_coverage": 0.0,
+    "connection_coverage": 0.0,
+    "correctness_score": 0.0
+  },
+  "quality": {
+    "content_quality": 0.0,
+    "diagram_quality": 0.0,
+    "architecture_alignment": 0.0,
+    "output_validity": 0.0,
+    "overall_score": 0.0
+  },
+  "pptx_validation": {
+    "file_created": false,
+    "file_size_bytes": 0,
+    "valid_xml": false,
+    "valid_relationships": false,
+    "opens_without_repair": false,
+    "all_slides_present": false,
+    "all_media_present": false,
+    "health_score": 0.0
+  },
+  "architecture_justification": {
+    "decisions_identified": 0,
+    "decisions_justified": 0,
+    "brd_citations": 0,
+    "constraint_references": 0,
+    "justification_score": 0.0
+  },
+  "review_cycle_count": 0,
+  "acceptance_status": "pending_review",
+  "total_retry_count": 0
+}

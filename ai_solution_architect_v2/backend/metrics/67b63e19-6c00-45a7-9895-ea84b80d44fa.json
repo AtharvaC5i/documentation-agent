@@ -1,0 +1,104 @@
+{
+  "run_id": "67b63e19-6c00-45a7-9895-ea84b80d44fa",
+  "timestamp_start": "2026-07-17T07:14:13.888479",
+  "timestamp_end": "2026-07-17T07:14:54.352658",
+  "run_success": true,
+  "error_details": {
+    "occurred": false,
+    "stage": "unknown",
+    "category": "unknown_error",
+    "message": "",
+    "recovery_attempted": false,
+    "recovery_successful": false
+  },
+  "duration": {
+    "total_seconds": 40.46,
+    "summarization_seconds": 0.01,
+    "core_generation_seconds": 0.01,
+    "diagram_generation_seconds": 0.0,
+    "diagram_rendering_seconds": 0.0,
+    "pptx_generation_seconds": 40.29,
+    "pptx_assembly_seconds": 39.93,
+    "validation_seconds": 0.12
+  },
+  "llm_tokens": {
+    "summarization": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "core_generation": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "diagram_generation": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    },
+    "total": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0
+    }
+  },
+  "estimated_cost_usd": 0.0,
+  "sections": {
+    "selected_count": 4,
+    "selected_list": [
+      "Title",
+      "Closing",
+      "Solution",
+      "Diagram"
+    ],
+    "custom_sections_count": 0,
+    "custom_sections": [],
+    "total_sections": 4
+  },
+  "slides": {
+    "attempted": 5,
+    "successful": 5,
+    "failed": 0,
+    "retry_count": 0,
+    "success_rate": 1.0
+  },
+  "diagram": {
+    "attempted": true,
+    "success": true,
+    "components_count": 3,
+    "connections_count": 11,
+    "expected_components": 10,
+    "expected_connections": 13,
+    "component_coverage": 0.3,
+    "connection_coverage": 0.8461538461538461,
+    "correctness_score": 0.518
+  },
+  "quality": {
+    "content_quality": 1.0,
+    "diagram_quality": 1.0,
+    "architecture_alignment": 1.0,
+    "output_validity": 1.0,
+    "overall_score": 1.0
+  },
+  "pptx_validation": {
+    "file_created": true,
+    "file_size_bytes": 3835735,
+    "valid_xml": true,
+    "valid_relationships": true,
+    "opens_without_repair": true,
+    "all_slides_present": true,
+    "all_media_present": true,
+    "health_score": 1.0
+  },
+  "architecture_justification": {
+    "decisions_identified": 6,
+    "decisions_justified": 6,
+    "brd_citations": 5,
+    "constraint_references": 5,
+    "justification_score": 1.0
+  },
+  "review_cycle_count": 0,
+  "acceptance_status": "pending_review",
+  "total_retry_count": 0
+}
