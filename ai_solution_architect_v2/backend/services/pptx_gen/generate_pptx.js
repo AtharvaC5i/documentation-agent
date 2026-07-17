@@ -2,8 +2,8 @@
 
 const fs = require("fs");
 const pptxgen = require("pptxgenjs");
-const { generateDrawioXml } = require("./drawioGenerator");
-const { renderDrawioToPng } = require("./drawioRenderer");
+const { generateMermaidCode } = require("./mermaidGenerator");
+const { renderMermaidToPng } = require("./mermaidRenderer");
 const { addCustomSlide } = require("./customSlideRenderer");
 const path = require("path");
 
@@ -1163,25 +1163,25 @@ function addRisksSlide(pres) {
   log("[pptx-gen] Starting PowerPoint generation pipeline...");
   log(`[pptx-gen] Project: ${DATA.project?.name || "Unknown"}`);
 
-  // STEP 1 — draw.io XML
-  log("\n[pptx-gen] STEP 1: Generating draw.io XML...");
+  // STEP 1 — Mermaid Code
+  log("\n[pptx-gen] STEP 1: Generating Mermaid Code...");
   const startXml = Date.now();
-  let drawioXml;
+  let mermaidCode;
   try {
-    drawioXml = generateDrawioXml(DATA);
-    log(`[pptx-gen] draw.io XML: ${drawioXml.length} chars`);
+    mermaidCode = generateMermaidCode(DATA);
+    log(`[pptx-gen] Mermaid code: ${mermaidCode.length} chars`);
     log(`[pptx-gen] STEP 1 duration: ${Date.now() - startXml} ms`);
   } catch (err) {
-    console.error(`[pptx-gen] FATAL: draw.io XML failed: ${err.message}`);
+    console.error(`[pptx-gen] FATAL: Mermaid generation failed: ${err.message}`);
     process.exit(1);
   }
 
-  // STEP 2 — Render PNG via Puppeteer (non-fatal: diagram slide skipped on failure)
+  // STEP 2 — Render PNG via mermaidRenderer (non-fatal: diagram slide skipped on failure)
   log("\n[pptx-gen] STEP 2: Rendering PNG...");
   const startPng = Date.now();
   let diagramRawB64 = null;
   try {
-    const pngBuffer = await renderDrawioToPng(drawioXml, {
+    const pngBuffer = await renderMermaidToPng(mermaidCode, {
       width: 1400,
       height: 850,
     });
