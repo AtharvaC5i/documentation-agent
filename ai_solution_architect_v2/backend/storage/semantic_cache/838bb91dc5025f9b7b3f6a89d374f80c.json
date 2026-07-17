@@ -1,0 +1,101 @@
+{
+  "hash": "838bb91dc5025f9b7b3f6a89d374f80c",
+  "system_prompt": "\nYou are a solution architect producing a structured component graph for an architecture diagram.\n\nGiven the architecture JSON, output ONLY valid JSON with components and connections.\n\nSTRICT RULES:\n- Return ONLY valid JSON \u2014 no markdown, no backticks, no explanation\n- components: 5-8 nodes, each with id (snake_case), label (short, max 4 words)\n- Assign each component a layer from: Client, Frontend, Backend, AI/ML, Data, External\n- connections: directed left-to-right flow \u2014 user to frontend to backend to AI/data\n- Every connection from/to MUST reference an id in components\n- Edge labels: 1-3 words max (REST, SQL, gRPC, HTTPS, Embed, Invoke, Event)\n- NO Mermaid syntax\n\nOUTPUT FORMAT:\n{\n  \"components\": [\n    { \"id\": \"user_client\",  \"label\": \"User / Client\",   \"layer\": \"Client\"   },\n    { \"id\": \"frontend\",     \"label\": \"Streamlit UI\",    \"layer\": \"Frontend\" },\n    { \"id\": \"backend_api\",  \"label\": \"FastAPI Backend\", \"layer\": \"Backend\"  },\n    { \"id\": \"ai_engine\",    \"label\": \"LLM Engine\",      \"layer\": \"AI/ML\"    },\n    { \"id\": \"vector_db\",    \"label\": \"ChromaDB\",        \"layer\": \"Data\"     },\n    { \"id\": \"json_store\",   \"label\": \"JSON State Store\",\"layer\": \"Data\"     }\n  ],\n  \"connections\": [\n    { \"from\": \"user_client\",  \"to\": \"frontend\",    \"label\": \"HTTPS\"  },\n    { \"from\": \"frontend\",     \"to\": \"backend_api\", \"label\": \"REST\"   },\n    { \"from\": \"backend_api\",  \"to\": \"ai_engine\",   \"label\": \"Invoke\" },\n    { \"from\": \"backend_api\",  \"to\": \"vector_db\",   \"label\": \"Embed\"  },\n    { \"from\": \"backend_api\",  \"to\": \"json_store\",  \"label\": \"Persist\"}\n  ]\n}\n",
+  "user_prompt": "{\"project\": {\"name\": \"ShopEase E-Commerce Platform\", \"tagline\": \"Unified web and mobile commerce platform with real-time SAP ERP integration\", \"client_context\": \"Retail enterprise migrating 8,000 SKUs from SAP ERP to a scalable omnichannel platform supporting 50,000 concurrent peak users\"}, \"architecture\": {\"pattern\": \"Microservices with event-driven integration, API Gateway, CDN-accelerated frontend, and real-time ERP sync middleware\", \"frontend\": \"React.js (Web), React Native (Mobile), Next.js SSR for storefront SEO and performance\", \"backend\": \"Node.js / Java Spring Boot microservices behind API Gateway with Redis caching\", \"ai_layer\": \"Product recommendation engine, customer behavior analytics, and demand forecasting service\", \"data_store\": \"PostgreSQL (transactional), Elasticsearch (catalog search), Redis (cache/session), ClickHouse (analytics)\", \"hosting\": \"AWS (EKS for containers, CloudFront CDN, RDS, ElastiCache, S3)\", \"components\": [{\"id\": \"user_client\", \"label\": \"User / Client\", \"name\": \"Web Browser and Mobile App Client\", \"role\": \"Entry point for customers, vendors, regional managers, and admins\", \"technology\": \"React.js, Next.js, React Native, Web Browser\"}, {\"id\": \"cdn_layer\", \"label\": \"CDN & Edge\", \"name\": \"Content Delivery Network and Edge Cache\", \"role\": \"Serves static assets and cached pages globally for sub-3-second load times\", \"technology\": \"AWS CloudFront, Edge Locations, S3 Static Hosting\"}, {\"id\": \"api_gateway\", \"label\": \"API Gateway\", \"name\": \"Unified API Gateway and Auth Layer\", \"role\": \"Routes all client requests, enforces RBAC, rate limiting, and JWT validation\", \"technology\": \"AWS API Gateway, Kong, OAuth2, JWT\"}, {\"id\": \"microservices_core\", \"label\": \"Core Microservices\", \"name\": \"Core Business Logic Microservices Cluster\", \"role\": \"Handles catalog, orders, inventory, users, payments, and vendor management domains\", \"technology\": \"Node.js, Java Spring Boot, Docker, Kubernetes (EKS)\"}, {\"id\": \"erp_integration\", \"label\": \"ERP Integration\", \"name\": \"SAP ERP Integration and Sync Middleware\", \"role\": \"Bidirectional real-time sync of inventory and SKU data between SAP ERP and platform\", \"technology\": \"Apache Kafka, MuleSoft, SAP BAPI/RFC, REST Adapters\"}, {\"id\": \"payment_logistics\", \"label\": \"Payments & Logistics\", \"name\": \"Payment Gateway and Logistics Integration Layer\", \"role\": \"Processes UPI, cards, net banking, Bajaj EMI, and coordinates Delhivery and BlueDart\", \"technology\": \"Razorpay, Bajaj Finance API, Delhivery API, BlueDart API, Webhooks\"}, {\"id\": \"data_platform\", \"label\": \"Data Platform\", \"name\": \"Transactional and Analytical Data Platform\", \"role\": \"Stores product catalog, orders, sessions, and powers analytics and search\", \"technology\": \"PostgreSQL (RDS), Elasticsearch, Redis (ElastiCache), ClickHouse\"}, {\"id\": \"admin_analytics\", \"label\": \"Admin & Analytics\", \"name\": \"Admin Dashboard and Sales Analytics Service\", \"role\": \"Delivers filterable daily, weekly, monthly reports by region, category, and vendor\", \"technology\": \"React.js, ClickHouse, Apache Superset, REST APIs\"}], \"connections\": [{\"from\": \"user_client\", \"to\": \"cdn_layer\", \"label\": \"HTTPS Static Assets\"}, {\"from\": \"user_client\", \"to\": \"api_gateway\", \"label\": \"HTTPS API Requests\"}, {\"from\": \"cdn_layer\", \"to\": \"microservices_core\", \"label\": \"Cache Miss Passthrough\"}, {\"from\": \"api_gateway\", \"to\": \"microservices_core\", \"label\": \"Authenticated REST/gRPC\"}, {\"from\": \"microservices_core\", \"to\": \"erp_integration\", \"label\": \"Inventory Sync Events\"}, {\"from\": \"erp_integration\", \"to\": \"data_platform\", \"label\": \"SKU and Stock Updates\"}, {\"from\": \"microservices_core\", \"to\": \"payment_logistics\", \"label\": \"Payment and Shipment Requests\"}, {\"from\": \"microservices_core\", \"to\": \"data_platform\", \"label\": \"Read/Write Transactions\"}, {\"from\": \"data_platform\", \"to\": \"admin_analytics\", \"label\": \"Aggregated Analytics Queries\"}, {\"from\": \"api_gateway\", \"to\": \"admin_analytics\", \"label\": \"Admin Dashboard API Calls\"}]}, \"technology_stack\": {\"frontend\": [\"React.js\", \"Next.js (SSR)\", \"React Native\", \"TypeScript\", \"Tailwind CSS\"], \"backend\": [\"Node.js\", \"Java Spring Boot\", \"GraphQL\", \"REST APIs\", \"Apache Kafka\", \"MuleSoft\"], \"ai_ml\": [\"Product Recommendation Engine\", \"Customer Behavior Analytics\", \"Demand Forecasting Service\", \"Python (scikit-learn)\", \"AWS SageMaker\"], \"data\": [\"PostgreSQL (AWS RDS)\", \"Elasticsearch\", \"Redis (ElastiCache)\", \"ClickHouse\", \"AWS S3\"], \"infrastructure\": [\"AWS EKS (Kubernetes)\", \"AWS CloudFront\", \"AWS API Gateway\", \"Docker\", \"Terraform\", \"AWS Auto Scaling\"], \"security\": [\"OAuth2 / JWT\", \"AWS WAF\", \"PCI-DSS Compliant Payment Vault\", \"TLS 1.3\", \"AWS KMS\", \"Role-Based Access Control (RBAC)\"]}, \"data_flow\": [\"Customer or vendor accesses ShopEase via React web or React Native mobile app over HTTPS\", \"CloudFront CDN serves cached static assets and SSR pages; cache misses forwarded to API Gateway\", \"API Gateway validates JWT token, enforces RBAC role, applies rate limiting, and routes to microservice\", \"Core microservice processes request (catalog browse, order placement, inventory update, vendor upload)\", \"Inventory or catalog change triggers Kafka event consumed by SAP ERP Integration Middleware\", \"MuleSoft middleware syncs stock delta to SAP ERP and pushes confirmed update back to PostgreSQL and Redis cache\", \"Payment requests routed to Razorpay or Bajaj Finance API; confirmed orders trigger Delhivery or BlueDart shipment creation\", \"All transactional events streamed to ClickHouse; Admin Dashboard queries ClickHouse for real-time filterable sales reports\"]}",
+  "response": {
+    "components": [
+      {
+        "id": "user_client",
+        "label": "User / Client",
+        "layer": "Client"
+      },
+      {
+        "id": "cdn_layer",
+        "label": "CDN & Edge",
+        "layer": "Frontend"
+      },
+      {
+        "id": "api_gateway",
+        "label": "API Gateway",
+        "layer": "Backend"
+      },
+      {
+        "id": "microservices_core",
+        "label": "Core Microservices",
+        "layer": "Backend"
+      },
+      {
+        "id": "erp_integration",
+        "label": "ERP Integration",
+        "layer": "External"
+      },
+      {
+        "id": "payment_logistics",
+        "label": "Payments & Logistics",
+        "layer": "External"
+      },
+      {
+        "id": "data_platform",
+        "label": "Data Platform",
+        "layer": "Data"
+      },
+      {
+        "id": "admin_analytics",
+        "label": "Admin & Analytics",
+        "layer": "AI/ML"
+      }
+    ],
+    "connections": [
+      {
+        "from": "user_client",
+        "to": "cdn_layer",
+        "label": "HTTPS"
+      },
+      {
+        "from": "user_client",
+        "to": "api_gateway",
+        "label": "HTTPS"
+      },
+      {
+        "from": "cdn_layer",
+        "to": "microservices_core",
+        "label": "Cache Miss"
+      },
+      {
+        "from": "api_gateway",
+        "to": "microservices_core",
+        "label": "REST/gRPC"
+      },
+      {
+        "from": "api_gateway",
+        "to": "admin_analytics",
+        "label": "REST"
+      },
+      {
+        "from": "microservices_core",
+        "to": "erp_integration",
+        "label": "Event"
+      },
+      {
+        "from": "microservices_core",
+        "to": "payment_logistics",
+        "label": "Invoke"
+      },
+      {
+        "from": "microservices_core",
+        "to": "data_platform",
+        "label": "Read/Write"
+      },
+      {
+        "from": "erp_integration",
+        "to": "data_platform",
+        "label": "SKU Sync"
+      },
+      {
+        "from": "data_platform",
+        "to": "admin_analytics",
+        "label": "Analytics Query"
+      }
+    ]
+  }
+}

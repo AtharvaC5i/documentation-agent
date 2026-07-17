@@ -1,0 +1,77 @@
+{
+  "hash": "a86225a871449340a20e81f8db023709",
+  "system_prompt": "You are a senior systems architect compiling a dense Architectural Fact Sheet from project documents.\nCompile:\n1. Core Business Goals (exactly 5 specific items)\n2. Primary User Personas & Entry Points\n3. Identified Pain Points & Constraints (exactly 5 specific items)\n4. Key Technology Stack preferences (Frontend, Backend, DB)\n5. Critical Security & Performance NFRs\n\nReturn ONLY valid JSON with these fields. No explanations.",
+  "user_prompt": "BRD:\n\n\nTECH SUMMARY:\n[\"Single-page application (SPA) with static front-end only (index.html + style.css); no server-side runtime or database required for UI layer.\", \"Back-end AI/ML pipeline runs in Python (server.py) exposing a /find_overlaps route accepting Excel/CSV uploads.\", \"Hybrid similarity scoring combines TF-IDF cosine (45%), Levenshtein edit distance (25%), and Jaccard character trigrams (30%).\", \"LLM stage uses Azure-hosted Llama-3.3-70B-Instruct via AzureOpenAI client; endpoint hardcoded with credentials in server.py \\u2014 security risk.\", \"LLM API version 2024-05-01-preview; batched at 25 pairs per request, parallelised with ThreadPoolExecutor (max_workers=2).\", \"LLM confirmation threshold is \\u22650.95 similarity score; exponential backoff with jitter applied on rate-limit errors (max 3 retries).\", \"TF-IDF vectorizer is fitted at runtime per request on uploaded data \\u2014 no persisted model artifacts or offline training phase.\", \"Input data model requires Table and Field name columns; attributes constructed as Table.Field strings and normalised before processing.\", \"Front-end stack: HTML5, Bootstrap 5.3.3 (CDN), custom CSS; responsive down to 480px, max content width 1200px.\", \"Key UI components: drag-and-drop file upload, tabbed report cards, sortable/filterable data tables, live search, Excel export for governance workflows.\", \"Designed for enterprise BI governance \\u2014 detects duplicate/semantically similar Power BI report attributes to reduce report sprawl.\", \"Architecture supports embedding in existing enterprise BI portals; no back-end infrastructure dependency for the UI layer simplifies hosting.\"]",
+  "response": {
+    "core_business_goals": [
+      "Detect duplicate and semantically similar Power BI report attributes to reduce enterprise report sprawl",
+      "Enable BI governance workflows by providing exportable overlap analysis in Excel format",
+      "Automate hybrid similarity scoring across uploaded report attribute datasets without manual comparison",
+      "Support embedding of the tool within existing enterprise BI portals with minimal hosting overhead",
+      "Accelerate data stewardship decisions by surfacing LLM-confirmed high-confidence attribute overlaps (\u22650.95 threshold)"
+    ],
+    "primary_user_personas_and_entry_points": {
+      "personas": [
+        {
+          "name": "Enterprise BI Governance Analyst",
+          "description": "Responsible for auditing and rationalising Power BI report attributes across the organisation",
+          "entry_point": "Drag-and-drop file upload interface on the SPA (index.html)"
+        },
+        {
+          "name": "Data Steward",
+          "description": "Reviews flagged duplicate or similar fields and makes remediation decisions",
+          "entry_point": "Tabbed report cards and sortable/filterable data tables within the SPA"
+        },
+        {
+          "name": "BI Portal Administrator",
+          "description": "Embeds the tool into existing enterprise BI portals and manages hosting",
+          "entry_point": "Static front-end deployment (index.html + style.css) embedded in enterprise portal"
+        }
+      ]
+    },
+    "identified_pain_points_and_constraints": [
+      "Hardcoded LLM API credentials and endpoint in server.py represent a critical security vulnerability in the current implementation",
+      "TF-IDF vectorizer is fitted at runtime per request with no persisted model artifacts, causing repeated computation overhead on every upload",
+      "LLM parallelism is constrained to max_workers=2 with only 3 retries on rate-limit errors, limiting throughput under high load",
+      "Input data model strictly requires Table and Field name columns, making the tool brittle against non-conforming or inconsistently structured uploads",
+      "No server-side runtime or database in the UI layer means all state is ephemeral; no persistence of historical analysis or audit trails"
+    ],
+    "key_technology_stack": {
+      "frontend": {
+        "framework": "Single-Page Application (SPA) \u2014 static HTML5 only",
+        "ui_library": "Bootstrap 5.3.3 (CDN)",
+        "styling": "Custom CSS; responsive to 480px, max-width 1200px",
+        "key_components": [
+          "Drag-and-drop file upload",
+          "Tabbed report cards",
+          "Sortable/filterable data tables",
+          "Live search",
+          "Excel export"
+        ]
+      },
+      "backend": {
+        "language": "Python",
+        "server": "server.py exposing /find_overlaps REST route",
+        "concurrency": "ThreadPoolExecutor (max_workers=2)",
+        "llm_client": "AzureOpenAI client \u2014 Azure-hosted Llama-3.3-70B-Instruct",
+        "llm_api_version": "2024-05-01-preview",
+        "similarity_pipeline": "TF-IDF cosine (45%) + Levenshtein edit distance (25%) + Jaccard character trigrams (30%)"
+      },
+      "database": {
+        "ui_layer": "None \u2014 no database required",
+        "ml_layer": "No persisted model artifacts; TF-IDF fitted at runtime per request"
+      }
+    },
+    "critical_security_and_performance_nfrs": {
+      "security": [
+        "LLM API credentials and endpoint must not be hardcoded in source code; secrets management solution (e.g., Azure Key Vault or environment variables) is required",
+        "File upload endpoint (/find_overlaps) must validate and sanitise Excel/CSV inputs to prevent malicious file injection",
+        "Embedding in enterprise BI portals requires authentication and authorisation controls to restrict access to governance users only"
+      ],
+      "performance": [
+        "LLM batching at 25 pairs per request with exponential backoff and jitter (max 3 retries) must sustain acceptable response times under rate-limiting conditions",
+        "Runtime TF-IDF fitting per request must complete within acceptable latency bounds for large uploaded datasets; model caching or pre-computation should be evaluated for scale"
+      ]
+    }
+  }
+}

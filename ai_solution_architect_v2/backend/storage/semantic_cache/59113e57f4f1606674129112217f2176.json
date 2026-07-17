@@ -1,0 +1,101 @@
+{
+  "hash": "59113e57f4f1606674129112217f2176",
+  "system_prompt": "\nYou are a solution architect producing a structured component graph for an architecture diagram.\n\nGiven the architecture JSON, output ONLY valid JSON with components and connections.\n\nSTRICT RULES:\n- Return ONLY valid JSON \u2014 no markdown, no backticks, no explanation\n- components: 5-8 nodes, each with id (snake_case), label (short, max 4 words)\n- Assign each component a layer from: Client, Frontend, Backend, AI/ML, Data, External\n- connections: directed left-to-right flow \u2014 user to frontend to backend to AI/data\n- Every connection from/to MUST reference an id in components\n- Edge labels: 1-3 words max (REST, SQL, gRPC, HTTPS, Embed, Invoke, Event)\n- NO Mermaid syntax\n\nOUTPUT FORMAT:\n{\n  \"components\": [\n    { \"id\": \"user_client\",  \"label\": \"User / Client\",   \"layer\": \"Client\"   },\n    { \"id\": \"frontend\",     \"label\": \"Streamlit UI\",    \"layer\": \"Frontend\" },\n    { \"id\": \"backend_api\",  \"label\": \"FastAPI Backend\", \"layer\": \"Backend\"  },\n    { \"id\": \"ai_engine\",    \"label\": \"LLM Engine\",      \"layer\": \"AI/ML\"    },\n    { \"id\": \"vector_db\",    \"label\": \"ChromaDB\",        \"layer\": \"Data\"     },\n    { \"id\": \"json_store\",   \"label\": \"JSON State Store\",\"layer\": \"Data\"     }\n  ],\n  \"connections\": [\n    { \"from\": \"user_client\",  \"to\": \"frontend\",    \"label\": \"HTTPS\"  },\n    { \"from\": \"frontend\",     \"to\": \"backend_api\", \"label\": \"REST\"   },\n    { \"from\": \"backend_api\",  \"to\": \"ai_engine\",   \"label\": \"Invoke\" },\n    { \"from\": \"backend_api\",  \"to\": \"vector_db\",   \"label\": \"Embed\"  },\n    { \"from\": \"backend_api\",  \"to\": \"json_store\",  \"label\": \"Persist\"}\n  ]\n}\n",
+  "user_prompt": "{\"project\": {\"name\": \"BI Attribute Overlap Analyser\", \"tagline\": \"AI-powered duplicate detection and governance for enterprise Power BI report attributes\", \"client_context\": \"Enterprise BI governance team managing report sprawl across large-scale Power BI deployments\"}, \"architecture\": {\"pattern\": \"Static SPA frontend with Python REST backend, Azure AI inference layer, and persistent audit data store\", \"frontend\": \"Static HTML5 SPA with Bootstrap 5.3.3, drag-and-drop upload, tabbed report cards, and Excel export\", \"backend\": \"Python FastAPI backend on Azure Container Apps using asyncio-native async/await for LLM I/O; ThreadPoolExecutor retained only for CPU-bound similarity scoring (scikit-learn TF-IDF, Levenshtein, Jaccard); async job queue (ARQ or Celery with Redis broker) introduced for long-running analyses exceeding 30-second HTTP timeout threshold\", \"ai_layer\": \"Azure-hosted Llama-3.3-70B-Instruct via AzureOpenAI client with batched LLM calls and exponential backoff\", \"data_store\": \"Externalised shared Redis Cache (Azure Cache for Redis) for TF-IDF artifact storage using joblib serialisation (not pickle); Azure Blob Storage for durable artifact persistence; Azure SQL for audit trail; all backend replicas share the same Redis and Blob tier to support stateless horizontal scaling\", \"hosting\": \"Azure Static Web Apps for frontend; Azure App Service or Container Apps for Python backend\", \"components\": [{\"id\": \"user_client\", \"label\": \"User / Client\", \"name\": \"Enterprise Governance User Browser\", \"role\": \"Entry point for BI analysts and data stewards uploading attribute files and reviewing results\", \"technology\": \"Web Browser, HTTPS, REST client\"}, {\"id\": \"spa_frontend\", \"label\": \"SPA Frontend\", \"name\": \"Static Single-Page Application\", \"role\": \"Renders drag-and-drop upload, column-mapping normalisation UI, tabbed report cards, filterable tables, job status polling, and Excel export UI\", \"technology\": \"HTML5, Bootstrap 5.3.3, Custom CSS, JavaScript ES6, SheetJS\"}, {\"id\": \"api_gateway\", \"label\": \"API Gateway / Auth\", \"name\": \"Azure API Management with SSO Enforcement\", \"role\": \"Enforces authentication, authorisation, rate limiting, and CORS/CSP policy on all backend API calls\", \"technology\": \"Azure API Management, Azure AD, OAuth 2.0, JWT, TLS 1.3\"}, {\"id\": \"file_sanitiser\", \"label\": \"File Sanitisation Layer\", \"name\": \"Upload Validation and Sanitisation Service\", \"role\": \"Enforces MIME-type whitelist (xlsx, csv only), file size cap, macro/embedded-object stripping for Excel, and malicious content scanning before any processing occurs\", \"technology\": \"Python python-magic MIME detection, openpyxl macro stripping, file size enforcement, ClamAV or Azure Defender for Storage scan trigger\"}, {\"id\": \"column_mapper\", \"label\": \"Column Mapper\", \"name\": \"Input Schema Normalisation Component\", \"role\": \"Detects uploaded column headers and maps non-conforming schemas to required Table and Field canonical columns via configurable mapping rules; returns descriptive errors for unmappable uploads\", \"technology\": \"Python, Pydantic schema validation, fuzzy column header matching, SPA-side column mapping confirmation UI\"}, {\"id\": \"python_backend\", \"label\": \"Python Backend\", \"name\": \"Python Async REST Backend Service\", \"role\": \"Exposes /find_overlaps (sync small datasets) and /find_overlaps/async (job-based large datasets) endpoints; orchestrates file sanitisation, column mapping, similarity pipeline, LLM batching, caching, and audit persistence\", \"technology\": \"Python 3.11, FastAPI, Pydantic, Uvicorn, asyncio, ARQ or Celery task queue, pandas\"}, {\"id\": \"job_queue\", \"label\": \"Async Job Queue\", \"name\": \"Long-Running Analysis Job Queue\", \"role\": \"Accepts analysis jobs exceeding synchronous timeout threshold; returns job ID immediately; SPA polls /jobs/{id}/status endpoint; prevents HTTP timeout failures for large datasets\", \"technology\": \"ARQ (asyncio Redis Queue) or Celery with Redis broker; Azure Cache for Redis as broker backend\"}, {\"id\": \"similarity_engine\", \"label\": \"Similarity Engine\", \"name\": \"Hybrid Similarity Scoring Pipeline\", \"role\": \"Computes TF-IDF cosine (45%), Levenshtein edit distance (25%), and Jaccard trigram (30%) scores for attribute pairs using cached vectorizer artifacts from shared Redis/Blob store\", \"technology\": \"scikit-learn TF-IDF, python-Levenshtein, custom Jaccard trigram, NumPy, joblib serialisation\"}, {\"id\": \"llm_service\", \"label\": \"LLM Service\", \"name\": \"Azure Llama-3.3-70B Inference Service\", \"role\": \"Confirms high-confidence attribute overlaps above 0.95 threshold via batched async LLM prompts; endpoint must reside within enterprise Azure tenant boundary to satisfy data residency requirements\", \"technology\": \"AzureOpenAI async Python SDK, Llama-3.3-70B-Instruct, API version 2024-05-01-preview, asyncio.gather concurrency, exponential backoff with jitter\"}, {\"id\": \"secrets_store\", \"label\": \"Secrets Store\", \"name\": \"Azure Key Vault Secrets Manager\", \"role\": \"Stores and serves LLM API credentials, endpoint URLs, and Redis connection strings securely at runtime via Managed Identity; no credentials in source code or environment variable plaintext\", \"technology\": \"Azure Key Vault, Managed Identity, Azure SDK\"}, {\"id\": \"cache_store\", \"label\": \"Cache Store\", \"name\": \"Shared External TF-IDF Artifact Cache\", \"role\": \"Stores fitted TF-IDF vectorizer artifacts serialised with joblib; shared across all stateless backend replicas to eliminate per-request refitting; cache key derived from dataset vocabulary hash; TTL-governed with manual flush endpoint\", \"technology\": \"Azure Cache for Redis, joblib serialisation, vocabulary-hash cache keys, configurable TTL\"}, {\"id\": \"audit_store\", \"label\": \"Audit Store\", \"name\": \"Persistent Audit Data Store\", \"role\": \"Persists all historical overlap analysis results with user identity, timestamp, and dataset metadata for governance evidence and compliance reporting; data classified and encrypted at rest\", \"technology\": \"Azure SQL Database, row-level security, Azure SQL Transparent Data Encryption, Azure SQL data masking\"}, {\"id\": \"blob_store\", \"label\": \"Blob Store\", \"name\": \"Azure Blob Storage for Artifacts and Exports\", \"role\": \"Durable storage for serialised TF-IDF model artifacts and generated Excel export files; SAS-token-gated access; no public blob access\", \"technology\": \"Azure Blob Storage, SAS tokens, Managed Identity access, private endpoints\"}], \"connections\": [{\"from\": \"user_client\", \"to\": \"spa_frontend\", \"label\": \"HTTPS\"}, {\"from\": \"spa_frontend\", \"to\": \"api_gateway\", \"label\": \"REST / HTTPS with JWT\"}, {\"from\": \"api_gateway\", \"to\": \"python_backend\", \"label\": \"Authenticated REST\"}, {\"from\": \"python_backend\", \"to\": \"file_sanitiser\", \"label\": \"Raw upload bytes\"}, {\"from\": \"file_sanitiser\", \"to\": \"column_mapper\", \"label\": \"Sanitised file\"}, {\"from\": \"column_mapper\", \"to\": \"python_backend\", \"label\": \"Normalised Table+Field dataframe or mapping error\"}, {\"from\": \"python_backend\", \"to\": \"secrets_store\", \"label\": \"Fetch credentials via Managed Identity\"}, {\"from\": \"python_backend\", \"to\": \"job_queue\", \"label\": \"Enqueue large analysis jobs\"}, {\"from\": \"job_queue\", \"to\": \"similarity_engine\", \"label\": \"Attribute pairs (async worker)\"}, {\"from\": \"python_backend\", \"to\": \"similarity_engine\", \"label\": \"Attribute pairs (sync small datasets)\"}, {\"from\": \"similarity_engine\", \"to\": \"cache_store\", \"label\": \"Read/write TF-IDF joblib artifacts\"}, {\"from\": \"similarity_engine\", \"to\": \"python_backend\", \"label\": \"Scored pairs\"}, {\"from\": \"python_backend\", \"to\": \"llm_service\", \"label\": \"Batched async LLM prompts (asyncio.gather)\"}, {\"from\": \"llm_service\", \"to\": \"python_backend\", \"label\": \"Confirmed overlaps with confidence scores\"}, {\"from\": \"python_backend\", \"to\": \"audit_store\", \"label\": \"Persist analysis results with user identity and timestamp\"}, {\"from\": \"python_backend\", \"to\": \"blob_store\", \"label\": \"Store Excel export and TF-IDF artifacts\"}, {\"from\": \"python_backend\", \"to\": \"spa_frontend\", \"label\": \"JSON overlap results or job ID for polling\"}, {\"from\": \"spa_frontend\", \"to\": \"api_gateway\", \"label\": \"Poll /jobs/{id}/status for async jobs\"}]}, \"technology_stack\": {\"frontend\": [\"HTML5\", \"Bootstrap 5.3.3\", \"Custom CSS\", \"JavaScript ES6\", \"SheetJS (Excel export)\"], \"backend\": [\"Python 3.11\", \"FastAPI (async-native)\", \"Pydantic v2\", \"Uvicorn\", \"asyncio (replaces ThreadPoolExecutor for I/O-bound LLM calls)\", \"ThreadPoolExecutor (retained for CPU-bound similarity scoring only via run_in_executor)\", \"ARQ or Celery (async job queue for long-running analyses)\", \"pandas\", \"openpyxl\", \"python-magic (MIME validation)\", \"joblib (TF-IDF artifact serialisation \\u2014 replaces pickle)\"], \"ai_ml\": [\"AzureOpenAI async Python SDK\", \"Llama-3.3-70B-Instruct (enterprise Azure tenant endpoint \\u2014 data residency enforced)\", \"scikit-learn TF-IDF\", \"python-Levenshtein\", \"NumPy\", \"joblib (model serialisation)\"], \"data\": [\"Azure Cache for Redis (shared external TF-IDF artifact cache and job queue broker)\", \"Azure Blob Storage (durable artifact and Excel export storage \\u2014 SAS-token-gated)\", \"Azure SQL Database (audit trail \\u2014 TDE, row-level security, data masking)\", \"joblib serialisation (replaces pickle for cache artifact safety)\"], \"infrastructure\": [\"Azure Static Web Apps (SPA frontend)\", \"Azure Container Apps (stateless Python backend with auto-scaling)\", \"Azure API Management (auth, rate limiting, CORS, CSP)\", \"Azure Cache for Redis\", \"Azure Blob Storage\", \"Azure SQL Database\", \"Azure Monitor and Application Insights\", \"Azure Defender for Storage (malicious file scan on upload)\"], \"security\": [\"Azure Key Vault (all credentials and connection strings)\", \"Azure Active Directory\", \"OAuth 2.0 / JWT\", \"Managed Identity (no plaintext secrets in env vars or source)\", \"TLS 1.3\", \"MIME-type whitelist enforcement on file upload\", \"Excel macro stripping (openpyxl)\", \"File size cap enforcement\", \"Azure Defender for Storage (upload malware scanning)\", \"Azure SQL Transparent Data Encryption\", \"Azure SQL row-level security and data masking\", \"SAS-token-gated Blob Storage access (no public blobs)\", \"Explicit CORS allowlist and Content-Security-Policy headers\", \"joblib serialisation (eliminates pickle RCE risk in cache layer)\"]}, \"data_flow\": [\"Governance analyst drags and drops Excel or CSV attribute file onto SPA frontend upload interface\", \"SPA sends multipart file upload POST request to /find_overlaps via API Gateway with JWT auth token\", \"API Gateway validates JWT, enforces authorisation policy, and forwards request to Python backend\", \"Python backend validates and sanitises file input, enforcing required Table and Field column schema\", \"Similarity engine computes TF-IDF cosine (45%), Levenshtein (25%), and Jaccard trigram (30%) scores for all attribute pairs using cached vectorizer artifacts\", \"Candidate pairs above similarity threshold are batched in groups of 25 and submitted to Azure Llama-3.3-70B-Instruct with exponential backoff\", \"LLM returns confidence scores; pairs at or above 0.95 threshold are flagged as confirmed high-confidence overlaps\", \"Final overlap results are persisted to audit store and returned as JSON to SPA for tabbed display and Excel export\"]}",
+  "response": {
+    "components": [
+      {
+        "id": "user_client",
+        "label": "User / Client",
+        "layer": "Client"
+      },
+      {
+        "id": "spa_frontend",
+        "label": "SPA Frontend",
+        "layer": "Frontend"
+      },
+      {
+        "id": "api_gateway",
+        "label": "API Gateway / Auth",
+        "layer": "Backend"
+      },
+      {
+        "id": "python_backend",
+        "label": "Python Backend",
+        "layer": "Backend"
+      },
+      {
+        "id": "similarity_engine",
+        "label": "Similarity Engine",
+        "layer": "AI/ML"
+      },
+      {
+        "id": "llm_service",
+        "label": "LLM Service",
+        "layer": "AI/ML"
+      },
+      {
+        "id": "cache_store",
+        "label": "Cache Store",
+        "layer": "Data"
+      },
+      {
+        "id": "audit_store",
+        "label": "Audit Store",
+        "layer": "Data"
+      }
+    ],
+    "connections": [
+      {
+        "from": "user_client",
+        "to": "spa_frontend",
+        "label": "HTTPS"
+      },
+      {
+        "from": "spa_frontend",
+        "to": "api_gateway",
+        "label": "REST / JWT"
+      },
+      {
+        "from": "api_gateway",
+        "to": "python_backend",
+        "label": "Authenticated REST"
+      },
+      {
+        "from": "python_backend",
+        "to": "similarity_engine",
+        "label": "Attribute Pairs"
+      },
+      {
+        "from": "similarity_engine",
+        "to": "cache_store",
+        "label": "Read/Write"
+      },
+      {
+        "from": "similarity_engine",
+        "to": "python_backend",
+        "label": "Scored Pairs"
+      },
+      {
+        "from": "python_backend",
+        "to": "llm_service",
+        "label": "Batched Prompts"
+      },
+      {
+        "from": "llm_service",
+        "to": "python_backend",
+        "label": "Confirmed Overlaps"
+      },
+      {
+        "from": "python_backend",
+        "to": "audit_store",
+        "label": "Persist"
+      },
+      {
+        "from": "python_backend",
+        "to": "spa_frontend",
+        "label": "JSON Results"
+      }
+    ]
+  }
+}

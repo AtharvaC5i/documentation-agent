@@ -1,0 +1,66 @@
+{
+  "hash": "c6774d1a7f49148b356cb04c15517dfa",
+  "system_prompt": "\nYou are a solution architect producing a structured component graph for an architecture diagram.\n\nGiven the architecture JSON, output ONLY valid JSON with components and connections.\n\nSTRICT RULES:\n- Return ONLY valid JSON \u2014 no markdown, no backticks, no explanation\n- components: 5-8 nodes, each with id (snake_case), label (short, max 4 words)\n- Assign each component a layer from: Client, Frontend, Backend, AI/ML, Data, External\n- connections: directed left-to-right flow \u2014 user to frontend to backend to AI/data\n- Every connection from/to MUST reference an id in components\n- Edge labels: 1-3 words max (REST, SQL, gRPC, HTTPS, Embed, Invoke, Event)\n- NO Mermaid syntax\n\nOUTPUT FORMAT:\n{\n  \"components\": [\n    { \"id\": \"user_client\",  \"label\": \"User / Client\",   \"layer\": \"Client\"   },\n    { \"id\": \"frontend\",     \"label\": \"Streamlit UI\",    \"layer\": \"Frontend\" },\n    { \"id\": \"backend_api\",  \"label\": \"FastAPI Backend\", \"layer\": \"Backend\"  },\n    { \"id\": \"ai_engine\",    \"label\": \"LLM Engine\",      \"layer\": \"AI/ML\"    },\n    { \"id\": \"vector_db\",    \"label\": \"ChromaDB\",        \"layer\": \"Data\"     },\n    { \"id\": \"json_store\",   \"label\": \"JSON State Store\",\"layer\": \"Data\"     }\n  ],\n  \"connections\": [\n    { \"from\": \"user_client\",  \"to\": \"frontend\",    \"label\": \"HTTPS\"  },\n    { \"from\": \"frontend\",     \"to\": \"backend_api\", \"label\": \"REST\"   },\n    { \"from\": \"backend_api\",  \"to\": \"ai_engine\",   \"label\": \"Invoke\" },\n    { \"from\": \"backend_api\",  \"to\": \"vector_db\",   \"label\": \"Embed\"  },\n    { \"from\": \"backend_api\",  \"to\": \"json_store\",  \"label\": \"Persist\"}\n  ]\n}\n",
+  "user_prompt": "{\"project\": {\"name\": \"Solution Architecture\", \"tagline\": \"\", \"client_context\": \"\"}, \"architecture\": {\"pattern\": \"\", \"frontend\": \"\", \"backend\": \"\", \"ai_layer\": \"\", \"data_store\": \"\", \"hosting\": \"\", \"components\": []}, \"technology_stack\": {\"frontend\": [], \"backend\": [], \"ai_ml\": [], \"data\": [], \"infrastructure\": [], \"security\": []}, \"data_flow\": []}",
+  "response": {
+    "components": [
+      {
+        "id": "user_client",
+        "label": "User / Client",
+        "layer": "Client"
+      },
+      {
+        "id": "frontend",
+        "label": "Web Frontend",
+        "layer": "Frontend"
+      },
+      {
+        "id": "backend_api",
+        "label": "API Backend",
+        "layer": "Backend"
+      },
+      {
+        "id": "ai_engine",
+        "label": "AI/ML Engine",
+        "layer": "AI/ML"
+      },
+      {
+        "id": "database",
+        "label": "Primary Database",
+        "layer": "Data"
+      },
+      {
+        "id": "external_service",
+        "label": "External Service",
+        "layer": "External"
+      }
+    ],
+    "connections": [
+      {
+        "from": "user_client",
+        "to": "frontend",
+        "label": "HTTPS"
+      },
+      {
+        "from": "frontend",
+        "to": "backend_api",
+        "label": "REST"
+      },
+      {
+        "from": "backend_api",
+        "to": "ai_engine",
+        "label": "Invoke"
+      },
+      {
+        "from": "backend_api",
+        "to": "database",
+        "label": "SQL"
+      },
+      {
+        "from": "backend_api",
+        "to": "external_service",
+        "label": "REST"
+      }
+    ]
+  }
+}

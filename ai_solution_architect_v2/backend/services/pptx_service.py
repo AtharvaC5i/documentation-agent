@@ -6,6 +6,11 @@ FIXED VERSION
 - Prevents corrupted slide masters/layouts
 - Prevents invalid XML transforms
 - Safer XML parsing/serialization
+- Fixes PowerPoint Slides.InsertFromFile off-by-one index error
+- Avoids hardcoded temp/work paths across machines
+- Supports machine-specific PPTX_WORK_DIR override
+- Falls back safely to LOCALAPPDATA or system temp
+- Adds more robust PowerPoint COM save diagnostics
 """
 
 import io
@@ -21,12 +26,14 @@ from typing import Optional, Any
 
 from lxml import etree
 
+
 # Resolve the JS script path relative to this file
 _SCRIPT_DIR = Path(__file__).parent / "pptx_gen"
 _JS_SCRIPT = _SCRIPT_DIR / "generate_pptx.js"
 _TITLE_SLIDES = _SCRIPT_DIR / "title_slides.pptx"
 _CLOSING_SLIDES = _SCRIPT_DIR / "closing_slides.pptx"
 _NODE_BIN = "node"
+
 
 # OOXML namespaces
 _RELS_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -36,6 +43,7 @@ _R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 
 _REL_SLIDE = f"{_R_NS}/slide"
 _REL_MASTER = f"{_R_NS}/slideMaster"
+
 
 _ASSET_DIRS = frozenset({
     "ppt/slides",
@@ -60,6 +68,47 @@ _ASSET_DIRNAMES = frozenset({
     "charts",
     "embeddings",
 })
+
+
+def _get_pptx_work_root() -> Path:
+    """
+    Resolve a machine-specific writable staging root for PowerPoint assembly.
+
+    Priority:
+    1. PPTX_WORK_DIR environment variable, if configured.
+    2. LOCALAPPDATA\\DocuFlow\\pptx_work on Windows.
+    3. Python's OS-resolved temporary directory.
+
+    No user-specific Windows path is hardcoded.
+    """
+    configured_dir = os.getenv("PPTX_WORK_DIR", "").strip()
+
+    if configured_dir:
+        work_root = Path(configured_dir).expanduser()
+    else:
+        local_app_data = os.getenv("LOCALAPPDATA", "").strip()
+
+        if local_app_data:
+            work_root = Path(local_app_data) / "DocuFlow" / "pptx_work"
+        else:
+            work_root = Path(tempfile.gettempdir()) / "DocuFlow" / "pptx_work"
+
+    try:
+        work_root.mkdir(parents=True, exist_ok=True)
+
+        probe_file = work_root / ".write_probe"
+        probe_file.write_text("ok", encoding="utf-8")
+        probe_file.unlink(missing_ok=True)
+
+        return work_root.resolve()
+
+    except Exception as exc:
+        fallback = Path(tempfile.gettempdir()).resolve()
+        print(
+            f"[pptx_service] Warning: Cannot use PPTX work root "
+            f"'{work_root}': {exc}. Falling back to '{fallback}'."
+        )
+        return fallback
 
 
 def _safe_xml_root(xml_bytes):
@@ -231,13 +280,11 @@ def _ct_map(files: dict) -> dict:
 def _ensure_content_type_entry(ct_el, part_name: str, content_type: str) -> None:
     """Ensure a content type entry exists for a part. Avoids duplicates."""
     part_name = "/" + part_name.lstrip("/")
-    
+
     for el in ct_el:
         if el.get("PartName") == part_name:
-            # Entry already exists
             return
-    
-    # Add new entry
+
     etree.SubElement(
         ct_el,
         f"{{{_CT_NS}}}Override",
@@ -256,23 +303,20 @@ def _ensure_content_types_order(ct_el) -> None:
     """
     defaults = []
     overrides = []
-    
+
     for el in list(ct_el):
         tag = el.tag.split("}")[1] if "}" in el.tag else el.tag
         if tag == "Default":
             defaults.append(el)
         elif tag == "Override":
             overrides.append(el)
-    
-    # Only reorder if needed
+
     if not defaults or not overrides:
         return
-    
-    # Remove all elements
+
     for el in list(ct_el):
         ct_el.remove(el)
-    
-    # Re-add in correct order
+
     for el in defaults:
         ct_el.append(el)
     for el in overrides:
@@ -289,7 +333,6 @@ def _scale_slide_xml(slide_xml_bytes: bytes, scale_x: float, scale_y: float) -> 
         }
 
         xfrm_nodes = []
-
         xfrm_nodes.extend(root.findall(".//p:sp//a:xfrm", ns))
         xfrm_nodes.extend(root.findall(".//p:pic//a:xfrm", ns))
         xfrm_nodes.extend(root.findall(".//p:graphicFrame//a:xfrm", ns))
@@ -353,7 +396,7 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
     for sld in sld_id_lst:
         try:
             max_sld_id = max(max_sld_id, int(sld.get("id", 0)))
-        except:
+        except Exception:
             pass
 
     max_rid = 0
@@ -370,7 +413,7 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
         for sm in sld_master_id_lst:
             try:
                 max_master_id = max(max_master_id, int(sm.get("id", 0)))
-            except:
+            except Exception:
                 pass
 
     for src_idx, src_bytes in enumerate(pptx_bytes_list[1:], 1):
@@ -397,7 +440,7 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
                             scale_x = base_dims["cx"] / src_cx
                             scale_y = base_dims["cy"] / src_cy
 
-                except:
+                except Exception:
                     pass
 
         for src_path, data in src.items():
@@ -413,10 +456,6 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
                 data = _prefix_rels_targets(data, pfx)
 
             elif src_path.endswith(".xml"):
-
-                # FIXED:
-                # Scale ONLY actual slides.
-                # NEVER scale layouts or masters.
                 if (
                     (scale_x != 1.0 or scale_y != 1.0)
                     and src_path.startswith("ppt/slides/")
@@ -496,12 +535,14 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
 
     out["ppt/presentation.xml"] = _xml_to_bytes(prs_el)
     out["ppt/_rels/presentation.xml.rels"] = _xml_to_bytes(prs_rels)
-    
-    # Ensure Content_Types.xml has correct element ordering (OOXML requirement)
+
     _ensure_content_types_order(ct_el)
     out["[Content_Types].xml"] = _xml_to_bytes(ct_el)
 
-    print(f"[pptx_service] Merged {len(pptx_bytes_list)} presentations, max_rid={max_rid}, max_sld_id={max_sld_id}")
+    print(
+        f"[pptx_service] Merged {len(pptx_bytes_list)} presentations, "
+        f"max_rid={max_rid}, max_sld_id={max_sld_id}"
+    )
 
     buf = io.BytesIO()
 
@@ -511,7 +552,6 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
         compression=zipfile.ZIP_DEFLATED,
         allowZip64=True,
     ) as zf:
-
         for name, data in out.items():
             zf.writestr(name, data)
 
@@ -519,21 +559,35 @@ def _zip_merge_pptx(pptx_bytes_list: list) -> bytes:
 
 
 def _merge_with_templates(content_bytes: bytes) -> bytes:
-    """Assemble editable slides with PowerPoint's native import operation.
+    """
+    Merge title, generated content, and closing decks with PowerPoint COM.
 
-    Copying parts between arbitrary PPTX ZIP packages leaves invalid
-    master/layout relationship graphs. PowerPoint's ``InsertFromFile`` keeps
-    the title and closing slides editable while rebuilding those relationships
-    correctly in the final package.
+    This version:
+    - Uses a machine-specific writable work root instead of a hardcoded path.
+    - Uses PowerPoint native InsertFromFile.
+    - Uses Slides.Count, never Slides.Count + 1.
+    - Uses MsoTriState integer values, not PowerShell booleans.
+    - Adds waiting/idling between operations.
+    - Saves to an intermediate file first.
+    - Falls back to SaveCopyAs if SaveAs fails.
     """
     if not _TITLE_SLIDES.exists() and not _CLOSING_SLIDES.exists():
         return content_bytes
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    work_root = _get_pptx_work_root()
+    print(f"[pptx_service] PowerPoint assembly work root: {work_root}")
+
+    with tempfile.TemporaryDirectory(
+        prefix="docuflow_pptx_",
+        dir=str(work_root),
+    ) as tmpdir:
         tmpdir_path = Path(tmpdir)
+
         content_path = tmpdir_path / "content.pptx"
-        output_path = tmpdir_path / "final.pptx"
         base_path = tmpdir_path / "base.pptx"
+        intermediate_path = tmpdir_path / "assembled_intermediate.pptx"
+        output_path = tmpdir_path / "final.pptx"
+
         content_path.write_bytes(content_bytes)
 
         if _TITLE_SLIDES.exists():
@@ -543,40 +597,194 @@ def _merge_with_templates(content_bytes: bytes) -> bytes:
             content_path = None
 
         def ps_quote(value: Path) -> str:
-            return "'" + str(value).replace("'", "''") + "'"
+            return "'" + str(value.resolve()).replace("'", "''") + "'"
 
         commands = [
             "$ErrorActionPreference = 'Stop'",
-            "$ppt = New-Object -ComObject PowerPoint.Application",
+            "$ppt = $null",
             "$deck = $null",
+            "",
+            "$msoFalse = 0",
+            "$msoTrue = -1",
+            "$ppSaveAsOpenXMLPresentation = 24",
+            "",
+            "function Invoke-PowerPointIdle {",
+            "  param([int]$Milliseconds = 2500)",
+            "  $deadline = (Get-Date).AddMilliseconds($Milliseconds)",
+            "  while ((Get-Date) -lt $deadline) {",
+            "    [System.Windows.Forms.Application]::DoEvents()",
+            "    Start-Sleep -Milliseconds 100",
+            "  }",
+            "}",
+            "",
+            "function Insert-DeckSlides {",
+            "  param(",
+            "    [Parameter(Mandatory = $true)] $Presentation,",
+            "    [Parameter(Mandatory = $true)] [string] $SourcePath,",
+            "    [Parameter(Mandatory = $true)] [string] $Label",
+            "  )",
+            "",
+            "  if (-not (Test-Path -LiteralPath $SourcePath)) {",
+            '    throw "[$Label] Source presentation was not found: $SourcePath"',
+            "  }",
+            "",
+            "  $beforeCount = [int]$Presentation.Slides.Count",
+            '  Write-Host "[$Label] Importing into deck with $beforeCount slide(s)"',
+            "",
+            "  $insertAfterIndex = $beforeCount",
+            "",
+            "  try {",
+            "    [void]$Presentation.Slides.InsertFromFile(",
+            "      $SourcePath,",
+            "      $insertAfterIndex",
+            "    )",
+            "  }",
+            "  catch {",
+            '    throw "[$Label] InsertFromFile failed: $($_.Exception.Message)"',
+            "  }",
+            "",
+            "  Invoke-PowerPointIdle -Milliseconds 3000",
+            "",
+            "  $afterCount = [int]$Presentation.Slides.Count",
+            "  if ($afterCount -le $beforeCount) {",
+            '    throw "[$Label] No slides were inserted. Before=$beforeCount, After=$afterCount"',
+            "  }",
+            "",
+            '  Write-Host "[$Label] Imported $($afterCount - $beforeCount) slide(s); total=$afterCount"',
+            "}",
+            "",
             "try {",
-            f"  $deck = $ppt.Presentations.Open({ps_quote(base_path)}, $false, $false, $false)",
+            "  Add-Type -AssemblyName System.Windows.Forms",
+            "  $ppt = New-Object -ComObject PowerPoint.Application",
+            "  $ppt.Visible = $msoTrue",
+            "",
+            "  if (-not (Test-Path -LiteralPath " + ps_quote(base_path) + ")) {",
+            '    throw "Base presentation was not found."',
+            "  }",
+            "",
+            "  Write-Host '[base] Opening base presentation'",
+            f"  $deck = $ppt.Presentations.Open({ps_quote(base_path)}, $msoFalse, $msoFalse, $msoTrue)",
+            "",
+            "  Invoke-PowerPointIdle -Milliseconds 2000",
+            '  Write-Host "[base] Opened with $($deck.Slides.Count) slide(s)"',
+            "",
         ]
+
         if content_path is not None:
-            commands.append(
-                f"  [void]$deck.Slides.InsertFromFile({ps_quote(content_path)}, $deck.Slides.Count)"
-            )
+            commands.extend([
+                f"  Insert-DeckSlides -Presentation $deck -SourcePath {ps_quote(content_path)} -Label 'content'",
+                "",
+            ])
+
         if _CLOSING_SLIDES.exists():
-            commands.append(
-                f"  [void]$deck.Slides.InsertFromFile({ps_quote(_CLOSING_SLIDES)}, $deck.Slides.Count)"
-            )
+            commands.extend([
+                f"  Insert-DeckSlides -Presentation $deck -SourcePath {ps_quote(_CLOSING_SLIDES)} -Label 'closing'",
+                "",
+            ])
+
         commands.extend([
-            f"  $deck.SaveAs({ps_quote(output_path)}, 24)",
-            "} finally {",
-            "  if ($deck -ne $null) { $deck.Close() }",
-            "  if ($ppt -ne $null) { $ppt.Quit(); [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($ppt) }",
+            "  Invoke-PowerPointIdle -Milliseconds 5000",
+            "",
+            "  if ($deck.Slides.Count -eq 0) {",
+            '    throw "Cannot save an empty PowerPoint presentation."',
+            "  }",
+            "",
+            f"  $intermediatePath = {ps_quote(intermediate_path)}",
+            f"  $finalPath = {ps_quote(output_path)}",
+            "",
+            "  if (Test-Path -LiteralPath $intermediatePath) {",
+            "    Remove-Item -LiteralPath $intermediatePath -Force",
+            "  }",
+            "",
+            "  if (Test-Path -LiteralPath $finalPath) {",
+            "    Remove-Item -LiteralPath $finalPath -Force",
+            "  }",
+            "",
+            '  Write-Host "[save] Saving $($deck.Slides.Count) slide(s) to intermediate PPTX"',
+            "",
+            "  try {",
+            "    $deck.SaveAs($intermediatePath, $ppSaveAsOpenXMLPresentation)",
+            "  }",
+            "  catch {",
+            '    $saveAsError = $_.Exception.Message',
+            '    Write-Host "[save] SaveAs failed: $saveAsError"',
+            '    Write-Host "[save] Attempting SaveCopyAs fallback"',
+            "",
+            "    try {",
+            "      $deck.SaveCopyAs($intermediatePath, $ppSaveAsOpenXMLPresentation, $msoFalse)",
+            "    }",
+            "    catch {",
+            '      throw "PowerPoint could not save the merged presentation. SaveAs error: $saveAsError | SaveCopyAs error: $($_.Exception.Message)"',
+            "    }",
+            "  }",
+            "",
+            "  Invoke-PowerPointIdle -Milliseconds 3000",
+            "",
+            "  if (-not (Test-Path -LiteralPath $intermediatePath)) {",
+            '    throw "PowerPoint reported success but did not create the intermediate PPTX."',
+            "  }",
+            "",
+            "  $savedSize = (Get-Item -LiteralPath $intermediatePath).Length",
+            "  if ($savedSize -le 0) {",
+            '    throw "PowerPoint created an empty intermediate PPTX."',
+            "  }",
+            "",
+            "  Copy-Item -LiteralPath $intermediatePath -Destination $finalPath -Force",
+            "",
+            "  if (-not (Test-Path -LiteralPath $finalPath)) {",
+            '    throw "Final PPTX was not created after successful intermediate save."',
+            "  }",
+            "",
+            '  Write-Host "[save] Final PPTX created: $finalPath"',
+            "}",
+            "finally {",
+            "  if ($deck -ne $null) {",
+            "    try { $deck.Close() } catch { }",
+            "    try { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($deck) } catch { }",
+            "  }",
+            "",
+            "  if ($ppt -ne $null) {",
+            "    try { $ppt.Quit() } catch { }",
+            "    try { [void][Runtime.InteropServices.Marshal]::FinalReleaseComObject($ppt) } catch { }",
+            "  }",
+            "",
+            "  [GC]::Collect()",
+            "  [GC]::WaitForPendingFinalizers()",
             "}",
         ])
 
+        powershell_script = "\n".join(commands)
+
         result = subprocess.run(
-            ["powershell", "-NoProfile", "-NonInteractive", "-Command", "\n".join(commands)],
+            [
+                "powershell",
+                "-NoProfile",
+                "-NonInteractive",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                powershell_script,
+            ],
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=180,
         )
+
         if result.returncode != 0 or not output_path.exists():
-            details = (result.stderr or result.stdout or "unknown error").strip()
-            raise RuntimeError(f"PowerPoint template assembly failed: {details}")
+            stdout = (result.stdout or "").strip()
+            stderr = (result.stderr or "").strip()
+
+            details_parts = [
+                "PowerPoint template assembly failed."
+            ]
+
+            if stdout:
+                details_parts.append(f"PowerShell stdout:\n{stdout}")
+
+            if stderr:
+                details_parts.append(f"PowerShell stderr:\n{stderr}")
+
+            raise RuntimeError("\n\n".join(details_parts))
 
         return output_path.read_bytes()
 
@@ -586,7 +794,6 @@ class PptxService:
         import time
 
         with tempfile.TemporaryDirectory() as tmpdir:
-
             input_path = os.path.join(tmpdir, "input.json")
             output_path = os.path.join(tmpdir, "output.pptx")
 
@@ -615,8 +822,7 @@ class PptxService:
                 result.stderr.decode("utf-8", errors="replace")
                 if result.stderr else ""
             )
-            
-            # Print stderr text for server logging/visibility
+
             if stderr_text:
                 print(f"[pptx_service Node stderr]:\n{stderr_text}")
 
@@ -632,21 +838,21 @@ class PptxService:
                     "Node process exited 0 but output file not found.\n"
                     f"STDERR: {stderr_text}"
                 )
-                
-            # Parse timing information if tracker is present
+
             if tracker is not None:
                 try:
                     step1_match = re.search(r"\[pptx-gen\] STEP 1 duration:\s*(\d+)\s*ms", stderr_text)
                     step2_match = re.search(r"\[pptx-gen\] STEP 2 duration:\s*(\d+)\s*ms", stderr_text)
-                    
+
                     duration_xml = float(step1_match.group(1)) / 1000.0 if step1_match else 0.0
                     duration_png = float(step2_match.group(1)) / 1000.0 if step2_match else 0.0
-                    
+
                     tracker._phase_timers["diagram_generation"] = duration_xml
                     tracker._phase_timers["diagram_rendering"] = duration_png
-                    
-                    # The remaining time is pure PPTX layout/writing
-                    tracker._phase_timers["pptx_generation"] = max(0.0, node_duration - duration_xml - duration_png)
+                    tracker._phase_timers["pptx_generation"] = max(
+                        0.0,
+                        node_duration - duration_xml - duration_png
+                    )
                 except Exception as timing_err:
                     print(f"[Metrics] Warning: failed to parse timing from JS stderr: {timing_err}")
 

@@ -1,0 +1,45 @@
+{
+  "hash": "c735350e49f8191aa9c8747a16b6dd89",
+  "system_prompt": "You are a senior systems architect compiling a dense Architectural Fact Sheet from project documents.\nCompile:\n1. Core Business Goals (exactly 5 specific items)\n2. Primary User Personas & Entry Points\n3. Identified Pain Points & Constraints (exactly 5 specific items)\n4. Key Technology Stack preferences (Frontend, Backend, DB)\n5. Critical Security & Performance NFRs\n\nReturn ONLY valid JSON with these fields. No explanations.",
+  "user_prompt": "BRD:\nTESTPROJECT\r\nBUSINESS REQUIREMENTS DOCUMENT\r\nThis is a test description\r\nTable of Contents\r\nPage numbers are approximate estimates.\r\n\r\n# Executive Summary\r\nABC Company operates in a competitive manufacturing landscape where reaching customers efficiently and managing a complex network of vendors, regional store managers, and logistics partners has become increasingly difficult without a unified digital commerce presence. This project exists to close that gap by delivering a purpose-built e-commerce platform \u2014 ShopEase \u2014 that brings ABC Company's products directly to customers while giving every stakeholder the tools they need to operate effectively. The investment reflects a strategic decision to modernize how ABC Company sells, fulfills, and grows.\r\n\r\n### Business Problem\r\nToday, ABC Company lacks a centralized digital channel through which customers can discover, purchase, and track products \u2014 leaving revenue on the table and creating operational inefficiencies across vendors, regional store teams, and the central administration. Without real-time visibility into inventory, pricing control, or customer behavior, the business cannot respond quickly to demand signals or manage its product catalog of approximately 8,000 SKUs with the accuracy the market requires. The absence of a scalable commerce platform means ABC Company is unable to capitalize on high-traffic sales events, such as Diwali, where consumer purchasing intent is at its peak.\r\n\r\n### Proposed Solution\r\nShopEase will be a fully integrated e-commerce platform \u2014 available on web and mobile \u2014 that connects customers, vendors, store managers, and central administrators through a single, cohesive system. The platform will synchronize directly with ABC Company's existing SAP ERP system to ensure product information and stock availability are always accurate, while offering customers flexible payment options including UPI, net banking, credit and debit cards, and no-cost EMI financing through Bajaj Finance. By bringing together automated shipping through Delhivery and BlueDart, real-time order tracking, and powerful sales analytics, ShopEase will give ABC Company the commercial infrastructure to grow confidently and serve customers with consistency.\r\n\r\n### Key Objectives\r\nLaunch ShopEase and make it fully accessible to customers within 6 months of project kickoff.\r\nSuccessfully migrate all 8,000 existing SKUs from SAP ERP into the platform catalog prior to go-live, with the system architected to scale to 25,000 SKUs as new vendors onboard.\r\nEnsure the platform sustains a minimum of 50,000 concurrent users during peak sale events with all pages loading within 3 seconds.\r\nReduce inventory discrepancy errors by synchronizing stock levels with SAP ERP in real time, with updates reflected on the storefront within seconds of any change.\r\nEquip the central admin team with daily, weekly, and monthly sales reports \u2014 filterable by region, product category, and vendor \u2014 to support data-driven commercial decisions from day one.\r\n\r\n### Expected Outcomes\r\nSix months after launch, ShopEase is expected to be ABC Company's primary direct-to-customer revenue channel, processing transactions at an average order value of approximately INR 15,000 across a growing customer base. Cart abandonment analytics and promotional campaign tools will enable the marketing team to recover lost sales and drive repeat purchases, measurably improving conversion rates over the first two quarters.\r\n[ Quality: 80%  \u00b7  Re\n\nTECH SUMMARY:\n[]",
+  "response": {
+    "core_business_goals": [
+      "Launch ShopEase as a fully integrated web and mobile e-commerce platform within 6 months of project kickoff",
+      "Migrate all 8,000 existing SKUs from SAP ERP into the platform catalog and scale to 25,000 SKUs as new vendors onboard",
+      "Sustain a minimum of 50,000 concurrent users during peak sale events with all pages loading within 3 seconds",
+      "Synchronize stock levels with SAP ERP in real time with storefront updates reflected within seconds of any inventory change",
+      "Equip the central admin team with daily, weekly, and monthly sales reports filterable by region, product category, and vendor from day one"
+    ],
+    "primary_user_personas_and_entry_points": {
+      "customers": "Web and mobile storefront \u2014 product discovery, purchase, and order tracking",
+      "vendors": "Vendor portal \u2014 product catalog management and inventory updates",
+      "regional_store_managers": "Store management interface \u2014 regional inventory and sales visibility",
+      "central_administrators": "Admin dashboard \u2014 sales analytics, reporting, catalog oversight, and platform configuration",
+      "logistics_partners": "Integration layer \u2014 automated shipping coordination via Delhivery and BlueDart"
+    },
+    "identified_pain_points_and_constraints": [
+      "No centralized digital sales channel exists, causing lost revenue and inability to capitalize on high-traffic events like Diwali",
+      "Lack of real-time inventory visibility leads to stock discrepancy errors across a catalog of approximately 8,000 SKUs",
+      "No pricing control or customer behavior analytics, preventing data-driven commercial decisions",
+      "Fragmented operations across vendors, regional store teams, and central administration with no unified system",
+      "Current infrastructure cannot scale to support peak concurrent user loads or onboard new vendors and SKUs efficiently"
+    ],
+    "key_technology_stack_preferences": {
+      "frontend": "Web and mobile applications (specific frameworks not specified in BRD)",
+      "backend": "Integration with SAP ERP for product and inventory synchronization; Bajaj Finance for no-cost EMI; Delhivery and BlueDart for automated shipping",
+      "database": "Not explicitly specified; must support real-time sync with SAP ERP and scale to 25,000 SKUs",
+      "payments": "UPI, net banking, credit cards, debit cards, and no-cost EMI via Bajaj Finance"
+    },
+    "critical_security_and_performance_nfrs": {
+      "performance": [
+        "All pages must load within 3 seconds under peak load conditions",
+        "Platform must sustain a minimum of 50,000 concurrent users during peak sale events such as Diwali",
+        "SAP ERP inventory updates must be reflected on the storefront within seconds of any stock change"
+      ],
+      "security": [
+        "Secure handling of multiple payment methods including UPI, net banking, and card transactions requiring PCI-DSS compliance",
+        "Role-based access control across customers, vendors, regional store managers, and central administrators"
+      ]
+    }
+  }
+}

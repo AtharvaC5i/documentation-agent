@@ -1,0 +1,301 @@
+{
+  "hash": "621f079a0620597f9f1c30a2507214f7",
+  "system_prompt": "\nYou are a principal solution architect at a top-tier consulting firm.\n\nAnalyse the provided Business Requirement Document and/or Technical Documentation carefully. Extract EVERYTHING relevant and produce a complete architecture JSON.\n\nNOTES:\n- Either BRD and/or Technical Documentation may be provided (at least one will be present)\n- If only Technical Documentation is provided, infer the project requirements and solution from it\n- If only BRD is provided, design a reasonable architecture based on the requirements\n- If both are provided, synthesize both perspectives\n\nCRITICAL RULES:\n- Return ONLY valid, complete JSON \u2014 no markdown, no explanation, no truncation\n- Every string value: max 20 words, clear and specific\n- NO empty arrays \u2014 every array must have real content derived from the input\n- alignment.goals: exactly 5 specific goals (extracted from BRD or inferred from tech doc)\n- alignment.success_metrics: exactly 5 measurable KPIs\n- problem_statement.current_pain_points: exactly 5-6 specific pains\n- proposed_solution.key_differentiators: exactly 5 specific technical differentiators\n- data_flow: exactly 6-8 sequential steps describing the actual system data flow\n- architecture.components: exactly 6-8 components, each with id, label, name, role, technology fields\n- architecture.connections: directed edges between component ids for the diagram\n- technology_stack: fill ALL 6 layers with real tech names from the input (frontend/backend/ai_ml/data/infrastructure/security)\n- non_functional: fill all 5 fields (scalability/security/availability/performance/compliance) with specific statements\n- roadmap: exactly 3 phases, each with exactly 4 concrete deliverables\n- risks: exactly 4-5 risks each with specific mitigation\n- assumptions: exactly 4-5 specific assumptions\n- open_questions: exactly 4-5 specific open questions\n\nIMPORTANT for architecture.components \u2014 each component MUST have ALL these fields:\n  \"id\": snake_case unique identifier (e.g. \"fastapi_backend\")\n  \"label\": short display name (e.g. \"FastAPI Backend\")\n  \"name\": full descriptive name (e.g. \"FastAPI REST Backend Service\")\n  \"role\": one-line description of what it does (e.g. \"Handles all API requests and orchestrates pipeline\")\n  \"technology\": specific tech used (e.g. \"FastAPI, Python, Pydantic, Uvicorn\")\n\nOUTPUT FORMAT:\n{\n  \"project\": { \"name\": \"\", \"tagline\": \"\", \"client_context\": \"\" },\n  \"alignment\": { \"goals\": [], \"business_value\": \"\", \"success_metrics\": [] },\n  \"problem_statement\": { \"current_pain_points\": [], \"impact\": \"\", \"root_cause\": \"\" },\n  \"proposed_solution\": { \"summary\": \"\", \"key_differentiators\": [], \"approach\": \"\" },\n  \"architecture\": {\n    \"pattern\": \"\", \"frontend\": \"\", \"backend\": \"\", \"ai_layer\": \"\", \"data_store\": \"\", \"hosting\": \"\",\n    \"components\": [\n      { \"id\": \"user_client\", \"label\": \"User / Client\", \"name\": \"Web Browser / API Client\", \"role\": \"Entry point for all user interactions\", \"technology\": \"Web Browser, REST client\" }\n    ],\n    \"connections\": [\n      { \"from\": \"user_client\", \"to\": \"frontend\", \"label\": \"HTTPS\" }\n    ]\n  },\n  \"data_flow\": [],\n  \"technology_stack\": { \"frontend\": [], \"backend\": [], \"ai_ml\": [], \"data\": [], \"infrastructure\": [], \"security\": [] },\n  \"non_functional\": { \"scalability\": \"\", \"security\": \"\", \"availability\": \"\", \"performance\": \"\", \"compliance\": \"\" },\n  \"roadmap\": [\n    { \"phase\": \"Phase 1 - Foundation\", \"duration\": \"Weeks 1-4\", \"deliverables\": [] },\n    { \"phase\": \"Phase 2 - Core Build\", \"duration\": \"Weeks 5-10\", \"deliverables\": [] },\n    { \"phase\": \"Phase 3 - Scale & Optimise\", \"duration\": \"Weeks 11-16\", \"deliverables\": [] }\n  ],\n  \"risks\": [{ \"risk\": \"\", \"mitigation\": \"\" }],\n  \"assumptions\": [],\n  \"open_questions\": []\n}\n",
+  "user_prompt": "ARCHITECTURAL FACT SHEET:\n{\"core_business_goals\": [\"Detect duplicate and semantically similar Power BI report attributes to reduce enterprise report sprawl\", \"Enable BI governance workflows by providing exportable overlap analysis in Excel format\", \"Automate hybrid similarity scoring across uploaded report attribute datasets without manual comparison\", \"Support embedding of the tool within existing enterprise BI portals with minimal hosting overhead\", \"Accelerate data stewardship decisions by surfacing LLM-confirmed high-confidence attribute overlaps (\\u22650.95 threshold)\"], \"primary_user_personas_and_entry_points\": {\"personas\": [{\"name\": \"Enterprise BI Governance Analyst\", \"description\": \"Responsible for auditing and rationalising Power BI report attributes across the organisation\", \"entry_point\": \"Drag-and-drop file upload interface on the SPA (index.html)\"}, {\"name\": \"Data Steward\", \"description\": \"Reviews flagged duplicate or similar fields and makes remediation decisions\", \"entry_point\": \"Tabbed report cards and sortable/filterable data tables within the SPA\"}, {\"name\": \"BI Portal Administrator\", \"description\": \"Embeds the tool into existing enterprise BI portals and manages hosting\", \"entry_point\": \"Static front-end deployment (index.html + style.css) embedded in enterprise portal\"}]}, \"identified_pain_points_and_constraints\": [\"Hardcoded LLM API credentials and endpoint in server.py represent a critical security vulnerability in the current implementation\", \"TF-IDF vectorizer is fitted at runtime per request with no persisted model artifacts, causing repeated computation overhead on every upload\", \"LLM parallelism is constrained to max_workers=2 with only 3 retries on rate-limit errors, limiting throughput under high load\", \"Input data model strictly requires Table and Field name columns, making the tool brittle against non-conforming or inconsistently structured uploads\", \"No server-side runtime or database in the UI layer means all state is ephemeral; no persistence of historical analysis or audit trails\"], \"key_technology_stack\": {\"frontend\": {\"framework\": \"Single-Page Application (SPA) \\u2014 static HTML5 only\", \"ui_library\": \"Bootstrap 5.3.3 (CDN)\", \"styling\": \"Custom CSS; responsive to 480px, max-width 1200px\", \"key_components\": [\"Drag-and-drop file upload\", \"Tabbed report cards\", \"Sortable/filterable data tables\", \"Live search\", \"Excel export\"]}, \"backend\": {\"language\": \"Python\", \"server\": \"server.py exposing /find_overlaps REST route\", \"concurrency\": \"ThreadPoolExecutor (max_workers=2)\", \"llm_client\": \"AzureOpenAI client \\u2014 Azure-hosted Llama-3.3-70B-Instruct\", \"llm_api_version\": \"2024-05-01-preview\", \"similarity_pipeline\": \"TF-IDF cosine (45%) + Levenshtein edit distance (25%) + Jaccard character trigrams (30%)\"}, \"database\": {\"ui_layer\": \"None \\u2014 no database required\", \"ml_layer\": \"No persisted model artifacts; TF-IDF fitted at runtime per request\"}}, \"critical_security_and_performance_nfrs\": {\"security\": [\"LLM API credentials and endpoint must not be hardcoded in source code; secrets management solution (e.g., Azure Key Vault or environment variables) is required\", \"File upload endpoint (/find_overlaps) must validate and sanitise Excel/CSV inputs to prevent malicious file injection\", \"Embedding in enterprise BI portals requires authentication and authorisation controls to restrict access to governance users only\"], \"performance\": [\"LLM batching at 25 pairs per request with exponential backoff and jitter (max 3 retries) must sustain acceptable response times under rate-limiting conditions\", \"Runtime TF-IDF fitting per request must complete within acceptable latency bounds for large uploaded datasets; model caching or pre-computation should be evaluated for scale\"]}}",
+  "response": {
+    "project": {
+      "name": "BI Attribute Overlap Analyser",
+      "tagline": "AI-powered duplicate detection and governance for enterprise Power BI report attributes",
+      "client_context": "Enterprise BI governance team managing report sprawl across large-scale Power BI deployments"
+    },
+    "alignment": {
+      "goals": [
+        "Detect duplicate and semantically similar Power BI report attributes to reduce enterprise report sprawl",
+        "Enable BI governance workflows with exportable Excel overlap analysis reports",
+        "Automate hybrid similarity scoring across uploaded report attribute datasets without manual effort",
+        "Support embedding within existing enterprise BI portals with minimal hosting overhead",
+        "Accelerate data stewardship decisions by surfacing LLM-confirmed high-confidence attribute overlaps at 0.95 threshold"
+      ],
+      "business_value": "Reduces manual BI audit effort, enforces data governance standards, and eliminates redundant report attributes across the enterprise",
+      "success_metrics": [
+        "95% reduction in manual attribute comparison time per governance audit cycle",
+        "LLM-confirmed overlap detection accuracy above 95% confidence threshold consistently",
+        "Excel export generated and downloadable within 30 seconds for datasets up to 1000 attributes",
+        "Zero hardcoded credentials incidents post-deployment via secrets management enforcement",
+        "Tool successfully embedded in enterprise BI portal with 100% authorised-user access control"
+      ]
+    },
+    "problem_statement": {
+      "current_pain_points": [
+        "Hardcoded LLM API credentials and endpoint in server.py represent a critical production security vulnerability",
+        "TF-IDF vectorizer refitted per request with no caching, causing repeated computation overhead on every upload",
+        "LLM parallelism capped at max_workers=2 with only 3 retries, severely limiting throughput under concurrent load",
+        "Input model strictly requires Table and Field columns, making tool brittle against non-conforming uploads",
+        "No persistence layer means all analysis results are ephemeral with zero historical audit trail",
+        "No authentication or authorisation controls on the upload endpoint, exposing governance data to unauthorised access"
+      ],
+      "impact": "Governance analysts face security risks, slow processing, and no audit history, undermining enterprise BI rationalisation efforts",
+      "root_cause": "Prototype-grade implementation lacks production hardening: no secrets management, no caching, no persistence, and no access controls"
+    },
+    "proposed_solution": {
+      "summary": "Hardened, scalable SPA plus Python backend with Azure Key Vault secrets, TF-IDF caching, async LLM batching, persistent audit store, and enterprise SSO",
+      "key_differentiators": [
+        "Hybrid three-signal similarity pipeline combining TF-IDF cosine, Levenshtein, and Jaccard trigrams for robust attribute matching",
+        "Azure-hosted Llama-3.3-70B-Instruct LLM confirmation layer enforcing 0.95 confidence threshold for high-precision overlap flagging",
+        "Persisted TF-IDF model artifacts with runtime caching eliminating redundant per-request vectorizer fitting overhead",
+        "Azure Key Vault integration replacing all hardcoded credentials with secure, rotatable secret references",
+        "Audit trail persistence layer storing all historical overlap analyses for governance reporting and compliance evidence"
+      ],
+      "approach": "Iteratively harden the existing prototype: secure secrets, add caching and persistence, scale LLM concurrency, enforce input validation, and integrate enterprise SSO"
+    },
+    "architecture": {
+      "pattern": "Static SPA frontend with Python REST backend, Azure AI inference layer, and persistent audit data store",
+      "frontend": "Static HTML5 SPA with Bootstrap 5.3.3, drag-and-drop upload, tabbed report cards, and Excel export",
+      "backend": "Python server.py exposing /find_overlaps REST endpoint with ThreadPoolExecutor and hybrid similarity pipeline",
+      "ai_layer": "Azure-hosted Llama-3.3-70B-Instruct via AzureOpenAI client with batched LLM calls and exponential backoff",
+      "data_store": "Persistent audit store for historical overlap analyses; cached TF-IDF model artifacts in memory or blob storage",
+      "hosting": "Azure Static Web Apps for frontend; Azure App Service or Container Apps for Python backend",
+      "components": [
+        {
+          "id": "user_client",
+          "label": "User / Client",
+          "name": "Enterprise Governance User Browser",
+          "role": "Entry point for BI analysts and data stewards uploading attribute files and reviewing results",
+          "technology": "Web Browser, HTTPS, REST client"
+        },
+        {
+          "id": "spa_frontend",
+          "label": "SPA Frontend",
+          "name": "Static Single-Page Application",
+          "role": "Renders drag-and-drop upload, tabbed report cards, filterable tables, and Excel export UI",
+          "technology": "HTML5, Bootstrap 5.3.3, Custom CSS, JavaScript"
+        },
+        {
+          "id": "api_gateway",
+          "label": "API Gateway / Auth",
+          "name": "Azure API Management with SSO Enforcement",
+          "role": "Enforces authentication, authorisation, and rate limiting on all backend API calls",
+          "technology": "Azure API Management, Azure AD, OAuth 2.0, JWT"
+        },
+        {
+          "id": "python_backend",
+          "label": "Python Backend",
+          "name": "Python REST Backend Service",
+          "role": "Exposes /find_overlaps endpoint, orchestrates similarity pipeline, manages LLM batching and caching",
+          "technology": "Python, FastAPI or Flask, ThreadPoolExecutor, Pydantic, Uvicorn"
+        },
+        {
+          "id": "similarity_engine",
+          "label": "Similarity Engine",
+          "name": "Hybrid Similarity Scoring Pipeline",
+          "role": "Computes TF-IDF cosine, Levenshtein edit distance, and Jaccard trigram scores for attribute pairs",
+          "technology": "scikit-learn TF-IDF, python-Levenshtein, custom Jaccard trigram, NumPy"
+        },
+        {
+          "id": "llm_service",
+          "label": "LLM Service",
+          "name": "Azure Llama-3.3-70B Inference Service",
+          "role": "Confirms high-confidence attribute overlaps above 0.95 threshold via batched LLM prompts",
+          "technology": "AzureOpenAI client, Llama-3.3-70B-Instruct, API version 2024-05-01-preview"
+        },
+        {
+          "id": "secrets_store",
+          "label": "Secrets Store",
+          "name": "Azure Key Vault Secrets Manager",
+          "role": "Stores and serves LLM API credentials and endpoint URLs securely at runtime",
+          "technology": "Azure Key Vault, Managed Identity, Azure SDK"
+        },
+        {
+          "id": "audit_store",
+          "label": "Audit Store",
+          "name": "Persistent Audit and Cache Data Store",
+          "role": "Persists historical overlap analysis results and caches fitted TF-IDF model artifacts",
+          "technology": "Azure Blob Storage or Azure SQL, Redis Cache, Python pickle"
+        }
+      ],
+      "connections": [
+        {
+          "from": "user_client",
+          "to": "spa_frontend",
+          "label": "HTTPS"
+        },
+        {
+          "from": "spa_frontend",
+          "to": "api_gateway",
+          "label": "REST / HTTPS"
+        },
+        {
+          "from": "api_gateway",
+          "to": "python_backend",
+          "label": "Authenticated REST"
+        },
+        {
+          "from": "python_backend",
+          "to": "secrets_store",
+          "label": "Fetch credentials"
+        },
+        {
+          "from": "python_backend",
+          "to": "similarity_engine",
+          "label": "Attribute pairs"
+        },
+        {
+          "from": "similarity_engine",
+          "to": "python_backend",
+          "label": "Scored pairs"
+        },
+        {
+          "from": "python_backend",
+          "to": "llm_service",
+          "label": "Batched LLM prompts"
+        },
+        {
+          "from": "llm_service",
+          "to": "python_backend",
+          "label": "Confirmed overlaps"
+        },
+        {
+          "from": "python_backend",
+          "to": "audit_store",
+          "label": "Persist results / read cache"
+        },
+        {
+          "from": "python_backend",
+          "to": "spa_frontend",
+          "label": "JSON overlap results"
+        }
+      ]
+    },
+    "data_flow": [
+      "Governance analyst drags and drops Excel or CSV attribute file onto SPA frontend upload interface",
+      "SPA sends multipart file upload POST request to /find_overlaps via API Gateway with JWT auth token",
+      "API Gateway validates JWT, enforces authorisation policy, and forwards request to Python backend",
+      "Python backend validates and sanitises file input, enforcing required Table and Field column schema",
+      "Similarity engine computes TF-IDF cosine (45%), Levenshtein (25%), and Jaccard trigram (30%) scores for all attribute pairs using cached vectorizer artifacts",
+      "Candidate pairs above similarity threshold are batched in groups of 25 and submitted to Azure Llama-3.3-70B-Instruct with exponential backoff",
+      "LLM returns confidence scores; pairs at or above 0.95 threshold are flagged as confirmed high-confidence overlaps",
+      "Final overlap results are persisted to audit store and returned as JSON to SPA for tabbed display and Excel export"
+    ],
+    "technology_stack": {
+      "frontend": [
+        "HTML5",
+        "Bootstrap 5.3.3",
+        "Custom CSS",
+        "JavaScript ES6",
+        "SheetJS (Excel export)"
+      ],
+      "backend": [
+        "Python 3.11",
+        "FastAPI",
+        "Pydantic",
+        "Uvicorn",
+        "ThreadPoolExecutor",
+        "pandas",
+        "openpyxl"
+      ],
+      "ai_ml": [
+        "AzureOpenAI Python SDK",
+        "Llama-3.3-70B-Instruct",
+        "scikit-learn TF-IDF",
+        "python-Levenshtein",
+        "NumPy"
+      ],
+      "data": [
+        "Azure Blob Storage",
+        "Azure SQL Database",
+        "Redis Cache",
+        "pickle model serialisation"
+      ],
+      "infrastructure": [
+        "Azure Static Web Apps",
+        "Azure App Service",
+        "Azure Container Apps",
+        "Azure API Management",
+        "Azure Monitor"
+      ],
+      "security": [
+        "Azure Key Vault",
+        "Azure Active Directory",
+        "OAuth 2.0",
+        "JWT",
+        "Managed Identity",
+        "TLS 1.3"
+      ]
+    },
+    "non_functional": {
+      "scalability": "Backend scales horizontally on Azure Container Apps; LLM concurrency increased beyond max_workers=2 via async batching and queue-based dispatch",
+      "security": "All credentials stored in Azure Key Vault via Managed Identity; file inputs sanitised; endpoints protected by Azure AD OAuth 2.0 JWT enforcement",
+      "availability": "Azure App Service or Container Apps SLA of 99.95%; retry logic with exponential backoff and jitter ensures resilience against LLM rate-limit errors",
+      "performance": "TF-IDF model artifacts cached in Redis eliminating per-request refitting; LLM batches of 25 pairs with backoff sustain sub-30-second response for 1000 attributes",
+      "compliance": "Audit trail of all overlap analyses persisted in Azure SQL for governance evidence; data residency enforced within enterprise Azure tenant boundaries"
+    },
+    "roadmap": [
+      {
+        "phase": "Phase 1 - Foundation",
+        "duration": "Weeks 1-4",
+        "deliverables": [
+          "Migrate all hardcoded LLM credentials to Azure Key Vault with Managed Identity integration",
+          "Implement file upload input validation and sanitisation enforcing Table and Field schema",
+          "Deploy SPA to Azure Static Web Apps and backend to Azure App Service with TLS",
+          "Integrate Azure AD OAuth 2.0 JWT authentication on API Gateway for all endpoints"
+        ]
+      },
+      {
+        "phase": "Phase 2 - Core Build",
+        "duration": "Weeks 5-10",
+        "deliverables": [
+          "Implement Redis-backed TF-IDF model artifact caching to eliminate per-request vectorizer refitting",
+          "Increase LLM concurrency with async batching, configurable worker pool, and exponential backoff with jitter",
+          "Build persistent audit store in Azure SQL to record all historical overlap analysis results",
+          "Refactor similarity engine into independently testable module with unit test coverage above 80%"
+        ]
+      },
+      {
+        "phase": "Phase 3 - Scale & Optimise",
+        "duration": "Weeks 11-16",
+        "deliverables": [
+          "Migrate backend to Azure Container Apps with auto-scaling rules based on request queue depth",
+          "Add governance dashboard to SPA surfacing historical audit trail with trend and deduplication metrics",
+          "Implement configurable similarity threshold and weight tuning UI for governance analysts",
+          "Conduct end-to-end performance and penetration testing; remediate all critical and high findings"
+        ]
+      }
+    ],
+    "risks": [
+      {
+        "risk": "Azure Llama-3.3-70B rate limits cause unacceptable latency spikes under concurrent governance analyst usage",
+        "mitigation": "Implement async LLM dispatch queue, increase max_workers, apply exponential backoff with jitter, and evaluate provisioned throughput tier"
+      },
+      {
+        "risk": "Non-conforming uploaded files without Table and Field columns cause silent failures or incorrect similarity results",
+        "mitigation": "Enforce strict server-side schema validation with descriptive error responses and SPA-side pre-upload column mapping UI"
+      },
+      {
+        "risk": "Persisted audit data in Azure SQL contains sensitive enterprise attribute metadata requiring data classification controls",
+        "mitigation": "Apply Azure SQL data masking, row-level security, and encryption at rest; classify audit data under enterprise data governance policy"
+      },
+      {
+        "risk": "TF-IDF cache invalidation logic may serve stale model artifacts after vocabulary drift in new uploaded datasets",
+        "mitigation": "Implement cache key based on dataset vocabulary hash; set TTL policy and provide manual cache flush endpoint for administrators"
+      },
+      {
+        "risk": "Embedding tool in enterprise BI portal via iframe or script inclusion may introduce CSP and CORS policy conflicts",
+        "mitigation": "Define explicit CORS allowlist and Content Security Policy headers; coordinate with BI portal administrator during Phase 1 deployment"
+      }
+    ],
+    "assumptions": [
+      "Enterprise Azure tenant is available with permissions to provision Key Vault, App Service, API Management, and Azure AD app registrations",
+      "Uploaded attribute files will consistently contain at minimum Table and Field columns after Phase 1 validation enforcement",
+      "Azure Llama-3.3-70B-Instruct endpoint remains available under the 2024-05-01-preview API version throughout the project lifecycle",
+      "BI Portal Administrator has authority to embed the SPA and configure CORS and CSP policies within the enterprise portal environment",
+      "Governance analysts and data stewards have or can be provisioned Azure AD identities for OAuth 2.0 authentication enforcement"
+    ],
+    "open_questions": [
+      "What is the maximum expected number of attribute pairs per upload, and what is the acceptable end-to-end response time SLA for governance analysts?",
+      "Should the 0.95 LLM confidence threshold be configurable per-tenant or per-session, or remain a fixed system-wide governance standard?",
+      "Is there a requirement to integrate the audit trail with existing enterprise data catalogue or governance platforms such as Microsoft Purview?",
+      "What data residency and sovereignty requirements apply to attribute data sent to the Azure-hosted Llama-3.3-70B-Instruct inference endpoint?",
+      "Will the tool need to support multi-file uploads for cross-report comparison, or is single-file pairwise analysis within one upload sufficient?"
+    ]
+  }
+}
